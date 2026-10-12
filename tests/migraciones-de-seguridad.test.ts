@@ -51,3 +51,31 @@ describe("cierre de seguridad (2026-10-09/10)", () => {
     expect(s).toContain("REVOKE ALL ON public.altas_autorizadas FROM PUBLIC, anon, authenticated");
   });
 });
+
+describe("flujo de dinero en tres etapas (migración)", () => {
+  const s = mig("20261012000001_flujo_dinero_tres_etapas.sql");
+
+  it("las tablas no se escriben directo: todo pasa por RPC con RLS activa", () => {
+    expect(s).toContain("ALTER TABLE public.flujo_dinero ENABLE ROW LEVEL SECURITY");
+    expect(s).toContain("ALTER TABLE public.flujo_capacidades ENABLE ROW LEVEL SECURITY");
+    expect(s).toContain("REVOKE ALL ON public.flujo_dinero FROM PUBLIC, anon, authenticated");
+    expect(s).toContain("GRANT SELECT ON public.flujo_dinero TO authenticated");
+    expect(s).not.toMatch(/GRANT (INSERT|UPDATE|DELETE)[^;]*flujo_dinero/);
+  });
+
+  it("hace cumplir la separación de funciones en la base", () => {
+    expect(s).toContain("f.recibido_por = auth.uid()");
+    expect(s).toContain("auth.uid() IN (f.recibido_por, f.caja_por)");
+  });
+
+  it("ninguna función del flujo queda abierta a anon", () => {
+    const rpcs = [...s.matchAll(/CREATE OR REPLACE FUNCTION public\.(flujo_[a-z_]+)\(/g)].map(m => m[1])
+      .filter(n => n !== "flujo_dinero_sin_borrar");
+    expect(rpcs.length).toBeGreaterThanOrEqual(10);
+    for (const n of rpcs) expect(s).toMatch(new RegExp(`REVOKE ALL ON FUNCTION public\\.${n}\\([^)]*\\) FROM PUBLIC, anon`));
+  });
+
+  it("un flujo de prueba no escribe en el libro mayor real", () => {
+    expect(s).toContain("IF NOT f.es_prueba THEN");
+  });
+});

@@ -439,7 +439,18 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261009000002_cerrar_puente_heredado_y_funciones_anon', 'funcion|usuario_activo(uuid)'),
   ('20261010000001_arreglo_permiso_trigger_auth', 'funcion|handle_new_user()'),
   ('20261010000002_altas_autorizadas', 'tabla|altas_autorizadas'),
-  ('20261010000002_altas_autorizadas', 'funcion|reject_public_signups()|altas_autorizadas')
+  ('20261010000002_altas_autorizadas', 'funcion|reject_public_signups()|altas_autorizadas'),
+  -- Flujo de dinero en tres etapas (2026-10-12): recepción → caja → aplicación.
+  ('20261012000001_flujo_dinero_tres_etapas', 'tabla|flujo_dinero'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'tabla|flujo_capacidades'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'vista|v_flujo_dinero'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric)'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_confirmar_caja(uuid,uuid,text)'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_aplicar(uuid,text,jsonb,text)'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_rechazar(uuid,text)'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_cuentas()'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_clientes()'),
+  ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_remisiones_para_aplicar(uuid)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
