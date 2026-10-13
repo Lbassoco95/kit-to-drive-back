@@ -79,3 +79,19 @@ describe("flujo de dinero en tres etapas (migración)", () => {
     expect(s).toContain("IF NOT f.es_prueba THEN");
   });
 });
+
+describe("subir documentos de remisiones (comercial)", () => {
+  const s = mig("20261013000001_subir_docs_remisiones_comercial.sql");
+
+  it("amplía la subida sin tocar las políticas existentes", () => {
+    expect(s).toContain('create policy "subir docs remisiones comercial"');
+    expect(s).toContain("for insert");
+    expect(s).toContain("bucket_id = 'remisiones-docs'");
+    expect(s).not.toMatch(/drop policy if exists "(subir docs remisiones admin\/ventas|compras supervisa docs remisiones subir)"/);
+  });
+
+  it("auxiliar y área comercial solo suben a remisiones propias", () => {
+    expect(s).toContain("r.vendedor_id = auth.uid()");
+    expect(s).toContain("(storage.foldername(name))[1]");
+  });
+});
