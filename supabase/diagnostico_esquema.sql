@@ -451,7 +451,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_cuentas()'),
   ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_clientes()'),
   ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_remisiones_para_aplicar(uuid)'),
-  ('20261013000001_subir_docs_remisiones_comercial', 'politica|storage.objects.subir docs remisiones comercial')
+  ('20261013000001_subir_docs_remisiones_comercial', 'politica|storage.objects.subir docs remisiones comercial'),
+  -- Catálogo: compatibilidades, baja de artículo y borrar compra (2026-10-14).
+  ('20261014000001_catalogo_compat_baja_articulo_y_borrar_compra', 'funcion|definir_compatibilidades_articulo(uuid,uuid[])'),
+  ('20261014000001_catalogo_compat_baja_articulo_y_borrar_compra', 'funcion|eliminar_articulo_refaccion(uuid)'),
+  ('20261014000001_catalogo_compat_baja_articulo_y_borrar_compra', 'funcion|eliminar_compra_refacciones(uuid,text)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

@@ -95,3 +95,20 @@ describe("subir documentos de remisiones (comercial)", () => {
     expect(s).toContain("(storage.foldername(name))[1]");
   });
 });
+
+describe("catálogo: compatibilidades, baja de artículo y borrar compra (migración)", () => {
+  const sql = mig("20261014000001_catalogo_compat_baja_articulo_y_borrar_compra.sql");
+
+  it("las tres funciones piden Compras o administrador y no están abiertas a anon", () => {
+    for (const fn of ["definir_compatibilidades_articulo(uuid, uuid[])", "eliminar_articulo_refaccion(uuid)", "eliminar_compra_refacciones(uuid, text)"]) {
+      expect(sql).toContain(`REVOKE ALL ON FUNCTION public.${fn} FROM PUBLIC, anon`);
+    }
+    expect(sql.match(/puede_compras_inventario\(auth\.uid\(\)\)/g)?.length).toBe(3);
+  });
+
+  it("un artículo con historial no se borra y una compra confirmada se revierte con salidas (el kárdex es inmutable)", () => {
+    expect(sql).toContain("almacen_refacciones_movimientos WHERE producto_id = _id");
+    expect(sql).toContain("'salida', 'cancelacion'");
+    expect(sql).toContain("recepciones_refacciones WHERE compra_id = _id");
+  });
+});
