@@ -46,7 +46,7 @@ serve(async (req) => {
     }
 
     // Obtener datos del request
-    const { user_id, nombre_completo, email, codigo_vendedor, activo, area, nivel } = await req.json();
+    const { user_id, nombre_completo, email, codigo_vendedor, activo, area, nivel, es_vendedor, es_administrativo } = await req.json();
     
     if (!user_id || typeof user_id !== "string") {
       return respond({ error: "user_id es obligatorio" }, 400);
@@ -88,6 +88,14 @@ serve(async (req) => {
         email: email?.trim() || null,
         codigo_vendedor: codigo_vendedor?.trim() || null,
         activo: activo ?? true,
+        // Solo se tocan si llegan: un cliente viejo no debe borrar la función.
+        // Fuera de Comercial no hay función comercial que guardar.
+        ...(area && area !== "comercial"
+          ? { es_vendedor: false, es_administrativo: false }
+          : {
+              ...(typeof es_vendedor === "boolean" ? { es_vendedor } : {}),
+              ...(typeof es_administrativo === "boolean" ? { es_administrativo } : {}),
+            }),
       })
       .eq("id", user_id);
 

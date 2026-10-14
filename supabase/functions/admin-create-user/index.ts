@@ -61,6 +61,7 @@ serve(async (req) => {
     // La contraseña ya no la escribe nadie: se genera aquí y viaja solo por correo.
     // Si un cliente viejo manda `password` o `force_password_change`, se ignoran.
     const { email, nombre_completo, codigo_vendedor } = body;
+    const flag = (v: unknown) => (typeof v === "boolean" ? v : undefined);
 
     if (!email || !nombre_completo) {
       return new Response(JSON.stringify({ error: "email y nombre_completo son obligatorios" }), {
@@ -203,6 +204,10 @@ serve(async (req) => {
       email: email.toLowerCase().trim(),
       nombre_completo: nombre_completo.trim(),
       codigo_vendedor: codigo_vendedor?.trim() || null,
+      // Función comercial. Un cliente viejo que no manda las banderas deja a
+      // quien entra por Comercial como vendedor, como siempre.
+      es_vendedor: area === "comercial" ? (flag(body.es_vendedor) ?? !flag(body.es_administrativo)) : false,
+      es_administrativo: area === "comercial" ? (flag(body.es_administrativo) ?? false) : false,
       activo: true,
       debe_cambiar_password: mustChangePassword,
     });
