@@ -32,9 +32,7 @@ update public.profiles p
 update public.profiles
    set es_administrativo = true,
        es_vendedor = false
- where lower(email) like 'atenea@%'
-    or lower(email) like 'anakaren@%'
-    or lower(email) like 'ana.karen@%';
+ where lower(email) in ('athenea.portilla@dazon.mx', 'ana.rivas@dazon.mx');
 
 create index if not exists idx_profiles_es_vendedor
   on public.profiles (nombre_completo) where es_vendedor;
