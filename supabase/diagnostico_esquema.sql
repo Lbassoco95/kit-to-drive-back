@@ -458,7 +458,10 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261014000001_catalogo_compat_baja_articulo_y_borrar_compra', 'funcion|eliminar_compra_refacciones(uuid,text)'),
   -- Función comercial (vendedor / administrativo) en profiles (2026-10-14).
   ('20261014000002_profiles_funcion_comercial', 'columna|profiles.es_vendedor'),
-  ('20261014000002_profiles_funcion_comercial', 'columna|profiles.es_administrativo')
+  ('20261014000002_profiles_funcion_comercial', 'columna|profiles.es_administrativo'),
+  -- Vendedor obligatorio en remisiones (2026-10-14).
+  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|es_vendedor_activo(uuid)'),
+  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
