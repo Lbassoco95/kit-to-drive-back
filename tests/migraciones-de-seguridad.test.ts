@@ -113,27 +113,32 @@ describe("catálogo: compatibilidades, baja de artículo y borrar compra (migrac
   });
 });
 
-describe("super admin: pedidos y finanzas en solo lectura (migración)", () => {
-  const sql = mig("20261016000001_super_admin_solo_lectura.sql");
+describe("super admin con aprobaciones (migración)", () => {
+  const sql = mig("20261016000001_super_admin_aprobaciones.sql");
 
-  it("la lista de Super admin no se lee ni se escribe desde la app", () => {
-    expect(sql).toContain("ALTER TABLE public.usuarios_solo_lectura_pedidos_finanzas ENABLE ROW LEVEL SECURITY");
-    expect(sql).toContain("REVOKE ALL ON public.usuarios_solo_lectura_pedidos_finanzas FROM PUBLIC, anon, authenticated");
-    expect(sql).not.toMatch(/GRANT [^;]*ON public\.usuarios_solo_lectura_pedidos_finanzas/);
+  it("quién es Super admin no se lee ni se escribe desde la app", () => {
+    expect(sql).toContain("REVOKE ALL ON public.super_admins FROM PUBLIC, anon, authenticated");
+    expect(sql).not.toMatch(/GRANT [^;]*ON public\.super_admins /);
+    expect(sql).toContain("REVOKE ALL ON public.solicitudes_aprobacion FROM PUBLIC, anon, authenticated");
+    expect(sql).not.toMatch(/GRANT (INSERT|UPDATE|DELETE)[^;]*(solicitudes_aprobacion|bitacora_super_admin)/);
   });
 
-  it("la consulta sólo responde por el usuario de la sesión y no está abierta a anon", () => {
-    expect(sql).toContain("WHERE user_id = auth.uid()");
-    expect(sql).toContain("REVOKE ALL ON FUNCTION public.es_solo_lectura_pedidos_finanzas() FROM PUBLIC, anon");
-    expect(sql).toContain("REVOKE ALL ON FUNCTION public.bloquear_escritura_solo_lectura() FROM PUBLIC, anon");
+  it("borrar, cancelar y revertir del Super admin se frenan y piden aprobación", () => {
+    expect(sql).toContain("HINT = 'aprobacion_requerida'");
+    expect(sql).toContain("^(eliminar|borrar|cancelar|revertir)_");
+    expect(sql).toContain("v_nuevo->>'estatus' = 'CANCELADA'");
+    expect(sql).toContain("AFTER INSERT OR UPDATE OR DELETE");
   });
 
-  it("bloquea altas, cambios y borrados en pedidos y finanzas, también vía RPC", () => {
-    expect(sql).toContain("BEFORE INSERT OR UPDATE OR DELETE");
-    expect(sql).toContain("pg_trigger_depth() = 1");
-    for (const t of ["remisiones", "remision_items", "remisiones_refacciones", "remision_refaccion_items",
-      "movimientos_financieros", "flujo_dinero", "cobranza_pagos", "cobranza_aplicaciones", "cxc_abonos"]) {
-      expect(sql).toContain(`'${t}'`);
+  it("aprueba el admin del área, nunca el mismo Super admin", () => {
+    expect(sql).toContain("public.es_admin_de_area(s.area, auth.uid())");
+    expect(sql).toContain("OR s.solicitado_por = auth.uid()");
+  });
+
+  it("ninguna función nueva queda abierta a anon", () => {
+    for (const f of ["es_super_admin(uuid)", "asignar_super_admin(uuid, boolean)", "super_admins_ids()",
+      "solicitar_aprobacion(text, text, jsonb, text, text)", "resolver_solicitud_aprobacion(uuid, boolean, text)"]) {
+      expect(sql).toContain(`REVOKE ALL ON FUNCTION public.${f} FROM PUBLIC, anon`);
     }
   });
 });

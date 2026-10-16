@@ -462,16 +462,20 @@ WITH esperado(script, objeto) AS (VALUES
   -- Vendedor obligatorio en remisiones (2026-10-14).
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|es_vendedor_activo(uuid)'),
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)'),
-  -- Super admin: pedidos de clientes y finanzas en solo lectura (2026-10-16).
-  ('20261016000001_super_admin_solo_lectura', 'tabla|usuarios_solo_lectura_pedidos_finanzas'),
-  ('20261016000001_super_admin_solo_lectura', 'funcion|es_solo_lectura_pedidos_finanzas()'),
-  ('20261016000001_super_admin_solo_lectura', 'funcion|bloquear_escritura_solo_lectura()|pg_trigger_depth() = 1'),
-  ('20261016000001_super_admin_solo_lectura', 'sin_privilegio|es_solo_lectura_pedidos_finanzas()|anon'),
-  ('20261016000001_super_admin_solo_lectura', 'trigger|remisiones.trg_solo_lectura_pedidos_finanzas'),
-  ('20261016000001_super_admin_solo_lectura', 'trigger|remisiones_refacciones.trg_solo_lectura_pedidos_finanzas'),
-  ('20261016000001_super_admin_solo_lectura', 'trigger|movimientos_financieros.trg_solo_lectura_pedidos_finanzas'),
-  ('20261016000001_super_admin_solo_lectura', 'trigger|flujo_dinero.trg_solo_lectura_pedidos_finanzas'),
-  ('20261016000001_super_admin_solo_lectura', 'trigger|cobranza_pagos.trg_solo_lectura_pedidos_finanzas')
+  -- Super admin con aprobaciones y bitácora (2026-10-16).
+  ('20261016000001_super_admin_aprobaciones', 'tabla|super_admins'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|bitacora_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|solicitudes_aprobacion'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|es_super_admin(uuid)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|vigilar_super_admin()|aprobacion_requerida'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|asignar_super_admin(uuid,boolean)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|super_admins_ids()'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|solicitar_aprobacion(text,text,jsonb,text,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|resolver_solicitud_aprobacion(uuid,boolean,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'sin_privilegio|solicitar_aprobacion(text,text,jsonb,text,text)|anon'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|remisiones.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|movimientos_financieros.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
