@@ -7,6 +7,9 @@ verify_jwt = true
 [functions.admin-create-user]
 verify_jwt = true
 
+[functions.firmas]
+verify_jwt = true
+
 [functions.complete-password-change]
 verify_jwt = true
 
