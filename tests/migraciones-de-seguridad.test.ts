@@ -142,3 +142,14 @@ describe("super admin con aprobaciones (migración)", () => {
     }
   });
 });
+
+describe("super admin entra a refacciones (migración)", () => {
+  const sql = mig("20261016000002_super_admin_refacciones.sql");
+
+  it("conserva la lista de acceso y suma solo al Super admin", () => {
+    expect(sql).toContain("FROM public.almacen_refacciones_acceso a");
+    expect(sql).toContain("OR public.es_super_admin(_user_id)");
+    expect(sql).toContain("REVOKE ALL ON FUNCTION public.puede_ver_almacen_refacciones(UUID) FROM PUBLIC");
+    expect(sql).not.toMatch(/GRANT [^;]*puede_ver_almacen_refacciones[^;]* TO anon/);
+  });
+});
