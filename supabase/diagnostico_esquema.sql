@@ -472,6 +472,9 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261016000001_firmas_electronicas', 'politica|storage.objects.firmas_storage_select'),
   ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_puede_ver_solicitud(uuid)|anon'),
   ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_es_firmante(uuid,uuid)|authenticated'),
+  -- Firmas: documentos subidos y recuadros de firma (2026-10-16).
+  ('20261016000002_firmas_documentos_y_recuadros', 'columna|firmas_firmantes.recuadros'),
+  ('20261016000002_firmas_documentos_y_recuadros', 'restriccion|firmas_solicitudes.firmas_solicitudes_entidad_tipo_check|documento'),
   -- Super admin con aprobaciones y bitácora (2026-10-16).
   ('20261016000001_super_admin_aprobaciones', 'tabla|super_admins'),
   ('20261016000001_super_admin_aprobaciones', 'tabla|bitacora_super_admin'),

@@ -9,9 +9,15 @@
  *   crear | cancelar | recordar            → quien creó la solicitud
  *   firmar | rechazar                      → un firmante de la solicitud
  *
- * Quién puede mandar a firmar: quien puede LEER la remisión (se comprueba con
- * el JWT de la persona, así RLS decide). La función escribe con service_role;
- * las tablas `firmas_*` son de solo lectura para el front.
+ * `crear` recibe el PDF de dos maneras:
+ *   · remision_id    → el PDF de la remisión. Solo quien puede LEER la remisión
+ *                      (se comprueba con el JWT de la persona, así RLS decide).
+ *   · archivo_base64 → un PDF subido desde la pantalla Firmas (el front convierte
+ *                      Word a PDF antes de mandarlo).
+ * Cada firmante puede traer `recuadros` (página y coordenadas 0..1): ahí se estampa
+ * su firma. Sin recuadros, solo va en la hoja de firmas del final.
+ * La función escribe con service_role; las tablas `firmas_*` son de solo lectura
+ * para el front.
  *
  * Secretos opcionales: RESEND_API_KEY + RESEND_FROM_EMAIL (aviso por correo) y
  * KIT_TO_DRIVE_APP_URL. Sin ellos el aviso va solo a la campana de la app.
@@ -42,6 +48,7 @@ const MAX_PDF_BYTES = 15 * 1024 * 1024;
 const MAX_FIRMA_BYTES = 600 * 1024;
 const MAX_ADJUNTO_CORREO = 3 * 1024 * 1024;
 const MAX_FIRMANTES = 10;
+const MAX_RECUADROS_POR_FIRMANTE = 10;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 class HttpError extends Error {
@@ -51,10 +58,12 @@ class HttpError extends Error {
 }
 
 type Svc = SupabaseClient;
+/** Recuadro de firma: coordenadas normalizadas 0..1, origen arriba-izquierda, page desde 1. */
+type Recuadro = { page: number; x: number; y: number; w: number; h: number };
 type Firmante = {
   id: string; solicitud_id: string; orden: number; usuario_id: string; nombre: string; email: string | null;
   estatus: string; notificado_at: string | null; firmado_at: string | null; firmado_ip: string | null;
-  ruta_firma: string | null;
+  ruta_firma: string | null; recuadros: Recuadro[] | null;
 };
 type Solicitud = {
   id: string; creado_por: string; titulo: string; mensaje: string | null; entidad_tipo: string; entidad_id: string | null;
@@ -179,6 +188,23 @@ async function notificarTurno(svc: Svc, s: Solicitud, todos: Firmante[], creador
   }
 }
 
+function leerRecuadros(raw: unknown, paginas: number): Recuadro[] {
+  if (raw == null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_RECUADROS_POR_FIRMANTE) {
+    throw new HttpError(400, `Máximo ${MAX_RECUADROS_POR_FIRMANTE} recuadros de firma por firmante`);
+  }
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : NaN);
+  return raw.map((r) => {
+    const o = (r ?? {}) as Record<string, unknown>;
+    const page = num(o.page), x = num(o.x), y = num(o.y), w = num(o.w), h = num(o.h);
+    if (!Number.isInteger(page) || page < 1 || page > paginas) throw new HttpError(400, "Recuadro de firma con página inválida");
+    if ([x, y, w, h].some((n) => Number.isNaN(n)) || w < 0.03 || h < 0.02 || x < 0 || y < 0 || x + w > 1.0001 || y + h > 1.0001) {
+      throw new HttpError(400, "Recuadro de firma fuera de la página");
+    }
+    return { page, x, y, w, h };
+  });
+}
+
 // ---------- PDF: hoja de firmas ----------
 // Helvetica estándar solo soporta WinAnsi.
 const winAnsi = (s: string) => s.replace(/[^ -~ -ÿ]/g, "?");
@@ -200,9 +226,26 @@ function ajustar(texto: string, font: PDFFont, size: number, maxW: number): stri
 async function armarPdfFirmado(
   original: Uint8Array,
   meta: { titulo: string; sha: string; folio: string },
-  firmas: Array<{ nombre: string; email: string | null; firmado_at: string; ip: string | null; png: Uint8Array }>,
+  firmas: Array<{ nombre: string; email: string | null; firmado_at: string; ip: string | null; png: Uint8Array; recuadros: Recuadro[] }>,
 ): Promise<Uint8Array> {
   const pdf = await PDFDocument.load(original, { ignoreEncryption: true });
+  // Estampa cada firma en sus recuadros (solo páginas sin rotación; la hoja de firmas las cubre todas).
+  const paginasOriginales = pdf.getPages();
+  for (const f of firmas) {
+    if (!f.recuadros.length) continue;
+    const img = await pdf.embedPng(f.png);
+    for (const r of f.recuadros) {
+      const pg = paginasOriginales[r.page - 1];
+      if (!pg || pg.getRotation().angle % 360 !== 0) continue;
+      const { width: PW, height: PH } = pg.getSize();
+      const bw = r.w * PW, bh = r.h * PH, bx = r.x * PW, by = PH - r.y * PH - bh;
+      const k = Math.min(bw / img.width, bh / img.height);
+      pg.drawImage(img, {
+        x: bx + (bw - img.width * k) / 2, y: by + (bh - img.height * k) / 2,
+        width: img.width * k, height: img.height * k,
+      });
+    }
+  }
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const W = 595, H = 842, M = 48;
@@ -272,7 +315,7 @@ async function cerrarSiCompleta(svc: Svc, s: Solicitud, creador: { id: string; n
   for (const f of todos) {
     firmas.push({
       nombre: f.nombre, email: f.email, firmado_at: f.firmado_at!, ip: f.firmado_ip,
-      png: await descargar(svc, BUCKET, f.ruta_firma!),
+      png: await descargar(svc, BUCKET, f.ruta_firma!), recuadros: f.recuadros ?? [],
     });
   }
   const salida = await armarPdfFirmado(original, { titulo: s.titulo, sha: s.sha256_original, folio: s.id }, firmas);
@@ -340,22 +383,16 @@ serve(async (req) => {
       return { s: s as Solicitud, todos: (fs ?? []) as Firmante[] };
     };
 
-    // ===== Crear (desde el PDF de una remisión) =====
+    // ===== Crear (PDF de una remisión o un PDF subido) =====
     if (accion === "crear") {
-      const remisionId = String(body.remision_id ?? "");
-      if (!UUID.test(remisionId)) throw new HttpError(400, "Remisión inválida");
-      // RLS con el JWT de la persona: si no puede leer la remisión, no puede mandarla a firma.
-      const { data: rem } = await userClient.from("remisiones").select("id, folio_remision, documento_url").eq("id", remisionId).maybeSingle();
-      if (!rem) throw new HttpError(404, "Remisión no encontrada o sin acceso");
-      if (!rem.documento_url) throw new HttpError(400, "La remisión no tiene PDF. Sube el PDF primero.");
-
-      const { data: abierta } = await svc.from("firmas_solicitudes").select("id")
-        .eq("entidad_tipo", "remision").eq("entidad_id", remisionId).eq("estatus", "pendiente")
-        .gt("vence_at", new Date().toISOString()).limit(1);
-      if (abierta?.length) throw new HttpError(409, "Esta remisión ya tiene una solicitud de firma pendiente");
-
-      const ids: string[] = Array.isArray(body.firmantes) ? body.firmantes.map(String) : [];
-      if (!ids.length || ids.length > MAX_FIRMANTES) throw new HttpError(400, `Entre 1 y ${MAX_FIRMANTES} firmantes`);
+      // Quién firma: ids sueltos o {usuario_id, recuadros}.
+      const crudos: unknown[] = Array.isArray(body.firmantes) ? body.firmantes : [];
+      if (!crudos.length || crudos.length > MAX_FIRMANTES) throw new HttpError(400, `Entre 1 y ${MAX_FIRMANTES} firmantes`);
+      const pedidos = crudos.map((c) => {
+        const o = (c && typeof c === "object" ? c : { usuario_id: c }) as { usuario_id?: unknown; recuadros?: unknown };
+        return { id: String(o.usuario_id ?? ""), recuadros: o.recuadros };
+      });
+      const ids = pedidos.map((p) => p.id);
       if (new Set(ids).size !== ids.length || ids.some((i) => !UUID.test(i))) throw new HttpError(400, "Firmantes inválidos o repetidos");
       const { data: perfiles } = await svc.from("profiles").select("id, nombre_completo, email, activo").in("id", ids);
       const porId = new Map((perfiles ?? []).map((p) => [p.id as string, p]));
@@ -363,16 +400,53 @@ serve(async (req) => {
         throw new HttpError(400, "Solo se puede pedir firma a usuarios activos del equipo");
       }
 
-      const pdf = await descargar(svc, BUCKET_REMISIONES, String(rem.documento_url)).catch(() => {
-        throw new HttpError(400, "No se pudo leer el PDF de la remisión");
-      });
+      // Origen del PDF.
+      let pdf: Uint8Array;
+      let entidadTipo: "remision" | "documento";
+      let entidadId: string | null = null;
+      let tituloBase: string;
+      let nombreArchivo: string;
+      if (body.remision_id) {
+        const remisionId = String(body.remision_id);
+        if (!UUID.test(remisionId)) throw new HttpError(400, "Remisión inválida");
+        // RLS con el JWT de la persona: si no puede leer la remisión, no puede mandarla a firma.
+        const { data: rem } = await userClient.from("remisiones").select("id, folio_remision, documento_url").eq("id", remisionId).maybeSingle();
+        if (!rem) throw new HttpError(404, "Remisión no encontrada o sin acceso");
+        if (!rem.documento_url) throw new HttpError(400, "La remisión no tiene PDF. Sube el PDF primero.");
+        const { data: abierta } = await svc.from("firmas_solicitudes").select("id")
+          .eq("entidad_tipo", "remision").eq("entidad_id", remisionId).eq("estatus", "pendiente")
+          .gt("vence_at", new Date().toISOString()).limit(1);
+        if (abierta?.length) throw new HttpError(409, "Esta remisión ya tiene una solicitud de firma pendiente");
+        pdf = await descargar(svc, BUCKET_REMISIONES, String(rem.documento_url)).catch(() => {
+          throw new HttpError(400, "No se pudo leer el PDF de la remisión");
+        });
+        entidadTipo = "remision";
+        entidadId = remisionId;
+        tituloBase = `Remisión ${rem.folio_remision}`;
+        nombreArchivo = `Remision-${String(rem.folio_remision).replace(/[^A-Za-z0-9_-]+/g, "_")}.pdf`;
+      } else if (body.archivo_base64) {
+        try {
+          pdf = b64ToBytes(String(body.archivo_base64));
+        } catch {
+          throw new HttpError(400, "Archivo inválido");
+        }
+        entidadTipo = "documento";
+        nombreArchivo = String(body.nombre_archivo ?? "documento.pdf").replace(/[\\/\r\n]/g, "_").slice(0, 200) || "documento.pdf";
+        if (!/\.pdf$/i.test(nombreArchivo)) nombreArchivo += ".pdf";
+        tituloBase = nombreArchivo.replace(/\.pdf$/i, "");
+      } else {
+        throw new HttpError(400, "Falta el documento (remision_id o archivo_base64)");
+      }
+
       if (pdf.length > MAX_PDF_BYTES) throw new HttpError(400, "El PDF excede 15 MB");
       if (!esPdf(pdf)) throw new HttpError(400, "Solo se pueden firmar archivos PDF");
+      let paginas = 1;
       try {
-        await PDFDocument.load(pdf, { ignoreEncryption: true });
+        paginas = (await PDFDocument.load(pdf, { ignoreEncryption: true })).getPageCount();
       } catch {
         throw new HttpError(400, "El PDF está dañado o protegido");
       }
+      const recuadros = pedidos.map((p) => leerRecuadros(p.recuadros, paginas));
 
       const id = crypto.randomUUID();
       const rutaOriginal = `${id}/original.pdf`;
@@ -380,11 +454,10 @@ serve(async (req) => {
       if (up.error) throw new Error(up.error.message);
 
       const dias = Math.min(Math.max(Number(body.dias) || 30, 1), 90);
-      const titulo = String(body.titulo ?? "").trim().slice(0, 200) || `Remisión ${rem.folio_remision}`;
+      const titulo = String(body.titulo ?? "").trim().slice(0, 200) || tituloBase;
       const { data: fila, error: eS } = await svc.from("firmas_solicitudes").insert({
         id, creado_por: yo.id, titulo, mensaje: body.mensaje ? String(body.mensaje).slice(0, 2000) : null,
-        entidad_tipo: "remision", entidad_id: remisionId,
-        nombre_archivo: `Remision-${String(rem.folio_remision).replace(/[^A-Za-z0-9_-]+/g, "_")}.pdf`,
+        entidad_tipo: entidadTipo, entidad_id: entidadId, nombre_archivo: nombreArchivo,
         secuencial: !!body.secuencial, ruta_original: rutaOriginal, sha256_original: await sha256Hex(pdf),
         vence_at: new Date(Date.now() + dias * 86400000).toISOString(),
       }).select("*").single();
@@ -397,6 +470,7 @@ serve(async (req) => {
           solicitud_id: id, orden: body.secuencial ? i : 0, usuario_id: uid,
           nombre: (porId.get(uid)!.nombre_completo as string) || (porId.get(uid)!.email as string) || "Usuario",
           email: (porId.get(uid)!.email as string) ?? null,
+          recuadros: recuadros[i],
         })),
       ).select("*");
       if (eF) {
