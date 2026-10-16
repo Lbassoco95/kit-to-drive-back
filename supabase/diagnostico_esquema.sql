@@ -461,7 +461,17 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261014000002_profiles_funcion_comercial', 'columna|profiles.es_administrativo'),
   -- Vendedor obligatorio en remisiones (2026-10-14).
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|es_vendedor_activo(uuid)'),
-  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)')
+  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)'),
+  -- Super admin: pedidos de clientes y finanzas en solo lectura (2026-10-16).
+  ('20261016000001_super_admin_solo_lectura', 'tabla|usuarios_solo_lectura_pedidos_finanzas'),
+  ('20261016000001_super_admin_solo_lectura', 'funcion|es_solo_lectura_pedidos_finanzas()'),
+  ('20261016000001_super_admin_solo_lectura', 'funcion|bloquear_escritura_solo_lectura()|pg_trigger_depth() = 1'),
+  ('20261016000001_super_admin_solo_lectura', 'sin_privilegio|es_solo_lectura_pedidos_finanzas()|anon'),
+  ('20261016000001_super_admin_solo_lectura', 'trigger|remisiones.trg_solo_lectura_pedidos_finanzas'),
+  ('20261016000001_super_admin_solo_lectura', 'trigger|remisiones_refacciones.trg_solo_lectura_pedidos_finanzas'),
+  ('20261016000001_super_admin_solo_lectura', 'trigger|movimientos_financieros.trg_solo_lectura_pedidos_finanzas'),
+  ('20261016000001_super_admin_solo_lectura', 'trigger|flujo_dinero.trg_solo_lectura_pedidos_finanzas'),
+  ('20261016000001_super_admin_solo_lectura', 'trigger|cobranza_pagos.trg_solo_lectura_pedidos_finanzas')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
