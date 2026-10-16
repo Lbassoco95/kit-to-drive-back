@@ -461,7 +461,21 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261014000002_profiles_funcion_comercial', 'columna|profiles.es_administrativo'),
   -- Vendedor obligatorio en remisiones (2026-10-14).
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|es_vendedor_activo(uuid)'),
-  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)')
+  ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)'),
+  -- Super admin con aprobaciones y bitácora (2026-10-16).
+  ('20261016000001_super_admin_aprobaciones', 'tabla|super_admins'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|bitacora_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|solicitudes_aprobacion'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|es_super_admin(uuid)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|vigilar_super_admin()|aprobacion_requerida'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|asignar_super_admin(uuid,boolean)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|super_admins_ids()'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|solicitar_aprobacion(text,text,jsonb,text,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|resolver_solicitud_aprobacion(uuid,boolean,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'sin_privilegio|solicitar_aprobacion(text,text,jsonb,text,text)|anon'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|remisiones.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|movimientos_financieros.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
