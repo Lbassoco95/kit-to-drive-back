@@ -48,3 +48,35 @@ describe("firmas electrónicas (Edge Function)", () => {
     expect(fn).toContain("Solo se puede pedir firma a usuarios activos del equipo");
   });
 });
+
+describe("firmas: documentos subidos y recuadros (migración 2)", () => {
+  const sql = leer("supabase/migrations/20261016000002_firmas_documentos_y_recuadros.sql");
+
+  it("acepta documentos sueltos y guarda el lugar de la firma de cada quien", () => {
+    expect(sql).toContain("CHECK (entidad_tipo IN ('remision', 'documento'))");
+    expect(sql).toContain("ADD COLUMN IF NOT EXISTS recuadros JSONB NOT NULL DEFAULT '[]'::jsonb");
+  });
+
+  it("no abre escritura al front", () => {
+    expect(sql).not.toMatch(/GRANT|CREATE POLICY/i);
+  });
+});
+
+describe("firmas: la función valida el documento y los recuadros", () => {
+  const fn = leer("supabase/functions/firmas/index.ts");
+
+  it("acepta remision_id o archivo_base64 y exige PDF real", () => {
+    expect(fn).toContain("body.remision_id");
+    expect(fn).toContain("body.archivo_base64");
+    expect(fn).toContain('"Solo se pueden firmar archivos PDF"');
+  });
+
+  it("valida cada recuadro contra el número de páginas", () => {
+    expect(fn).toContain("leerRecuadros(p.recuadros, paginas)");
+    expect(fn).toContain("Recuadro de firma fuera de la página");
+  });
+
+  it("estampa la firma en su recuadro además de la hoja de firmas", () => {
+    expect(fn).toContain("pg.drawImage(img");
+  });
+});
