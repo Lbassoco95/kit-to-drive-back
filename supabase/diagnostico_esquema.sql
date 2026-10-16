@@ -471,7 +471,21 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261016000001_firmas_electronicas', 'politica|firmas_firmantes.firmas_firmantes_select'),
   ('20261016000001_firmas_electronicas', 'politica|storage.objects.firmas_storage_select'),
   ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_puede_ver_solicitud(uuid)|anon'),
-  ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_es_firmante(uuid,uuid)|authenticated')
+  ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_es_firmante(uuid,uuid)|authenticated'),
+  -- Super admin con aprobaciones y bitácora (2026-10-16).
+  ('20261016000001_super_admin_aprobaciones', 'tabla|super_admins'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|bitacora_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'tabla|solicitudes_aprobacion'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|es_super_admin(uuid)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|vigilar_super_admin()|aprobacion_requerida'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|asignar_super_admin(uuid,boolean)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|super_admins_ids()'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|solicitar_aprobacion(text,text,jsonb,text,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'funcion|resolver_solicitud_aprobacion(uuid,boolean,text)'),
+  ('20261016000001_super_admin_aprobaciones', 'sin_privilegio|solicitar_aprobacion(text,text,jsonb,text,text)|anon'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|remisiones.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|movimientos_financieros.trg_vigilar_super_admin'),
+  ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
