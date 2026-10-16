@@ -462,6 +462,16 @@ WITH esperado(script, objeto) AS (VALUES
   -- Vendedor obligatorio en remisiones (2026-10-14).
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|es_vendedor_activo(uuid)'),
   ('20261014000003_vendedor_obligatorio_remisiones', 'funcion|asignar_vendedor_remision(text,uuid,uuid)'),
+  -- Firmas electrónicas simples internas (2026-10-16).
+  ('20261016000001_firmas_electronicas', 'tabla|firmas_solicitudes'),
+  ('20261016000001_firmas_electronicas', 'tabla|firmas_firmantes'),
+  ('20261016000001_firmas_electronicas', 'funcion|firmas_puede_ver_solicitud(uuid)'),
+  ('20261016000001_firmas_electronicas', 'funcion|firmas_es_firmante(uuid,uuid)'),
+  ('20261016000001_firmas_electronicas', 'politica|firmas_solicitudes.firmas_solicitudes_select'),
+  ('20261016000001_firmas_electronicas', 'politica|firmas_firmantes.firmas_firmantes_select'),
+  ('20261016000001_firmas_electronicas', 'politica|storage.objects.firmas_storage_select'),
+  ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_puede_ver_solicitud(uuid)|anon'),
+  ('20261016000001_firmas_electronicas', 'sin_privilegio|firmas_es_firmante(uuid,uuid)|authenticated'),
   -- Super admin con aprobaciones y bitácora (2026-10-16).
   ('20261016000001_super_admin_aprobaciones', 'tabla|super_admins'),
   ('20261016000001_super_admin_aprobaciones', 'tabla|bitacora_super_admin'),

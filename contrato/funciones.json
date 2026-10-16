@@ -112,6 +112,8 @@
     "exigir_dato_prueba",
     "exigir_lectura_prueba",
     "exigir_serial_para_cerrar",
+    "firmas_es_firmante",
+    "firmas_puede_ver_solicitud",
     "flujo_aplicar",
     "flujo_asignar_capacidad",
     "flujo_cap",
