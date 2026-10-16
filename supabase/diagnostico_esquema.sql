@@ -485,7 +485,9 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261016000001_super_admin_aprobaciones', 'sin_privilegio|solicitar_aprobacion(text,text,jsonb,text,text)|anon'),
   ('20261016000001_super_admin_aprobaciones', 'trigger|remisiones.trg_vigilar_super_admin'),
   ('20261016000001_super_admin_aprobaciones', 'trigger|movimientos_financieros.trg_vigilar_super_admin'),
-  ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin')
+  ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin'),
+  -- Super admin entra a Almacén de refacciones (2026-10-16).
+  ('20261016000002_super_admin_refacciones', 'funcion|puede_ver_almacen_refacciones(uuid)|es_super_admin')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
