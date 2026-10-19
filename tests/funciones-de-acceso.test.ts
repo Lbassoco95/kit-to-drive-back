@@ -43,6 +43,17 @@ describe("contraseña temporal: siempre por correo (Edge Functions)", () => {
   });
 });
 
+describe("el alta no pisa una cuenta existente (Edge Function)", () => {
+  it("si el correo ya tiene tipo de usuario responde 409 antes de mandar correo o cambiar algo", () => {
+    expect(crear).toContain('code: "USUARIO_EXISTE"');
+    expect(crear).toContain("status: 409");
+    const guardia = crear.indexOf('code: "USUARIO_EXISTE"');
+    expect(guardia).toBeLessThan(crear.indexOf("enviarAcceso("));
+    expect(guardia).toBeLessThan(crear.indexOf("updateUserById"));
+    expect(guardia).toBeLessThan(crear.indexOf('from("user_roles").upsert'));
+  });
+});
+
 describe("cambio de contraseña fuerza re-login (Edge Function)", () => {
   it("la Edge Function avisa reauth_required", () => {
     expect(cambio).toContain("reauth_required: true");

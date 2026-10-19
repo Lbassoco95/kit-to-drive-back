@@ -145,6 +145,24 @@ serve(async (req) => {
       if (users.length < 200) break;
     }
 
+    // Un correo que ya tiene tipo de usuario es una cuenta viva: el alta no la
+    // toca (antes le reseteaba la contraseña y le pisaba área/nivel, y un
+    // Super admin que se dio de alta como vendedor se quedó en Comercial).
+    // Se edita en Usuarios. Sin fila en user_roles (baja previa) sí se reutiliza.
+    if (existente) {
+      const { data: rolExistente } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id")
+        .eq("user_id", existente.id)
+        .maybeSingle();
+      if (rolExistente) {
+        return new Response(JSON.stringify({
+          error: "Ese correo ya tiene usuario. Para cambiar su área o tipo de usuario, edítalo en Usuarios.",
+          code: "USUARIO_EXISTE",
+        }), { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
+      }
+    }
+
     // El correo va PRIMERO: si no sale, no se crea ni se cambia nada.
     const password = generarPassword();
     const envio = await enviarAcceso(String(email).toLowerCase().trim(), String(nombre_completo).trim(), password, !!existente);
