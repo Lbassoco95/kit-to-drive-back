@@ -145,6 +145,7 @@
     "intercambiar_color_chasis",
     "kardex_refaccion",
     "liberar_refaccion_remision",
+    "limpiar_entrega_programada_refaccion",
     "log_borrado_movimiento",
     "log_motocarros_changes",
     "log_movimiento",

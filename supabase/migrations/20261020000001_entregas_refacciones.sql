@@ -51,6 +51,28 @@ REVOKE ALL ON FUNCTION public.programar_entrega_remision_refaccion(UUID, DATE) F
 REVOKE ALL ON FUNCTION public.programar_entrega_remision_refaccion(UUID, DATE) FROM anon;
 GRANT EXECUTE ON FUNCTION public.programar_entrega_remision_refaccion(UUID, DATE) TO authenticated;
 
+-- Si una corrección regresa la remisión a almacén/contingencia, la fecha
+-- programada ya no vale: se borra para que al surtirla de nuevo no reaparezca.
+CREATE OR REPLACE FUNCTION public.limpiar_entrega_programada_refaccion()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.etapa NOT IN ('surtida', 'logistica', 'entregada') THEN
+    NEW.fecha_entrega_programada := NULL;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_limpiar_entrega_programada_refaccion ON public.remisiones_refacciones;
+CREATE TRIGGER trg_limpiar_entrega_programada_refaccion
+  BEFORE UPDATE OF etapa ON public.remisiones_refacciones
+  FOR EACH ROW
+  WHEN (NEW.etapa IS DISTINCT FROM OLD.etapa)
+  EXECUTE FUNCTION public.limpiar_entrega_programada_refaccion();
+
 -- Verificación:
 -- SELECT column_name FROM information_schema.columns
 --  WHERE table_schema = 'public' AND table_name = 'remisiones_refacciones' AND column_name = 'fecha_entrega_programada';
