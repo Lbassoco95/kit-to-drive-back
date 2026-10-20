@@ -490,7 +490,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261016000001_super_admin_aprobaciones', 'trigger|movimientos_financieros.trg_vigilar_super_admin'),
   ('20261016000001_super_admin_aprobaciones', 'trigger|cobranza_pagos.trg_vigilar_super_admin'),
   -- Super admin entra a Almacén de refacciones (2026-10-16).
-  ('20261016000002_super_admin_refacciones', 'funcion|puede_ver_almacen_refacciones(uuid)|es_super_admin')
+  ('20261016000002_super_admin_refacciones', 'funcion|puede_ver_almacen_refacciones(uuid)|es_super_admin'),
+  -- Entregas programa remisiones de refacciones (2026-10-20).
+  ('20261020000001_entregas_refacciones', 'columna|remisiones_refacciones.fecha_entrega_programada'),
+  ('20261020000001_entregas_refacciones', 'funcion|programar_entrega_remision_refaccion(uuid,date)'),
+  ('20261020000001_entregas_refacciones', 'funcion|limpiar_entrega_programada_refaccion()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
