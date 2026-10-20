@@ -143,6 +143,28 @@ describe("super admin con aprobaciones (migración)", () => {
   });
 });
 
+describe("super admin actúa directo y avisa al admin del área (migración)", () => {
+  const sql = mig("20261020000003_super_admin_accion_directa.sql");
+
+  it("el trigger ya no frena: registra en bitácora y avisa una vez por acción", () => {
+    expect(sql).not.toContain("HINT = 'aprobacion_requerida'");
+    expect(sql).toContain("PERFORM public.avisar_admins_area(public.area_que_aprueba(v_objeto)");
+    expect(sql).toContain("kawiil.avisos_super_admin");
+    expect(sql).toContain("INSERT INTO public.bitacora_super_admin (usuario_id, tabla, operacion, registro_id, datos_antes, datos_despues, ruta)");
+  });
+
+  it("el Super admin resuelve cualquier solicitud; el admin del área no resuelve las suyas", () => {
+    expect(sql).toContain("IF NOT (v_super OR (public.es_admin_de_area(s.area, auth.uid()) AND s.solicitado_por <> auth.uid()))");
+  });
+
+  it("eliminar solicitudes es sólo de Dirección·admin y avisar no se llama desde la app", () => {
+    expect(sql).toContain("IF NOT public.es_admin_global(auth.uid()) THEN");
+    expect(sql).toContain("REVOKE ALL ON FUNCTION public.eliminar_solicitud_aprobacion(uuid) FROM PUBLIC, anon");
+    expect(sql).toContain("REVOKE ALL ON FUNCTION public.avisar_admins_area(public.user_area, text, text, text) FROM PUBLIC, anon, authenticated");
+    expect(sql).not.toMatch(/GRANT [^;]*avisar_admins_area/);
+  });
+});
+
 describe("super admin entra a refacciones (migración)", () => {
   const sql = mig("20261016000002_super_admin_refacciones.sql");
 
