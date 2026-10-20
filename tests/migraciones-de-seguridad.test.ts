@@ -144,7 +144,7 @@ describe("super admin con aprobaciones (migración)", () => {
 });
 
 describe("super admin actúa directo y avisa al admin del área (migración)", () => {
-  const sql = mig("20261020000002_super_admin_accion_directa.sql");
+  const sql = mig("20261020000003_super_admin_accion_directa.sql");
 
   it("el trigger ya no frena: registra en bitácora y avisa una vez por acción", () => {
     expect(sql).not.toContain("HINT = 'aprobacion_requerida'");

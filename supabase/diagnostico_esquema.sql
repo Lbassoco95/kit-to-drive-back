@@ -495,13 +495,20 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261020000001_entregas_refacciones', 'columna|remisiones_refacciones.fecha_entrega_programada'),
   ('20261020000001_entregas_refacciones', 'funcion|programar_entrega_remision_refaccion(uuid,date)'),
   ('20261020000001_entregas_refacciones', 'funcion|limpiar_entrega_programada_refaccion()'),
+  -- Administrativas de Comercial ven todas las remisiones (2026-10-20).
+  ('20261020000002_administrativas_ven_todas_remisiones', 'funcion|es_administrativo_comercial(uuid)'),
+  ('20261020000002_administrativas_ven_todas_remisiones', 'sin_privilegio|es_administrativo_comercial(uuid)|anon'),
+  ('20261020000002_administrativas_ven_todas_remisiones', 'politica|remisiones.administrativo comercial lee remisiones|es_administrativo_comercial'),
+  ('20261020000002_administrativas_ven_todas_remisiones', 'politica|motocarros.administrativo comercial lee motocarros|es_administrativo_comercial'),
+  ('20261020000002_administrativas_ven_todas_remisiones', 'politica|clientes.administrativo comercial lee clientes|es_administrativo_comercial'),
+  ('20261020000002_administrativas_ven_todas_remisiones', 'politica|storage.objects.administrativo comercial lee docs remisiones|es_administrativo_comercial'),
   -- Super admin actúa directo y avisa al admin del área (2026-10-20).
-  ('20261020000002_super_admin_accion_directa', 'funcion|avisar_admins_area(user_area,text,text,text)'),
-  ('20261020000002_super_admin_accion_directa', 'funcion|vigilar_super_admin()|avisar_admins_area'),
-  ('20261020000002_super_admin_accion_directa', 'funcion|resolver_solicitud_aprobacion(uuid,boolean,text)|v_super'),
-  ('20261020000002_super_admin_accion_directa', 'funcion|eliminar_solicitud_aprobacion(uuid)'),
-  ('20261020000002_super_admin_accion_directa', 'sin_privilegio|eliminar_solicitud_aprobacion(uuid)|anon'),
-  ('20261020000002_super_admin_accion_directa', 'sin_privilegio|avisar_admins_area(user_area,text,text,text)|authenticated')
+  ('20261020000003_super_admin_accion_directa', 'funcion|avisar_admins_area(user_area,text,text,text)'),
+  ('20261020000003_super_admin_accion_directa', 'funcion|vigilar_super_admin()|avisar_admins_area'),
+  ('20261020000003_super_admin_accion_directa', 'funcion|resolver_solicitud_aprobacion(uuid,boolean,text)|v_super'),
+  ('20261020000003_super_admin_accion_directa', 'funcion|eliminar_solicitud_aprobacion(uuid)'),
+  ('20261020000003_super_admin_accion_directa', 'sin_privilegio|eliminar_solicitud_aprobacion(uuid)|anon'),
+  ('20261020000003_super_admin_accion_directa', 'sin_privilegio|avisar_admins_area(user_area,text,text,text)|authenticated')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
