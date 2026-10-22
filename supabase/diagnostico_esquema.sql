@@ -510,9 +510,10 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261020000003_super_admin_accion_directa', 'sin_privilegio|eliminar_solicitud_aprobacion(uuid)|anon'),
   ('20261020000003_super_admin_accion_directa', 'sin_privilegio|avisar_admins_area(user_area,text,text,text)|authenticated'),
 
-  -- Tope de unidades ya armadas sube a 100: el script cambia el DEFAULT de la
-  -- columna (y la fila), así que la marca es `column_default` = 100 (2026-10-22).
-  ('20261022000001_tope_ya_armados_100', 'columna|config_general.limite_ya_armados|100')
+  -- Tope de unidades ya armadas sube a 150 (75 cargadas + 75 más): el script
+  -- cambia el DEFAULT de la columna (y la fila), así que la marca es
+  -- `column_default` = 150 (2026-10-22).
+  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
