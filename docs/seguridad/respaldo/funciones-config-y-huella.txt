@@ -1,0 +1,273 @@
+-- Configuración y huella md5 del cuerpo de cada función de public (para comprobar que la Fase 1 no cambia ninguna)
+-- Proyecto Supabase: kit-to-drive (dmhzhyeivvuliumcgsmm), producción.
+-- Capturado: 2026-10-25 19:14 UTC, solo lectura. No contiene datos de negocio.
+-- Generado con docs/seguridad/consultas/00-respaldo-catalogo.sql
+
+_aplicar_ajuste_inventario(_id uuid)	md5=e118273ead800c5d4507fa641754dbb5 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+_compra_editable(_id uuid)	md5=87f6e4fc2d39337fa0bc605f8ca7e7e8 | config={search_path=public} | SECURITY DEFINER | retorna=compras_refacciones
+_crear_ajuste_inventario(_almacen text, _fecha date, _motivo text, _motivo_texto text, _origen text, _estatus text, _lineas jsonb, _evidencia text, _notas text, _recepcion uuid)	md5=2ef9181c32676531436fcaad5b989190 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_escribir_lineas_compra_refacciones(_compra_id uuid, _lineas jsonb)	md5=095e2cd3711246f27df07f166abab64a | config={search_path=public} | SECURITY DEFINER | retorna=integer
+_fijar_color_original()	md5=60ccf8e115c0c85d86d6ecea4f970610 | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+_folio_incidencia()	md5=08a0866b656623bb2237c1befe1eaa0f | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+_mover_inventario_refaccion(_producto uuid, _almacen text, _delta integer, _fecha date, _tipo text, _documento_tipo text, _documento_id uuid, _folio text, _motivo text, _notas text, _cliente uuid, _precio numeric, _es_prueba boolean)	md5=2c2127e2032a54889b766ab917b898d3 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_orden_de_remision(_remision uuid, _almacen text)	md5=44713b8546b21e8f03f2d3c9f838e76d | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_parear_unidades_contenedor_internal(_contenedor_id uuid)	md5=858535b3fb82622d7be53baff1b57e27 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+_prueba_aplicar(_pago uuid, _remision uuid, _monto numeric)	md5=aa58020e4237ef015c161b1847a67873 | config={search_path=public} | SECURITY DEFINER | retorna=void
+_prueba_cliente(_n integer)	md5=87c74756aa1f81ce1954873f5fa9ed66 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_prueba_pago(_cliente integer, _dias_atras integer, _monto numeric, _forma text, _ref text)	md5=86c743df90b3b8fa40d922a4b2b954fb | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_prueba_producto(_codigo text)	md5=6d4ce378d5ecab069de8810a42929a90 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_prueba_remision(_cliente integer, _dias_atras integer, _partidas jsonb, _notas text)	md5=20b624e4e3b917fb4af5d4e1af7ed025 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+_prueba_surtir(_remision uuid, _codigo text, _cantidad integer)	md5=ddb7586468169de0794b2cc17e792fd3 | config={search_path=public} | SECURITY DEFINER | retorna=void
+_puede_ajustar_compra(_uid uuid)	md5=57a7ab00a5406583a00751b9c9f2f3d8 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+_puede_capturar_compra(_uid uuid)	md5=5dfd7a53f1a2da130879aad8b15617f6 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+_puede_cargar_inventario(_uid uuid)	md5=9ecf897bec2a2b4f2efe8e816fcb2d1a | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+_recalcular_compra(_compra_id uuid)	md5=3824133b5bf5ab6dd06aa39a230d4cb1 | config={search_path=public} | SECURITY DEFINER | retorna=text
+_siguiente_folio_compras(_serie text, _es_prueba boolean)	md5=12df8bd6863055d4ceeb4337adbe7fec | config={search_path=public} | SECURITY DEFINER | retorna=text
+_sincronizar_estatus_chasis(_chasis_id uuid)	md5=f01d1cbb857871126a43fd8614cf39d3 | config={search_path=public} | SECURITY DEFINER | retorna=text
+_trg_recalcular_colores()	md5=b303aa8d7f59703b0d508f13cc5d9b19 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+_validar_destino_cobro(_remision uuid, _cliente uuid, _es_prueba boolean, _monto numeric)	md5=ad71b962a83fa99c26eb7378db65ad6f | config={search_path=public} | SECURITY DEFINER | retorna=remisiones_refacciones
+_verificar_capacidad_color()	md5=8ccf288943d2a5737430dc1153a61607 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+abc_leyenda_sello()	md5=578fbdd286a53815748858b7fe3d1a35 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+actualizar_articulo_refaccion(_id uuid, _datos jsonb)	md5=18eea696b6eff479fc801c33351c4dc8 | config={search_path=public} | SECURITY DEFINER | retorna=void
+actualizar_compra_refacciones(_id uuid, _cabecera jsonb, _lineas jsonb)	md5=9a4a95504ac4bac281675bafd472548f | config={search_path=public} | SECURITY DEFINER | retorna=void
+actualizar_envio_remision_refaccion(_remision_id uuid, _envio jsonb)	md5=f97f83fd4236e08f222955ed510c1c65 | config={search_path=public} | SECURITY DEFINER | retorna=void
+admin_clear_debe_cambiar_password(_user_id uuid)	md5=69d34b15c58c1a49ab5c94dd7f0c1ffb | config={search_path=public} | SECURITY DEFINER | retorna=void
+ajustar_capacidad_color(_modelo text, _color text, _piezas_recibidas integer, _motivo text)	md5=d42272dd04b862d2fc8942243d828442 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+ajustar_compra_faltante(_compra_linea_id uuid, _accion text, _notas text)	md5=751e2d58cc7e6b28fefea76d2132930f | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+ajustar_unidades_remision(_remision_id uuid, _total_objetivo integer, _motivo text)	md5=f10b866cdd4170edbbdf10eb1bee11a0 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+ajuste_motivo_de_prueba()	md5=a2cb300e3b5ac56ccb9e0d01e5349d9c | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+alta_articulo_refaccion(_datos jsonb)	md5=735734fb628e44526119ce0703915170 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+aplicar_abono_cxc()	md5=099e475f3b73182c06fb234e932f6ede | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+aplicar_ajuste_rapido(_almacen text, _fecha date, _motivo text, _motivo_texto text, _lineas jsonb, _evidencia text, _notas text)	md5=64bd3b960a65c8d659eed48ae43c8023 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+aplicar_datos_maestros_refacciones(_items jsonb)	md5=d56c53d8e15040657910c5bad86ac70f | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+aplicar_pago_cobranza(_pago_id uuid, _aplicaciones jsonb, _remanente_a_saldo boolean, _notas text)	md5=048a78d769d3de60d8ecb064653fa24b | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+aplicar_reglas_modo_prueba()	md5=59317516d513583a3e5882dcd9e4438b | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+aplicar_saldo_favor(_saldo_id uuid, _remision_id uuid, _monto numeric, _solicitud_id uuid)	md5=1f9587bebb876ebd1befed0fc8b4f89b | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+area_nivel_de(_user_id uuid)	md5=d41b093504600c63aae8630a82e0fdfb | config={search_path=public} | SECURITY DEFINER | retorna=record
+area_que_aprueba(_objeto text)	md5=2f938de974f4a28c667c6a17f70e3e16 | config={search_path=public} | SECURITY INVOKER | retorna=user_area
+asignar_chasis_remision(_remision_id uuid, _cantidad integer, _color text, _modelo text)	md5=d6015602c7d3c09e16ee0f17ce49e25f | config={search_path=public} | SECURITY DEFINER | retorna=integer
+asignar_motocarro_a_remision(_motocarro_id uuid, _remision_id uuid)	md5=8ad0710e46547ba38c1091ec11b8777b | config={search_path=public} | SECURITY DEFINER | retorna=void
+asignar_remision_items(_remision_id uuid)	md5=dbd610b52ef9d7f306030a486257e7ef | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+asignar_super_admin(_user_id uuid, _activo boolean)	md5=8d3eb529c8b66bb2a7863a1fce250435 | config={search_path=public} | SECURITY DEFINER | retorna=void
+asignar_vendedor_remision(_tipo text, _remision_id uuid, _vendedor_id uuid)	md5=4b9f8ef06cd5d2116de38da8b2570f0d | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+auto_asignar_motocarros_remision()	md5=9793073304ba5138a8518d9900904661 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+avisar_admins_area(_area user_area, _titulo text, _cuerpo text, _enlace text)	md5=ea72ae64a180d1740f20e6ed74086f4a | config={search_path=public} | SECURITY DEFINER | retorna=integer
+avisar_faltante_refaccion(_remision_id uuid, _item_id uuid, _detalle text)	md5=90510cb228cd9e3c3cfd4cca13e9c6ec | config={search_path=public} | SECURITY DEFINER | retorna=void
+aviso_marca_prueba()	md5=6557870043c1cdb0f90b63e8be139033 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+bitacora_solo_agregar()	md5=7c28cb76a7001fa72c7ae34fcdff27eb | config=NULL | SECURITY INVOKER | retorna=trigger
+buscar_modelos_refacciones(_q text)	md5=fabd1c1750c3af694e60a6f43c2896df | config={search_path=public} | SECURITY DEFINER | retorna=record
+cambiar_color_chasis(_chasis_id uuid, _color_nuevo text, _motivo text)	md5=aedafc0b87030bda9ee242e26495915a | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+cambiar_orden_armado(_motocarro_id uuid, _orden_nuevo integer, _motivo text)	md5=fdb8a5f013332b0080c7c3c137467b20 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+cancelar_compra_refacciones(_id uuid, _motivo text)	md5=63686f20d76607e9854a51465b6013af | config={search_path=public} | SECURITY DEFINER | retorna=void
+cancelar_linea_refaccion(_item_id uuid, _motivo text)	md5=d39ec29fb4210459c124f15031d08756 | config={search_path=public} | SECURITY DEFINER | retorna=void
+cancelar_remision_refacciones(_remision_id uuid, _motivo text)	md5=736ba8318cb10d6f81ffe7d0490a7792 | config={search_path=public} | SECURITY DEFINER | retorna=void
+candado_descuento_con_pago()	md5=01eb17511de07a9445a827c62e6e49e9 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+candado_entrega_con_pago()	md5=e1ded0b8705ccca8d46997598e842f7f | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+candado_linea_refaccion()	md5=ae320ea17b1d74f04d745d5a37405c7a | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+candado_modo_prueba()	md5=49c2702ccfb24e54b0a275e4ef24d3d6 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+capacidad_color_libre(_modelo text, _color text)	md5=4db08614cef6c9f7db7f5bb38fd56eb4 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+capturar_seriales_unidad(_motocarro_id uuid, _ns_chasis text, _ns_motor text)	md5=07791d20a8cde51f38d18df8867f9652 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+cargar_existencia_inicial_refacciones(_almacen text, _fecha date, _items jsonb)	md5=81ee4833864666117637c9bae379c2d7 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+cargar_saldos_iniciales_cobranza(_items jsonb, _confirmacion text)	md5=3053928a713a92d87eaff96b69bbff5c | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+catalogo_inventario_guardia()	md5=b55800d2db79852116afa0c4001fa4d0 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+chasis_bloqueado(_chasis_id uuid)	md5=1b61ab3153ca9ea3c8750c3643791e03 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+clave_catalogo_usada(_tabla text, _clave text)	md5=5d02886a6e7aca8f25601bce34095e66 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+cliente_marca_prueba()	md5=a6d61dc1832f5d8ffa30c69e9a170b94 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+cliente_tiene_credito(_cliente_id uuid)	md5=f6edf32ff161752c9bc7e5fadd52a3ab | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+cliente_tiene_cxc_vencidas(_cliente_id uuid)	md5=883987f113018c5230259eb736bb6a99 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+cobranza_inmutable()	md5=504cdbf56f33bc8345a5abfe73034fe7 | config=NULL | SECURITY INVOKER | retorna=trigger
+cobranza_sincronizar_remision(_id uuid, _motivo text)	md5=4676b1a58d0c4ae5b02b70cbed4fd0c3 | config={search_path=public} | SECURITY DEFINER | retorna=void
+completar_movimiento_refaccion()	md5=13b50081176ee2ea786ce7d950f81b12 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+compras_parametro(_clave text)	md5=87d069b5f73966a0c52f2c81de99963a | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+compras_parametros_guardia()	md5=107cfbcc508a0d064cb6f148b5425a92 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+compras_supervisa_remisiones(_user_id uuid)	md5=7bb97f15d86f8d905fb7efc3ad0165cb | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+configurar_pedido_remision(_remision_id uuid, _items jsonb)	md5=1ad247ecee9737718d0a5321d54032df | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+configurar_unidad(_chasis_id uuid, _motor_id uuid, _orden integer, _color text)	md5=8b2bf8a108d26005d44171fbd01e669b | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+confirmar_compra_refacciones(_id uuid)	md5=aa7fea2e1d59bb5d4a405bc9d9213b8d | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+confirmar_compras_refacciones(_ids uuid[])	md5=50a80013dd073b61deb2eb7a2e756148 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+confirmar_entrega_credito(_motocarro_id uuid)	md5=5581d610491ba677690996cb55025058 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+confirmar_fecha_entrega(_motocarro_id uuid, _area text)	md5=23c497af528baf7d1ad183ead8f7b7f4 | config={search_path=public} | SECURITY DEFINER | retorna=void
+confirmar_sin_existencia_refaccion(_item_id uuid, _nota text)	md5=7bca5240d95e143cda33875a84444e03 | config={search_path=public} | SECURITY DEFINER | retorna=void
+corregir_remision_refaccion(_remision_id uuid, _cambios jsonb, _motivo text)	md5=8f1037bbe4246fbc474aecf8a096d3ce | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+crear_compra(_folio text, _proveedor_id uuid, _contenedor_id uuid, _fecha date, _notas text, _lineas jsonb)	md5=9ad9e3775a373db6224853e858fa1ecb | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+crear_compra_refacciones(_cabecera jsonb, _lineas jsonb, _pendientes jsonb)	md5=23ffc6ebfed326330ba96d3567593336 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+crear_motocarro_ya_armado(_ns_chasis text, _ns_motor text, _modelo text, _color text, _remision_id uuid)	md5=1d787565646a7aaf80ca93423f67b3f7 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+crear_remision_refacciones(_cliente_id uuid, _notas text, _nombre_vendedor text, _items jsonb)	md5=0c8845efd5e90c02ac01d0f7ea473f76 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+crear_remision_refacciones(_cliente_id uuid, _notas text, _nombre_vendedor text, _items jsonb, _envio jsonb)	md5=0056a242e88c5a01783293f4d5f5569d | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+cxc_vencidas_resumen(_cliente_id uuid)	md5=9ff424ca715c394af47d857593f0b1fa | config={search_path=public} | SECURITY DEFINER | retorna=record
+decrementar_inventario_color(_modelo text, _color text, _cantidad integer)	md5=fdcdacf8fc3b8ddb60dc589f46aa2c19 | config={search_path=public} | SECURITY DEFINER | retorna=void
+desasignar_motocarro_de_remision(_motocarro_id uuid)	md5=aa71e7c0a22866f98888f4ce3c1c8be4 | config={search_path=public} | SECURITY DEFINER | retorna=void
+desconfigurar_unidad(_motocarro_id uuid, _motivo text)	md5=80fc7300d5af617a918be5b6617c283c | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+disponible_pago_cobranza(_pago_id uuid)	md5=c10ab15afdd708f27a173b5c4dc9d527 | config={search_path=public} | SECURITY DEFINER | retorna=numeric
+disponible_saldo_favor(_saldo_id uuid)	md5=54d0ea710c5517a90c846d3f80110acd | config={search_path=public} | SECURITY DEFINER | retorna=numeric
+dividir_compra_refacciones(_id uuid, _linea_ids uuid[], _almacen text)	md5=8cd815a1cb3802e2bc65b4c0dc1fb2fc | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+eliminar_compra_refacciones(_id uuid, _motivo text)	md5=58887165258f0375741ec36d70b13d58 | config={search_path=public} | SECURITY DEFINER | retorna=void
+eliminar_solicitud_aprobacion(_id uuid)	md5=86bc65502629ccbc526837ffe24a35f9 | config={search_path=public} | SECURITY DEFINER | retorna=void
+entregar_remision_refaccion(_remision_id uuid)	md5=e37ca94dd50c4c8dc3a0ae1be31d245c | config={search_path=public} | SECURITY DEFINER | retorna=void
+es_admin_area(_user_id uuid, _area user_area)	md5=9b187d98dfd9f60b46d15add4a08c3a4 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_admin_compras(_uid uuid)	md5=92f5e166ba9acd7eeb49eae7639856ea | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_admin_de_area(_area user_area, _user_id uuid)	md5=7c70bc2c3d6b18f85b5b54e10dbb243a | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_admin_global(_user_id uuid)	md5=e98cc059565681d9842fbae2d7c14d2c | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_administrativo_comercial(_user_id uuid)	md5=1bbe823d93a27288dcdf49bae8e5e923 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_area(_user_id uuid, _area user_area)	md5=d58e33d3b052e97d8963d4d18b2deba2 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_compras(_uid uuid)	md5=9a340476419e5cff8172e046ecdf03ba | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_compras_admin(_uid uuid)	md5=085359f9e43b1adabe8ccf157918bace | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_finanzas(_uid uuid)	md5=0061e8d88da7f25d379e770026fa1131 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_finanzas_admin(_uid uuid)	md5=db3c206091f6bb79eff0b62419c142c9 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_rpc_con_aprobacion(_nombre text)	md5=fd9aa0876a22d8790294ad4d7109d3f8 | config={search_path=public} | SECURITY INVOKER | retorna=boolean
+es_super_admin(_user_id uuid)	md5=f6ee05bd13a56d62ce43f8dd56f76079 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_usuario_prueba(_uid uuid)	md5=881ac7f07c45441ca8f9c8967051f555 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_usuario_prueba_actual()	md5=c8ce4199e88d70a06e7705c1f1b1a881 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+es_vendedor_activo(_user_id uuid)	md5=e4285ecd4b8e6501627aebed05f7f053 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+estado_cobro_remision_refaccion(_id uuid)	md5=c07f5b28c53def640e977338f205787f | config={search_path=public} | SECURITY DEFINER | retorna=record
+exigir_dato_prueba(_es_prueba boolean, _que text)	md5=b89ae9a174029505b8fbf2e146afdbeb | config={search_path=public} | SECURITY DEFINER | retorna=void
+exigir_lectura_prueba(_tabla text, _id uuid)	md5=33bdb96c4191cfcfd4185b6156ea3439 | config={search_path=public} | SECURITY DEFINER | retorna=void
+exigir_serial_para_cerrar()	md5=b5f2c6f5a5df7688f9ffb5eaa8aaadfe | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+firmas_es_firmante(_solicitud uuid, _user uuid)	md5=6da5561e6e5e6281a0b52a7347c82f87 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+firmas_puede_ver_solicitud(_solicitud uuid)	md5=301aff4568a797546b3a9d642207ece7 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+flujo_aplicar(_id uuid, _destino text, _aplicaciones jsonb, _notas text)	md5=fa03f54d6fd40ddb8baf97ab31aefbbf | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+flujo_asignar_capacidad(_user_id uuid, _capacidad text, _valor boolean)	md5=58cbdc0211f29e4d0116de6e277df399 | config={search_path=public} | SECURITY DEFINER | retorna=void
+flujo_cap(_cap text, _uid uuid)	md5=5344c2349b2cc1547d708c69cbf2cfe3 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+flujo_clientes()	md5=0e57503cfe99a4f83ba60612976cf911 | config={search_path=public} | SECURITY DEFINER | retorna=record
+flujo_confirmar_caja(_id uuid, _cuenta_id uuid, _notas text)	md5=5818aba580a926b73d0c483e1797d53d | config={search_path=public} | SECURITY DEFINER | retorna=void
+flujo_cuentas()	md5=9b5e5a3f25bd62075202bf4b0cb9242d | config={search_path=public} | SECURITY DEFINER | retorna=record
+flujo_dinero_sin_borrar()	md5=77ce4b1e96aa73d18d2d66d2dab64c2b | config=NULL | SECURITY INVOKER | retorna=trigger
+flujo_es_admin(_uid uuid)	md5=2b67d410951769d94ec682398fbff5db | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+flujo_listar_capacidades()	md5=0f1f8c501b561704cb8dcd18f5db6e53 | config={search_path=public} | SECURITY DEFINER | retorna=record
+flujo_mis_capacidades()	md5=1278007646da22f76f35475fd99b1f9e | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+flujo_nombre(_uid uuid)	md5=2b4939678173fd9c1bb26e7325c601c7 | config={search_path=public} | SECURITY DEFINER | retorna=text
+flujo_rechazar(_id uuid, _motivo text)	md5=46fcc1be399110dce6c8ae7fba6e2d28 | config={search_path=public} | SECURITY DEFINER | retorna=void
+flujo_recibir(_tipo text, _monto numeric, _moneda text, _metodo_pago text, _fecha date, _contraparte_nombre text, _cliente_id uuid, _concepto text, _referencia text, _tipo_cambio numeric)	md5=6118320f9d56b23d94345c4491eb4533 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+flujo_remisiones_para_aplicar(_flujo_id uuid)	md5=5e378784cb1b201e4289d3561018a2bd | config={search_path=public} | SECURITY DEFINER | retorna=record
+generar_folio_interno_cliente()	md5=6b420393266c3b143588d9575f5b8bd8 | config={search_path=public} | SECURITY DEFINER | retorna=text
+get_my_role()	md5=97c9ac1ab1214ca71e11022be53303bc | config={search_path=public} | SECURITY DEFINER | retorna=app_role
+guardar_almacen_inventario(_clave text, _nombre text, _descripcion text, _recibe_compras boolean, _activo boolean)	md5=5a1211e2c3d35a79b309670c0dc17bea | config={search_path=public} | SECURITY DEFINER | retorna=text
+guardar_equivalente_ecount(_clave text, _equivalente text)	md5=157fbec515fca5c03d159757e877c13e | config={search_path=public} | SECURITY DEFINER | retorna=void
+guardar_motivo_ajuste(_clave text, _nombre text, _requiere_texto boolean, _activo boolean, _orden integer)	md5=1ba351da4bb4a7fa2cb2176da5bbe479 | config={search_path=public} | SECURITY DEFINER | retorna=text
+handle_new_user()	md5=d9133e6ed8105d122c96bd12b467c642 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+has_role(_user_id uuid, _role app_role)	md5=4baaf36c99da982545e9633f9fb0d4fd | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+impedir_escalada_rol()	md5=9f15e754fdc2c723c97b56c185b33be4 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+impedir_inventario_negativo()	md5=4e62771cc94376b99486561b00639f69 | config=NULL | SECURITY INVOKER | retorna=trigger
+importar_almacen_refacciones(_items jsonb)	md5=d4756b06cb560116eadf32e9ec1bfde8 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+importar_motores_inventario(_contenedor_id uuid, _modelo text, _motores jsonb)	md5=7318cff8d6e6ca041351dcc9dd9d7a07 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+importar_packing_list(_contenedor_id uuid, _partes jsonb)	md5=89d4a18e355cbc5a607aa28f9e01bf34 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+importar_vins_inventario(_contenedor_id uuid, _folio_contenedor text, _modelo text, _vins jsonb)	md5=dc7d3e4a7e7b42bcc823eaf5c90efe9d | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+importe_partida_refaccion(_precio numeric, _piezas integer, _desc_partida numeric, _desc_general numeric)	md5=d026fe5090af861734ee1192c55e028d | config=NULL | SECURITY INVOKER | retorna=numeric
+incrementar_inventario_color(_modelo text, _color text, _cantidad integer)	md5=fdcdacf8fc3b8ddb60dc589f46aa2c19 | config={search_path=public} | SECURITY DEFINER | retorna=void
+intercambiar_color_chasis(_chasis_a uuid, _chasis_b uuid, _motivo text)	md5=a6922bb9aaf72eb788e62530e5482a70 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+kardex_refaccion(_producto uuid, _desde date, _hasta date)	md5=fe592dd2539e9be6f9883787b68db883 | config={search_path=public} | SECURITY DEFINER | retorna=record
+liberar_refaccion_remision(_item_id uuid, _cantidad integer)	md5=6ce12661146f0b416e5430c416c62c88 | config={search_path=public} | SECURITY DEFINER | retorna=void
+limpiar_entrega_programada_refaccion()	md5=87f43fb8f87ccfbee110010974ae751a | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+log_borrado_movimiento()	md5=0d582b351ab1529e3444309bd3e711fd | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+log_motocarros_changes()	md5=598f5fccfa80811fb9bc5c39cf69253b | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+log_movimiento()	md5=4297085c05175b155fc34675a99e12e2 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+log_remisiones_changes()	md5=4947e61e8d139c507699944f08f0e352 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+log_reporte_turno()	md5=25bc532ae68e2e5371a508829e99fd7d | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+logistica_puede_entregar(_user_id uuid)	md5=1356423ff974355261b4c70a5e8104a1 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+marcar_comprobacion_movimiento()	md5=23c292f1639dcebbaa44c154038036ab | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+marcar_pago_remision_con_evidencia(_remision_id uuid, _pagado boolean, _nota text, _evidencia_path text, _conciliado boolean)	md5=89ffc94f64a9a9a19fd67c26dd579f9a | config={search_path=public} | SECURITY DEFINER | retorna=void
+marcar_pago_remision_refaccion(_remision_id uuid, _pagado boolean, _nota text)	md5=621aa8748e909c87fcec7a717980605b | config={search_path=public} | SECURITY DEFINER | retorna=void
+marcar_remision_entregada(_remision_id uuid)	md5=f6ba75c5079da7a25aa568b6cf90c4d5 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+marcar_unidad_entregada(_motocarro_id uuid, _fecha date)	md5=b1c88d5458360ad637636991bddae0a8 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+mi_area()	md5=621afc5d43cd8f4677b1568bf03cba16 | config={search_path=public} | SECURITY DEFINER | retorna=user_area
+mi_nivel()	md5=0276b534475b793eaa2e9050aa409f74 | config={search_path=public} | SECURITY DEFINER | retorna=user_nivel
+movimiento_refaccion_inmutable()	md5=5a386859967fcb470ac0fdd4d307548b | config=NULL | SECURITY INVOKER | retorna=trigger
+nivel_al_menos(_user_id uuid, _nivel user_nivel)	md5=28835fd2dff3019d01e8de6771870326 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+nivel_rank(_nivel user_nivel)	md5=7d8ab3ec3a656bff7be30bd96bef77f3 | config=NULL | SECURITY INVOKER | retorna=integer
+norm_color(_color text)	md5=10471489a4ad59b3328ce388ee89fa54 | config={search_path=public} | SECURITY INVOKER | retorna=text
+normalizar_modelo_refaccion(_t text)	md5=e4c6458f3b4744e87859c94db3bd0589 | config=NULL | SECURITY INVOKER | retorna=text
+parear_unidades_contenedor(_contenedor_id uuid)	md5=1acc94b7fd63b5ce17a95e9bf1bb7f21 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+partida_refaccion_a_orden()	md5=39a6725e4638454071da09eccd76c13e | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+partida_refaccion_candado_prueba()	md5=4a4418184be9ab7074f68523ddd16d3c | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+patch_corregir_surtido_indebido_faltante()	md5=697e9b312ecabc9b4cae13a118f95f70 | config=NULL | SECURITY INVOKER | retorna=void
+programar_entrega_remision_refaccion(_remision_id uuid, _fecha date)	md5=ffaebbc22b0ee0726c9b52e0f8bedb42 | config={search_path=public} | SECURITY DEFINER | retorna=void
+proponer_conteo_fisico(_almacen text, _fecha date, _lineas jsonb, _notas text, _evidencia text, _motivo text)	md5=e3e5b809baa2dd65e3066bd44703299c | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+proponer_fecha_entrega(_motocarro_id uuid, _fecha date, _notas text)	md5=ad374ba07d5d144dc17524b32f41dd6e | config={search_path=public} | SECURITY DEFINER | retorna=void
+proteger_campos_privilegiados_profiles()	md5=48ee99732bb212ac02c6f6f0b97f738c | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+proteger_profile_activo()	md5=b3fd4269e813fde33dd7f7e284588b5a | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+puede_almacen_fisico(_uid uuid)	md5=7951cd2f0ac2877af756a36c7e7f0676 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_aplicar_saldo_favor(_uid uuid)	md5=6d5ba816c43f8ce3ac2ce726707adf24 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_asignar_remisiones(_user_id uuid)	md5=768bf8a22355ae3be60715417aa9c1c8 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_capturar_refacciones(_user_id uuid)	md5=617a8030957effb977b48af4745a4d34 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_capturar_remision(_vendedor_id uuid, _user_id uuid)	md5=a24fd5bc1b614526b99fd4f9e13a2301 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_cargar_remisiones_anteriores(_user_id uuid)	md5=a3a9c4e1f74389d7023606f239c998ea | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_compras_inventario(_uid uuid)	md5=d8bf44f867686c6f6cab4417e83e2a4d | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_configurar_pedido(_remision_id uuid, _user_id uuid)	md5=48b55a2d8f30109f80b781ac05f83c0d | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_editar_remision(_remision_id uuid, _user_id uuid)	md5=449ab0e40507e4959608e089bd773272 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_editar_todas_remisiones(_user_id uuid)	md5=1c8a2d4232e23a56d67c89aa1206db7b | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_escribir_inventario(_uid uuid)	md5=0ac16cc9053e2255b149396d2d7eea13 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_finanzas_cobranza(_uid uuid)	md5=6bcd8a042cd0f7a1692a24ab1d83c3d9 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_leer_compras_inventario(_uid uuid)	md5=a5f903e9b0c80b2f34602208bfdc6a14 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_leer_inventario(_uid uuid)	md5=4dee7dfeabe15e41384561a421c9fe3b | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_leer_remision_refaccion(_remision_id uuid, _user_id uuid)	md5=be75a21802b4ff51998bdaadc87d19b1 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_marcar_pago_refacciones(_user_id uuid)	md5=6c060cc2c36e0ce3d58fbcb9a9d4c010 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_operar_almacen_refacciones(_user_id uuid)	md5=1115896ca582a5312b023a15c04cffcd | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_operar_logistica_refacciones(_user_id uuid)	md5=996d9e8577d067fe10fe415be6efcaac | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+puede_ver_almacen_refacciones(_user_id uuid)	md5=b2525eee137e4750073f16747d9266ee | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+reabrir_incidencia_chasis(_incidencia_id uuid, _motivo text)	md5=dfbf400a259426a986962546cab9b31d | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+recalcular_etapa_remision_refaccion(_id uuid)	md5=a3cab38115704240eb5f692b9f0e04b5 | config={search_path=public} | SECURITY DEFINER | retorna=void
+recalcular_inventario_colores()	md5=3b2f39f63d589a980ee5001ac4e61d5e | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+recibe_avisos_de(_area user_area, _user_id uuid)	md5=f5c13f3c496622111aa4bb5e4dd4836d | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+recibir_contenedor(_folio_contenedor text, _fecha_arribo date, _modelo text, _color text, _unidades jsonb)	md5=ddbc389feaf74622e91cbb6d7506e87a | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+recibo_pago_cobranza(_pago_id uuid)	md5=fd5a97a01fe6172a0f9c679881672bd1 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+redirigir_compat_unificada()	md5=665407be1752ed212f83dd92fa253f39 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+registrar_bitacora_compras(_modulo text, _accion text, _entidad text, _entidad_id uuid, _folio text, _detalle jsonb, _es_prueba boolean)	md5=485a2d442c658e867b6eba86e58940be | config={search_path=public} | SECURITY DEFINER | retorna=void
+registrar_conexion()	md5=0bd777f56895f7afebd4485a8184faa3 | config={search_path=public} | SECURITY DEFINER | retorna=void
+registrar_correccion_partida()	md5=9b1001520d3ef75e786a385bf5c2611c | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+registrar_correccion_remision()	md5=62e7489da67822e2e08b01e3d35d2c57 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+registrar_documento_inventario(_contenedor_id uuid, _compra_id uuid, _origen text, _notas text, _lineas jsonb)	md5=51e6ef1fda9ddb2321c1d11398e34abd | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+registrar_guia_remision_refaccion(_remision_id uuid, _paqueteria text, _guia text)	md5=8d41514b11326111886a199b5c0d57d7 | config={search_path=public} | SECURITY DEFINER | retorna=void
+registrar_pago_cobranza(_datos jsonb)	md5=77691864b488cb27dd885e472ff398ab | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+registrar_paqueteria(_motocarro_id uuid, _paqueteria text, _numero_guia text, _fecha_estimada date)	md5=f8248b6adf49b10c8baeb9a4157ce335 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+registrar_recepcion_refacciones(_compra_id uuid, _fecha date, _lineas jsonb, _notas text, _visto_bueno boolean)	md5=e116e535dd617ee58168998923c7cd96 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+reiniciar_datos_prueba_compras(_confirmacion text)	md5=e3b6f8c74867836eea5d46dff2383e30 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+reintentar_asignar_remision(_remision_id uuid)	md5=10679c304632a8bed3c865eaa92b170e | config={search_path=public} | SECURITY DEFINER | retorna=integer
+reject_public_signups()	md5=62b4fe67e974c7f652fbe81da917de2a | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+remision_refaccion_marca_prueba()	md5=8aed3481863fd6f31beb9958f33099a4 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+reportar_faltante_refaccion(_item_id uuid, _cantidad integer, _nota text)	md5=f005e0e1285dfdd4d6722717ab6fdac2 | config={search_path=public} | SECURITY DEFINER | retorna=void
+reportar_incidencia_chasis(_chasis_id uuid, _tipo_falla text, _descripcion text, _parte_afectada text, _severidad text, _retiene boolean, _evidencia_url text)	md5=7dd518e9a1b0c3bf57172730d6395d33 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+resolver_incidencia_chasis(_incidencia_id uuid, _resultado text, _resolucion text, _folio_garantia text)	md5=0ec27ac7d4e1c59ded20148abca74c10 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+resolver_pendiente_compra_refacciones(_pendiente_id uuid, _producto_id uuid, _cantidad integer, _nota text)	md5=8f7dc9ca81e24550788d0b28ad2fc30d | config={search_path=public} | SECURITY DEFINER | retorna=void
+resolver_solicitud_aprobacion(_id uuid, _aprobar boolean, _comentario text)	md5=7fe3e1feddaa487c2d2241cd47c3f1ec | config={search_path=public} | SECURITY DEFINER | retorna=text
+responder_solicitud(_aviso_id uuid, _aceptar boolean, _respuesta text)	md5=d9655ab030a750e06ed243552bb792a7 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+resumen_rotacion_refacciones(_desde date, _hasta date, _incluir_prueba boolean)	md5=22361d5ca7c66852e8aea490ea1878fb | config={search_path=public} | SECURITY DEFINER | retorna=record
+revertir_aplicacion_cobranza(_aplicacion_id uuid, _motivo text)	md5=8fe1dbb3f783da20b6fb3b04d745b657 | config={search_path=public} | SECURITY DEFINER | retorna=void
+revertir_pago_cobranza(_pago_id uuid, _motivo text)	md5=4472bbd28a032eeca23812f2eb9be892 | config={search_path=public} | SECURITY DEFINER | retorna=void
+revisar_incidencia_chasis(_incidencia_id uuid, _nota text, _retiene boolean)	md5=f80dd3dfd45271751ab9e2a0fda89cdc | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+revisar_propuesta_ajuste(_id uuid, _aprobar boolean, _comentario text)	md5=47c59a6eea73c73813deb6c682e9eb26 | config={search_path=public} | SECURITY DEFINER | retorna=void
+rol_comercial(_user_id uuid)	md5=8ab17678f6883fe90a6a07e2318f81f0 | config={search_path=public} | SECURITY DEFINER | retorna=text
+rol_legacy(_area user_area, _nivel user_nivel)	md5=d157109bb8fb99a2337c567d6f9640fd | config=NULL | SECURITY INVOKER | retorna=app_role
+saldo_favor_disponible_cliente(_cliente_id uuid)	md5=8da82b62d054f9f53247a4907059c0fe | config={search_path=public} | SECURITY DEFINER | retorna=numeric
+saldo_inicial_sin_documento(_producto uuid)	md5=f6bed6978ffe9e4b3b3396a227bbcf88 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+saldo_minimo_desde(_producto uuid, _fecha date)	md5=c5a0bcdb6472957e7f35302f9d21aa27 | config={search_path=public} | SECURITY DEFINER | retorna=record
+saldo_refaccion_a_fecha(_producto uuid, _fecha date)	md5=db5652b7119a04ccd54907c991899a14 | config={search_path=public} | SECURITY DEFINER | retorna=integer
+saldos_atipicos_refacciones(_incluir_prueba boolean)	md5=41bdd82636bd05a84cdec94d84d1849c | config={search_path=public} | SECURITY DEFINER | retorna=record
+salidas_por_cliente_mes(_producto uuid, _desde date, _hasta date)	md5=f0875d3906b95410bf8708452f2c16f5 | config={search_path=public} | SECURITY DEFINER | retorna=record
+sembrar_datos_prueba_compras()	md5=912c4fd9ef328af65c509bcbbd5e0aa5 | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+set_folio_cxc()	md5=a74fcd176d4c452037df77a094844baf | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+set_folio_movimiento()	md5=908ffe7fafbb96a8fb55a45b1b0bdaa7 | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+set_updated_at()	md5=301a884953d37769916294bb60562e05 | config=NULL | SECURITY INVOKER | retorna=trigger
+sincronizar_compat_refacciones(_items jsonb)	md5=cbca01bdae245d796a3ae4ff629ae58e | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+solicitar_aprobacion(_tipo text, _objeto text, _parametros jsonb, _descripcion text, _motivo text)	md5=599e5037273473385e7754f850e58a53 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+solicitar_saldo_favor(_remision_id uuid, _monto numeric, _nota text)	md5=1e8300389fac75856994ccb470eaa64c | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+stock_bloqueado_producto(_producto_id uuid)	md5=31f0ec8e89d3e4b533461983f16c389f | config={search_path=public} | SECURITY DEFINER | retorna=integer
+sufijo_orden_almacen(_almacen text)	md5=a3b199370c792b47bdde651d0fb3a2cf | config=NULL | SECURITY INVOKER | retorna=text
+super_admins_ids()	md5=96786de8e7ef76330c76191a32eda3a8 | config={search_path=public} | SECURITY DEFINER | retorna=uuid
+supervisa_area(_user_id uuid, _area user_area)	md5=1b469caea6530d26a5d7b7aa861c9015 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+sync_rol_legacy()	md5=d51e47901219009bc9b8258cdd361082 | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+sync_tiene_factura()	md5=d3319ccdf250b99d6d981d12ef8304d1 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+total_vigente_remision_refaccion(_id uuid, _desc_general numeric)	md5=54f248409a37c2af446245411f102c51 | config={search_path=public} | SECURITY DEFINER | retorna=numeric
+trg_avisos_solo_acuse()	md5=fca4c6801b2890ca64cbe0b8a9c436f3 | config=NULL | SECURITY INVOKER | retorna=trigger
+trg_clientes_folio_interno()	md5=6656c01396b6a506bec968738051d745 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+trg_crm_actividades_aviso_correo()	md5=fae1c6faf9116a2dfebe30a976fce486 | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+trg_notificaciones_solo_leida()	md5=f63b9741e56efcaa844c718de66bb145 | config=NULL | SECURITY INVOKER | retorna=trigger
+trg_tareas_guardia()	md5=df01a6ada60927f9e89412098246086a | config={search_path=public} | SECURITY DEFINER | retorna=trigger
+unificar_unidades_refacciones(_destino uuid, _origenes uuid[], _nombre_final text)	md5=dacabb9206cd2d15ba51a5ae71b56b2b | config={search_path=public} | SECURITY DEFINER | retorna=jsonb
+usuario_activo(_user_id uuid)	md5=14e4f42f6bf09cd73632e0cb01315e28 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+usuario_operativo(_user_id uuid)	md5=bac91f1b1e45df1109f5ea99cac5de3a | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+usuarios_asignables()	md5=cdd5b18e1bee921939ac177ed425a43f | config={search_path=public} | SECURITY DEFINER | retorna=record
+validar_moneda_cuenta()	md5=9f9af4c384ba3db604c420ad225a31ea | config={search_path=public} | SECURITY INVOKER | retorna=trigger
+validar_pago_cobranza(_pago_id uuid, _conciliado boolean, _evidencia_path text)	md5=a64d6626d7cd8db2889392620305e9b5 | config={search_path=public} | SECURITY DEFINER | retorna=void
+ve_todo_comercial(_user_id uuid)	md5=89b41e83a8f1f60e94dc2e5841306122 | config={search_path=public} | SECURITY DEFINER | retorna=boolean
+ventas_mensuales_refacciones(_desde date, _hasta date, _incluir_prueba boolean)	md5=7fdeb6f321fcfe349ac232f43a3df76d | config={search_path=public} | SECURITY DEFINER | retorna=record
+vigilar_super_admin()	md5=db4b2afd572b55e5417324113c20a4d5 | config={search_path=public} | SECURITY DEFINER | retorna=trigger
