@@ -37,6 +37,13 @@
 --   (política de storage: politica|storage.objects.nombre[|texto])
 --   restriccion|tabla.restriccion[|texto]
 --   sin_privilegio|funcion(tipos)|rol  · ese rol NO debe poder ejecutarla
+--   sin_permiso_tablas|PERMISO|rol     · ninguna TABLA de public concede ese permiso a ese rol
+--   sin_permiso_vistas|PERMISO|rol     · ninguna VISTA de public concede ese permiso a ese rol
+--   sin_ejecucion_triggers|todas|rol   · ninguna función de trigger de public la ejecuta ese rol
+--   todas_con_search_path|public       · toda función propia de public tiene search_path fijo
+--   default_acl|tablas|rol             · lo que `postgres` cree en public (tablas) no nace con permisos para ese rol
+--   default_acl|funciones|public       · las funciones nuevas de `postgres` no nacen con EXECUTE para PUBLIC
+--   default_acl|funciones|rol          · las funciones nuevas de `postgres` en public no nacen con EXECUTE para ese rol
 --
 -- Para saber qué le falta a UN script antes de correrlo, hay revisiones
 -- puntuales al lado de este archivo, p. ej.
@@ -513,7 +520,25 @@ WITH esperado(script, objeto) AS (VALUES
   -- Tope de unidades ya armadas sube a 150 (75 cargadas + 75 más): el script
   -- cambia el DEFAULT de la columna (y la fila), así que la marca es
   -- `column_default` = 150 (2026-10-22).
-  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150')
+  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
+  -- Fase 1 de seguridad (docs/seguridad/). Se reconocen por lo que QUITAN.
+  ('20261031000001_fase1_quitar_truncate_trigger_references', 'sin_permiso_tablas|TRUNCATE|anon'),
+  ('20261031000001_fase1_quitar_truncate_trigger_references', 'sin_permiso_tablas|TRUNCATE|authenticated'),
+  ('20261031000001_fase1_quitar_truncate_trigger_references', 'sin_permiso_tablas|TRIGGER|authenticated'),
+  ('20261031000001_fase1_quitar_truncate_trigger_references', 'sin_permiso_tablas|REFERENCES|authenticated'),
+  ('20261031000001_fase1_quitar_truncate_trigger_references', 'sin_permiso_vistas|TRUNCATE|authenticated'),
+  ('20261031000002_fase1_cerrar_funciones_de_trigger', 'sin_ejecucion_triggers|todas|anon'),
+  ('20261031000002_fase1_cerrar_funciones_de_trigger', 'sin_ejecucion_triggers|todas|authenticated'),
+  ('20261031000002_fase1_cerrar_funciones_de_trigger', 'sin_privilegio|limpiar_entrega_programada_refaccion()|anon'),
+  ('20261031000002_fase1_cerrar_funciones_de_trigger', 'sin_privilegio|vigilar_super_admin()|anon'),
+  ('20261031000003_fase1_fijar_search_path', 'todas_con_search_path|public'),
+  ('20261031000004_fase1_quitar_lectura_anon_de_vistas', 'sin_permiso_vistas|SELECT|anon'),
+  ('20261031000005_fase1_quitar_escritura_anon_de_tablas', 'sin_permiso_tablas|INSERT|anon'),
+  ('20261031000005_fase1_quitar_escritura_anon_de_tablas', 'sin_permiso_tablas|UPDATE|anon'),
+  ('20261031000005_fase1_quitar_escritura_anon_de_tablas', 'sin_permiso_tablas|DELETE|anon'),
+  ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|tablas|anon'),
+  ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|funciones|public'),
+  ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|funciones|authenticated')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
@@ -562,6 +587,43 @@ WITH esperado(script, objeto) AS (VALUES
         to_regprocedure('public.' || r.nombre) IS NOT NULL
         AND NOT has_function_privilege(
               r.detalle, to_regprocedure('public.' || r.nombre), 'EXECUTE')
+      WHEN 'sin_permiso_tablas' THEN
+        -- Ninguna TABLA de public concede el permiso (nombre) al rol (detalle).
+        NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+                     WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')
+                       AND has_table_privilege(r.detalle, c.oid, r.nombre))
+      WHEN 'sin_permiso_vistas' THEN
+        NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+                     WHERE n.nspname = 'public' AND c.relkind = 'v'
+                       AND has_table_privilege(r.detalle, c.oid, r.nombre))
+      WHEN 'sin_ejecucion_triggers' THEN
+        NOT EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                     WHERE n.nspname = 'public' AND p.prorettype = 'trigger'::regtype
+                       AND NOT EXISTS (SELECT 1 FROM pg_depend d WHERE d.objid = p.oid AND d.deptype = 'e')
+                       AND has_function_privilege(r.detalle, p.oid, 'EXECUTE'))
+      WHEN 'todas_con_search_path' THEN
+        NOT EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+                     WHERE n.nspname = 'public' AND p.prokind IN ('f', 'p')
+                       AND NOT EXISTS (SELECT 1 FROM pg_depend d WHERE d.objid = p.oid AND d.deptype = 'e')
+                       AND (p.proconfig IS NULL
+                            OR NOT EXISTS (SELECT 1 FROM unnest(p.proconfig) x WHERE x LIKE 'search_path=%')))
+      WHEN 'default_acl' THEN
+        -- Permisos por defecto de lo que crea `postgres` (el rol de las migraciones).
+        CASE
+          WHEN r.nombre = 'tablas' THEN
+            NOT EXISTS (SELECT 1 FROM pg_default_acl d, aclexplode(d.defaclacl) x
+                         WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 'public'::regnamespace
+                           AND d.defaclobjtype = 'r' AND x.grantee = r.detalle::regrole)
+          WHEN r.nombre = 'funciones' AND r.detalle = 'public' THEN
+            -- Solo la forma GLOBAL (sin IN SCHEMA) quita el EXECUTE que PostgreSQL da a PUBLIC.
+            EXISTS (SELECT 1 FROM pg_default_acl d
+                     WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 0 AND d.defaclobjtype = 'f'
+                       AND NOT EXISTS (SELECT 1 FROM aclexplode(d.defaclacl) x WHERE x.grantee = 0))
+          WHEN r.nombre = 'funciones' THEN
+            NOT EXISTS (SELECT 1 FROM pg_default_acl d, aclexplode(d.defaclacl) x
+                         WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 'public'::regnamespace
+                           AND d.defaclobjtype = 'f' AND x.grantee = r.detalle::regrole)
+        END
       WHEN 'tipo' THEN
         EXISTS (SELECT 1 FROM pg_enum e
                   JOIN pg_type ty ON ty.oid = e.enumtypid

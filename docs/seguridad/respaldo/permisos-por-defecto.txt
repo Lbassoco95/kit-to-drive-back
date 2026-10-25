@@ -1,0 +1,29 @@
+-- Permisos por defecto de objetos nuevos (pg_default_acl)
+-- Proyecto Supabase: kit-to-drive (dmhzhyeivvuliumcgsmm), producción.
+-- Capturado: 2026-10-25 19:14 UTC, solo lectura. No contiene datos de negocio.
+-- Generado con docs/seguridad/consultas/00-respaldo-catalogo.sql
+
+postgres en public	tipo=S acl={postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres}
+postgres en public	tipo=f acl={postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+postgres en public	tipo=r acl={postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}
+postgres en storage	tipo=S acl={postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres}
+postgres en storage	tipo=f acl={postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+postgres en storage	tipo=r acl={postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}
+supabase_admin en extensions	tipo=S acl={postgres=r*w*U*/supabase_admin}
+supabase_admin en extensions	tipo=f acl={postgres=X*/supabase_admin}
+supabase_admin en extensions	tipo=r acl={postgres=a*r*w*d*D*x*t*m*/supabase_admin}
+supabase_admin en graphql	tipo=S acl={postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}
+supabase_admin en graphql	tipo=f acl={postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}
+supabase_admin en graphql	tipo=r acl={postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}
+supabase_admin en graphql_public	tipo=S acl={postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}
+supabase_admin en graphql_public	tipo=f acl={postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}
+supabase_admin en graphql_public	tipo=r acl={postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}
+supabase_admin en public	tipo=S acl={postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}
+supabase_admin en public	tipo=f acl={postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}
+supabase_admin en public	tipo=r acl={postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}
+supabase_admin en realtime	tipo=S acl={postgres=rwU/supabase_admin,dashboard_user=rwU/supabase_admin}
+supabase_admin en realtime	tipo=f acl={postgres=X/supabase_admin,dashboard_user=X/supabase_admin}
+supabase_admin en realtime	tipo=r acl={postgres=a*r*wdDxtm/supabase_admin,dashboard_user=arwdDxtm/supabase_admin}
+supabase_auth_admin en auth	tipo=S acl={postgres=rwU/supabase_auth_admin,dashboard_user=rwU/supabase_auth_admin}
+supabase_auth_admin en auth	tipo=f acl={postgres=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}
+supabase_auth_admin en auth	tipo=r acl={postgres=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}

@@ -35,7 +35,8 @@ El back corre sus pruebas solo en cada cambio (`.github/workflows/pruebas.yml`).
 1. Regístrala en `supabase/diagnostico_esquema.sql` (objeto que deja la migración). `npm test` falla si no.
 2. Si crea o cambia funciones: `npm run contrato`, y en el front `npm run sync:contrato`.
 3. Pégala a mano en el SQL Editor de Supabase, corre la consulta de verificación y guarda el resultado en la tabla de control (`supabase/control/`).
-4. Nunca dejes una función abierta a `anon`: las nuevas ya nacen cerradas, pero verifícalo.
+4. **Permisos de lo nuevo (desde la Fase 1 de seguridad, `docs/seguridad/`):** las tablas, vistas, secuencias y funciones nuevas nacen **cerradas** en producción. A `anon` no se le da nada. Toda función que el front llame (RPC) o que usen las políticas necesita en su migración `GRANT EXECUTE ON FUNCTION … TO authenticated;`. Las funciones de trigger no lo necesitan. Una función solo interna se marca con el comentario `-- interna`. `tests/fase1-permisos.test.ts` lo revisa en las migraciones posteriores al 31 oct 2026. **Ojo: el proyecto de QA no recibe este cambio de permisos por defecto**, así que allí una función sin `GRANT` funciona y en producción no.
+5. Para quitar permisos usa `REVOKE` simple, nunca `CASCADE`, y escribe la reversa en `supabase/reversas/` antes de aplicarla.
 
 **El front necesita una tabla, función o bucket nuevo:**
 1. Agrégalo a `kit-to-drive-api/src/allowlist.ts` en un cambio revisado. Si no, la compuerta responde 403 «Tabla no permitida».
@@ -57,7 +58,8 @@ El back corre sus pruebas solo en cada cambio (`.github/workflows/pruebas.yml`).
 
 ## Reglas que no se negocian
 
-- Ninguna función de `public` ejecutable por `anon`.
+- Ninguna función de `public` ejecutable por `anon`. (Hoy hay dos, `limpiar_entrega_programada_refaccion` y `vigilar_super_admin`; la Fase 1 las cierra. `ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE … FROM PUBLIC` **no** cierra lo nuevo: solo la forma global lo hace.)
+- Una migración de permisos lleva su reversa probada y se aplica una a la vez, en la ventana acordada (`docs/seguridad/VENTANA-FASE-1.md`).
 - El registro público de usuarios sigue cerrado; las altas las autoriza un administrador (`altas_autorizadas`).
 - El front en producción habla solo con `kit-to-drive-api`; no lleva URL ni llave de Supabase.
 - Una tabla o función nueva del front entra por la lista blanca de la compuerta, con revisión.
