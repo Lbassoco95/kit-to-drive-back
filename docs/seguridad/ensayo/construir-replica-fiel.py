@@ -3,7 +3,7 @@
 Kit-to-Drive, con datos sintéticos (ninguno real), para ensayar la Fase 1.
 
 Pasos (ver docs/seguridad/ENSAYO-FASE-1.md):
-  1. Base nueva con las migraciones del repo SIN las de la Fase 1
+  1. Base nueva con las migraciones del repo SIN las de la Fase 1 ni las de la Fase 2
      (scripts/db-local/aplicar_migraciones.sh sobre una copia del repo).
   2. Agrega lo que producción tiene y el repo no crea: funciones, vistas, la
      tabla zz_lista_oct y triggers (de consultas/04-extraer-definiciones-faltantes.sql).
@@ -33,7 +33,8 @@ def psql(sql, db=None, check=True, quiet=True):
 tmp = tempfile.mkdtemp()
 shutil.copytree(RAIZ, tmp + '/repo', ignore=shutil.ignore_patterns('node_modules', '.git'))
 for f in os.listdir(tmp + '/repo/supabase/migrations'):
-    if f.startswith('20261031'): os.remove(tmp + '/repo/supabase/migrations/' + f)
+    # Sin la Fase 1 (20261031…) ni la Fase 2 (20261107…): la réplica es producción tal como estaba el 25 oct.
+    if re.match(r'\d{14}_', f) and f >= '20261031': os.remove(tmp + '/repo/supabase/migrations/' + f)
 r = subprocess.run(['bash', tmp + '/repo/scripts/db-local/aplicar_migraciones.sh', base], capture_output=True, text=True)
 print(r.stdout.strip().splitlines()[-1]); shutil.rmtree(tmp)
 

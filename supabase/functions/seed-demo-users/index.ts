@@ -2,6 +2,7 @@
 // Históricamente recreaba cuentas privilegiadas con contraseñas fijas y
 // verify_jwt=false. Ahora: JWT obligatorio + rechazo por defecto.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { autorizarAlta, enviarAcceso, generarPassword, MENSAJE_CORREO } from "../_shared/acceso.ts";
 
 const ALLOWED_ORIGINS = [
   "https://kit-to-drive.vercel.app",
@@ -75,10 +76,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Lab: no hay lista de passwords fijas en el bundle. El body debe traer
-    // usuarios a crear (email, password, nombre, role). Sin body → no-op.
+    // Lab. Fase 2: NADIE escribe la contraseña de una cuenta demo. Cada cuenta nueva recibe una contraseña
+    // aleatoria, distinta y de un solo uso (14 caracteres, generada aquí) que viaja solo por correo y debe
+    // cambiarse al entrar; no se devuelve en la respuesta, no se registra y no se reutiliza entre cuentas.
+    // Una cuenta que ya existe NO se toca (antes se le borraba el rol y se le reescribía el perfil).
+    // El body trae { users: [{ email, nombre, role, codigo_vendedor? }] }; si trae `password`, se ignora.
     const body = await req.json().catch(() => null) as
-      | { users?: Array<{ email: string; password: string; nombre: string; role: string; codigo_vendedor?: string }> }
+      | { users?: Array<{ email: string; nombre: string; role: string; codigo_vendedor?: string }> }
       | null;
 
     if (!body?.users?.length) {
@@ -91,32 +95,34 @@ Deno.serve(async (req) => {
     const existed: string[] = [];
 
     for (const d of body.users) {
-      if (!d.email || !d.password || !d.nombre || !d.role) continue;
-      if (d.password.length < 12) {
-        return new Response(JSON.stringify({ error: `password corta para ${d.email}` }), {
-          status: 400, headers: { ...cors, "Content-Type": "application/json" },
-        });
-      }
+      if (!d.email || !d.nombre || !d.role) continue;
 
       const { data: listed } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
       const ex = (listed?.users ?? []).find((u) => u.email?.toLowerCase() === d.email.toLowerCase());
-
-      let userId: string;
       if (ex) {
-        userId = ex.id;
         existed.push(d.email);
-      } else {
-        const { data, error } = await admin.auth.admin.createUser({
-          email: d.email,
-          password: d.password,
-          email_confirm: true,
-          user_metadata: { nombre_completo: d.nombre },
-          app_metadata: { must_change_password: true },
-        });
-        if (error) throw error;
-        userId = data.user!.id;
-        created.push(d.email);
+        continue;
       }
+
+      // El correo va PRIMERO: si no sale, no se crea la cuenta.
+      const password = generarPassword();
+      const envio = await enviarAcceso(d.email.toLowerCase().trim(), d.nombre.trim(), password, false);
+      if (!envio.ok) {
+        return new Response(JSON.stringify({ error: MENSAJE_CORREO[envio.motivo], code: "CORREO_FALLO", created, existed }), {
+          status: envio.motivo === "no_configurado" ? 503 : 502, headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+      await autorizarAlta(admin, d.email);
+      const { data, error } = await admin.auth.admin.createUser({
+        email: d.email,
+        password,
+        email_confirm: true,
+        user_metadata: { nombre_completo: d.nombre },
+        app_metadata: { must_change_password: true },
+      });
+      if (error) throw error;
+      const userId = data.user!.id;
+      created.push(d.email);
 
       await admin.from("profiles").upsert({
         id: userId,
@@ -124,8 +130,7 @@ Deno.serve(async (req) => {
         codigo_vendedor: d.codigo_vendedor ?? null,
         debe_cambiar_password: true,
       });
-      await admin.from("user_roles").delete().eq("user_id", userId);
-      await admin.from("user_roles").insert({ user_id: userId, role: d.role });
+      await admin.from("user_roles").upsert({ user_id: userId, role: d.role }, { onConflict: "user_id" });
     }
 
     return new Response(JSON.stringify({ ok: true, created, existed }), {

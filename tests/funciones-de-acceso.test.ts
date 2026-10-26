@@ -18,8 +18,9 @@ describe("contraseña temporal: siempre por correo (Edge Functions)", () => {
   });
 
   it("restringe el restablecimiento a administradores y a su área", () => {
-    expect(reset).toContain('callerNivel !== "admin"');
-    expect(reset).toContain("targetRole?.area !== callerArea");
+    expect(reset).toContain('actor.nivel !== "admin"');
+    // La regla de área y de nivel vive en _shared/permisos.ts (Fase 2) y se prueba en fase2-permisos-usuarios.test.ts.
+    expect(reset).toContain("puedeRestablecerPassword(actor, destino)");
   });
 
   it("genera la contraseña en el servidor y NUNCA la devuelve al navegador", () => {
