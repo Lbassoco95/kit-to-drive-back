@@ -47,6 +47,8 @@ La cuenta `qq.com` **se conserva**. Ningún cambio de la Fase 2 la modifica.
 - **A (actual):** D3–D5 gestionan la lista. Un administrador global que no es super admin puede quitar o poner super admins.
 - **B:** solo un super admin gestiona la lista. Más coherente con C3; exige cambiar esa función y la pantalla.
 
+**Decisión de Polo (26 oct 2026): A en la Fase 2 y B DESPUÉS de la Fase 2.** Quedó lista, sin aplicar: la migración `20261110000001_asignar_super_admin_solo_super_admin` (+ reversa; ensayada: `docs/seguridad/ensayo/resultado-operaciones-cuentas.json`) y el cambio de front en la rama `claude/asignar-super-admin-front` (sin mezclar). Con B, Polo (administrador global, no super admin) deja de poder asignar o quitar super admins; pueden Martin y Peter. Frase: «Autorizo asignar_super_admin opción B, ventana del `<fecha>`».
+
 ## 4. Responsables
 
 | Cuenta | Responsable | Estado de la confirmación |

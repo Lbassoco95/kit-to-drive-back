@@ -104,10 +104,10 @@ Detener y aplicar la **reversa de esa pieza** (y de las anteriores si hace falta
 ## 9. Lo que solo puede hacer Polo
 
 - Escribir las frases de autorización.
-- Confirmar quiénes son `finanzas`, `lee`, `marco` y `edgar`.
+- Confirmar quién es `finanzas` y si `test-scan` es una persona. Ya confirmado: `edgar` es un exempleado (se bloquea con su script), `marco` y `lee` son personas reales (marco queda como está; lee migra a su correo real).
 - Activar la protección de contraseñas filtradas en el panel (después de §5).
 - Activar el segundo factor con Peter (cuenta `qq.com`).
-- Decidir la opción A/B de `asignar_super_admin` y qué hacer con las cuentas de `yoltik.mx` que nunca entraron.
+- ~~Decidir la opción A/B de `asignar_super_admin`~~ **Decidido: A en la Fase 2 y B después** (migración `20261110000001`, lista y sin aplicar). Las cuentas de `yoltik.mx` (Carmen y JC) son administradores legítimos: deben entrar y cambiar su contraseña esta semana; si no, se prepara su bloqueo temporal.
 
 ## Cómo aplica Code por el conector
 

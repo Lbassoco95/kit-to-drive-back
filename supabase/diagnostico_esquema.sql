@@ -585,7 +585,9 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261109000003_paquete3_fecha_de_remision', 'funcion|cambiar_fecha_remision(text,uuid,date,text)'),
   ('20261109000003_paquete3_fecha_de_remision', 'trigger|remisiones.trg_remisiones_fecha_solo_funcion'),
   ('20261109000003_paquete3_fecha_de_remision', 'trigger|remisiones_refacciones.trg_remisiones_refacciones_fecha_solo_funcion'),
-  ('20261109000003_paquete3_fecha_de_remision', 'sin_privilegio|cambiar_fecha_remision(text,uuid,date,text)|anon')
+  ('20261109000003_paquete3_fecha_de_remision', 'sin_privilegio|cambiar_fecha_remision(text,uuid,date,text)|anon'),
+  -- asignar_super_admin, opción B (solo un super admin; se aplica DESPUÉS de la Fase 2, versión 20261110…)
+  ('20261110000001_asignar_super_admin_solo_super_admin', 'funcion|asignar_super_admin(uuid,boolean)|NOT public.es_super_admin(auth.uid())')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

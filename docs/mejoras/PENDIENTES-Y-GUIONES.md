@@ -41,8 +41,8 @@
 | # | Qué | Opciones y recomendación |
 |---|---|---|
 | 3.1 | Mezclar los PR #14 (back) y #74 (front) | Polo |
-| 3.2 | **`asignar_super_admin()`** (no se toca en la Fase 2; no bloquea la ventana) | **A (actual):** un administrador global que no es super admin gestiona la lista. **B:** solo un super admin la gestiona; es más coherente con «solo un super admin modifica a otro», pero exige cambiar la función y la pantalla de Aprobaciones. **Recomendación: A en la Fase 2 y decidir B en una ventana posterior**, para no mezclar un cambio de pantalla con la Fase 2. Detalle: `SUPER-ADMINS-Y-ADMIN-DIRECCION.md` §3. |
-| 3.3 | Confirmar quiénes son las cuentas `finanzas`, `lee`, `marco` y `edgar`, y qué hacer con las de `yoltik.mx` que nunca entraron | Polo |
+| 3.2 | **`asignar_super_admin()`:** **decidido (26 oct): A en la Fase 2 y B después.** Migración `20261110000001_asignar_super_admin_solo_super_admin` y front `claude/asignar-super-admin-front` listos, sin aplicar ni mezclar. Ventana propia después de la Fase 2 (con la frase «Autorizo asignar_super_admin opción B, ventana del `<fecha>`»); con B, Polo deja de poder asignar super admins y pueden Martin y Peter | Polo (frase y fecha) |
+| 3.3 | **Cuentas:** `edgar` (exempleado): bloqueo listo, con su frase. `marco`: queda como está. `lee`: se queda; migración a correo real lista, **falta el correo**. **Pendientes de confirmar:** `finanzas` y `test-scan` (su bloqueo está listo solo si Polo confirma). **Carmen y JC (Yoltik):** deben entrar esta semana y cambiar su contraseña; si no lo hacen antes del sábado, se prepara su bloqueo temporal. Detalle y frases: `docs/seguridad/CUENTAS-DEMO.md` §0 | Polo |
 | 3.4 | **Dos super admins activos** (no se modifican) y un **administrador global** con acceso a Usuarios para revertir desde la pantalla; alguien con acceso al panel de Supabase | Polo |
 | 3.5 | Aviso a los administradores (uno de ellos en China): los admins de área ya no crean ni modifican administradores | Polo |
 | 3.6 | Desplegar las **Edge Functions** (Actions → Run workflow, una a la vez, después de las migraciones) | Polo |

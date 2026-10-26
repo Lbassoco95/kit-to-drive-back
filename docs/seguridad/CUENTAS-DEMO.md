@@ -3,6 +3,20 @@
 Solo lectura y propuesta: **no se cambió nada en producción, no se inició sesión en ninguna cuenta y no se probó ninguna contraseña.**
 Los valores de contraseña no aparecen en este documento ni en el repositorio.
 
+## 0. Decisiones de Polo (26 oct 2026) y estado de cada cuenta
+
+| Cuenta | Decisión | Qué queda listo (sin aplicar) |
+|---|---|---|
+| `edgar` | **Es un exempleado: se bloquea en Auth** (opción B), reversible y sin borrar datos | `supabase/operaciones/fase2-bloquear-edgar.sql` + reversa. Frase: «Autorizo bloquear la cuenta de Edgar (exempleado), ventana del `<fecha>`» |
+| `marco` | **Persona real de ventas: queda como está** (opción A) | Nada. Sale de la migración de correo |
+| `lee` | **Persona real de ventas: se queda; se prepara su migración a correo real** (opción A), no el bloqueo | `supabase/operaciones/fase2-migrar-correo-real-lee.sql` + reversa. Falta el correo real. Frase: «Autorizo migrar a correo real a lee, correo: `<correo>`, ventana del `<fecha>`» |
+| `test-scan@test.com` (perfil activo sin área ni nivel) | **Pendiente de confirmar** que no es una persona | `supabase/operaciones/fase2-bloquear-test-scan.sql` + reversa, **solo si Polo lo confirma**. Frase: «Autorizo bloquear la cuenta test-scan, ventana del `<fecha>`» |
+| `finanzas` | **Pendiente de confirmar** quién es | Nada todavía (opciones en el reporte del 26 oct: dejar, forzar cambio de contraseña, bloquear) |
+| Carmen Ruvalcaba y JC Aguilar (`@yoltik.mx`, administradores de Dirección, nunca han entrado) | **Son del equipo de Yoltik y administradores legítimos.** Deben entrar esta semana y cambiar su contraseña; **si no lo hacen antes del sábado 31, se prepara su bloqueo temporal** | Al abrir la ventana de la Fase 2 se mira por lectura si ya entraron; el script de bloqueo temporal se prepara solo si hace falta |
+| Polo Bassoco | Administrador global legítimo, **no super admin** | Efecto en el Paquete 3 y en `asignar_super_admin`: ver `SUPER-ADMINS-Y-ADMIN-DIRECCION.md` §3 |
+
+Los cinco scripts del paso 1 (`admin`, `coordinador`, `fabrica`, `logistica`, `ventas`) y el de cambio obligatorio de contraseña siguen como se describen abajo, cada uno con su frase. Ensayo de los nuevos: `docs/seguridad/ensayo/ensayar-operaciones-cuentas.py` (resultado en `resultado-operaciones-cuentas.json`).
+
 ## 1. Qué hay hoy (verificado el 26 oct 2026, solo lectura)
 
 | Cuenta | Perfil activo | Último acceso | Debe cambiar contraseña | Sesiones / renovaciones vigentes | Área y nivel | Propuesta | Decide Polo |
@@ -49,7 +63,7 @@ Versiones anteriores de la pantalla también listaron `finanzas@dazon.demo` y `g
 | Paso | Script | Qué hace | Reversa | Frase de Polo |
 |---|---|---|---|---|
 | 1 | `supabase/operaciones/fase2-desactivar-cuentas-demo-inactivas.sql`, bloque 1 | Bloquea el inicio de sesión (Auth, `banned_until`) de `admin`, `coordinador`, `fabrica`, `logistica`, `ventas`. No borra usuarios, perfiles, roles ni historial. | `…_reversa.sql` (`banned_until = NULL`) | «Autorizo desactivar cuentas demo inactivas, ventana del <fecha>» |
-| 2 | mismo script, bloque 2 (comentado) | Lo mismo para `edgar`. | La misma reversa | La misma frase **más** la confirmación de que `edgar` no es una persona |
+| 2 | `fase2-bloquear-edgar.sql` | Lo mismo para `edgar` (exempleado confirmado por Polo). Script propio, con guardas propias. | `fase2-bloquear-edgar_reversa.sql` | «Autorizo bloquear la cuenta de Edgar (exempleado), ventana del `<fecha>`» |
 | 3 | `…forzar-cambio-password-demo-activas.sql` | `finanzas`, `lee` y `marco`: marca «debe cambiar contraseña» en el siguiente inicio de sesión. No cambia contraseñas ni cierra sesiones. | `…_reversa.sql` (restaura las marcas del 26 oct) | Frase aparte, con las cuentas nombradas |
 
 Los scripts tienen **guardas**: abortan sin cambiar nada si falta o sobra una cuenta, si alguna cuenta del paso 1 tiene el perfil activo, o si alguna ya está bloqueada. Se ensayaron en una copia local con datos inventados: guarda, aplicación, segunda aplicación (aborta), reversa y verificación.

@@ -15,7 +15,10 @@
 | «Autorizo Fase 1 en producción, ventana del `<fecha>`» | Las 6 migraciones de la Fase 1 |
 | «Autorizo Fase 2 en producción, ventana del `<fecha>`» | Las 5 migraciones de la Fase 2 y el despliegue de las Edge Functions |
 | «Autorizo bloquear cuentas inactivas, ventana del `<fecha>`» | El bloque 1 del script de bloqueo (5 cuentas). `edgar`, solo con confirmación expresa |
-| «Autorizo migrar a correo real a lee y marco, correos: `<correos>`, ventana del `<fecha>`» | El script de correo, con **esos** correos |
+| «Autorizo migrar a correo real a lee, correo: `<correo>`, ventana del `<fecha>`» | El script de correo de `lee`, con **ese** correo (marco queda como está) |
+| «Autorizo bloquear la cuenta de Edgar (exempleado), ventana del `<fecha>`» | `fase2-bloquear-edgar.sql` |
+| «Autorizo bloquear la cuenta test-scan, ventana del `<fecha>`» | `fase2-bloquear-test-scan.sql`, solo si Polo confirmó que no es una persona |
+| «Autorizo asignar_super_admin opción B, ventana del `<fecha>`» | La migración `20261110000001` (y el front de la rama `claude/asignar-super-admin-front`), después de la Fase 2 |
 | «Autorizo cambio de contraseña obligatorio a lee, ventana del `<fecha>`» | El script de cambio obligatorio, solo `lee` |
 | (sin frase aún) cerrar las sesiones de `lee` | Ver `PROPUESTA-LEE-CIERRE-DE-SESIONES.md`: necesita su propia frase |
 
@@ -177,7 +180,7 @@ Se corren con `psql -X -v ON_ERROR_STOP=1 -f supabase/operaciones/<script>.sql` 
 | Script | Frase | Cambios previstos (**y solo estos**) | Cifras previstas |
 |---|---|---|---|
 | `fase2-desactivar-cuentas-demo-inactivas.sql` (bloque 1) | «Autorizo bloquear cuentas inactivas…» | `auth.users.banned_until`: `NULL` → `infinity` en **5 filas**: `admin@`, `coordinador@`, `fabrica@`, `logistica@`, `ventas@dazon.demo` (**`edgar@`: solo con confirmación; sería la fila 6**) | `auth.users`: bloqueados **0 → 5** (6 con edgar), no bloqueados **26 → 21** (20); la huella de `auth.users` sin contraseñas **cambia**; contraseñas, identidades, **profiles y las 93 tablas: sin diferencias**; sesiones y tokens: mismo conteo |
-| `fase2-migrar-correo-real-lee-marco.sql` | «Autorizo migrar a correo real a lee y marco, correos: …» (**pendiente: Polo da los correos**) | **2** `auth.users` (`email`, `updated_at`, y `raw_user_meta_data.email` si existe); **2** `auth.identities` (`identity_data.email`); **2** `profiles` (`email`, `updated_at`) | `auth.users`: totales iguales; `profiles` cambia en 2 filas; ninguna otra tabla |
+| `fase2-migrar-correo-real-lee.sql` | «Autorizo migrar a correo real a lee, correo: …» (**pendiente: Polo da el correo**) | **1** cuenta: `auth.users` (`email`, `updated_at`, y `raw_user_meta_data.email` si existe), `auth.identities` y `profiles.email`. Marco queda como está |
 | `fase2-forzar-cambio-password-demo-activas.sql` (solo `lee`) | «Autorizo cambio de contraseña obligatorio a lee…» | **Ningún valor cambia** (ya está activado); solo `profiles.updated_at` de 1 fila. **No se corre** según la decisión de Polo del 26 oct | `profiles` cambia en 1 fila (`updated_at`) |
 | `fase2-cerrar-sesiones-lee.sql` (propuesta) | (sin frase aún) | Ver `PROPUESTA-LEE-CIERRE-DE-SESIONES.md` | Hoy **0** sesiones de `lee`: no habría efecto |
 
