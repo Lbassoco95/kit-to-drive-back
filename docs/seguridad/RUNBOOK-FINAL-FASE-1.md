@@ -51,11 +51,16 @@ La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparac
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
 ☐ **Aviso al equipo de Dazon** (el día anterior y al empezar): «Sábado 31 de octubre, de 10:00 a 15:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
-☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron (los primeros 16 caracteres deben coincidir):
+☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
 ```
+En Mac (no trae `sha256sum`):
+```bash
+shasum -a 256 supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
 ```
+**Esto de abajo NO se ejecuta en ningún lado: es lo que debe imprimir** (los primeros 16 caracteres de cada línea deben coincidir):
+```text
 b7c0b998d0924ded  supabase/migrations/20261031000001_fase1_quitar_truncate_trigger_references.sql
 c585002782381041  supabase/migrations/20261031000002_fase1_cerrar_funciones_de_trigger.sql
 4712ed54a77f9bc4  supabase/migrations/20261031000003_fase1_fijar_search_path.sql
@@ -77,7 +82,7 @@ e202db64dd4d5c76  supabase/reversas/20261031000006_fase1_lo_nuevo_nace_cerrado_r
 
 ## 4. Bloques de verificación (se corren en el SQL Editor de Supabase, proyecto `kit-to-drive`)
 
-**Cómo:** pega **un bloque completo** y dale *Run*. Todos son de solo lectura (`begin read only; … rollback;`). **Si el editor solo muestra «Success. No rows returned»** (puede mostrar solo la última instrucción), borra las dos líneas de los extremos, `begin read only;` y `rollback;`, y corre solo el `select`. No borres solo el `rollback;`. No he podido probar el editor de Supabase; los bloques sí los probé en una réplica local de PostgreSQL 16.
+**Dónde corre cada cosa:** los bloques marcados `sql` van en el **SQL Editor de Supabase**; los marcados `bash`, en la **terminal**; los marcados `text` son el resultado esperado y **no se ejecutan**. **Cómo:** pega **un bloque completo** y dale *Run*. Todos son de solo lectura (`begin read only; … rollback;`). **Si el editor solo muestra «Success. No rows returned»** (puede mostrar solo la última instrucción), borra las dos líneas de los extremos, `begin read only;` y `rollback;`, y corre solo el `select`. No borres solo el `rollback;`. No he podido probar el editor de Supabase; los bloques sí los probé en una réplica local de PostgreSQL 16.
 
 ### Bloque 0 — ¿Es producción y está tranquila?
 
