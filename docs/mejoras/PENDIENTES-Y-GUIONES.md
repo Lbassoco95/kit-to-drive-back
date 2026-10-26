@@ -27,10 +27,10 @@
 
 | # | Qué | Quién |
 |---|---|---|
-| 2.1 | Mezclar el PR #16 del back (Paquete 1) y el PR #75 del front. **No** mezclar aún el PR #8 de la compuerta | Polo |
+| 2.1 | Mezclar el PR #16 del back (Paquete 1). **Mezclar el back no aplica nada en producción** (ver abajo). **No** mezclar antes de la ventana el PR #8 de la compuerta ni el PR #75 del front: **los dos se mezclan DENTRO de la ventana, en este orden: M1 y M2 verificados → PR #8 (compuerta) → PR #75 (front)**; cada uno despliega en producción en Vercel | Polo |
 | 2.2 | Dos clientes de prueba **sin vendedor** («ZZ PRUEBA P1 sin asignar A» y «B»), creados por un supervisor; se **desactivan** al final, no se borran | Polo / supervisor |
 | 2.3 | Cuentas: un **vendedor sin clientes**, **otro vendedor**, un **supervisor** de Comercial, un **administrativo** de Comercial y **Dirección** | Polo + persona de pruebas |
-| 2.4 | **D8 = A** ya decidida: Code hace el cambio de texto en el PR #75. **Necesito tu «sí, hazlo»** (no es parte de ninguna ventana; va en el front) | Polo |
+| 2.4 | **D8 = A:** el cambio de texto de «Clientes» ya está hecho en el PR #75 (sin tocar la base) | Code (hecho) |
 | 2.5 | Respaldo del día; aviso a Dazon (miércoles y al empezar) | Polo |
 | 2.6 | La frase: «Autorizo paquete 1 (permisos de vendedor) en producción, ventana del 2026-10-29» | Polo |
 | 2.7 | **Mezclar el PR #8 de la compuerta** (despliega en producción en Vercel): **después de verificar M1 y M2 y antes de los recorridos** | Polo |
@@ -50,26 +50,26 @@
 
 Fuera de esa ventana, aparte y con su propia frase: activar contraseñas filtradas (panel, después de publicar el PR del front), segundo factor con Peter, y las frases de las cuentas demo, `lee` y `marco` (`RUNBOOK-CONSOLIDADO-VENTANAS.md` §0).
 
-### Bloque 4 — Decisiones del Paquete 2 (reportes y buscadores; solo lectura). Depende de la Fase 2 aplicada
+### Bloque 4 — Paquete 2 (reportes y buscadores, solo lectura). Depende de la Fase 2 aplicada y limpia
 
-| # | Pregunta | A | B | Recomendación |
-|---|---|---|---|---|
-| 4.1 | ¿«Ventas» es de refacciones o también de unidades? | Solo refacciones | Refacciones y motocarros | **A**: «ítem» y «almacén» apuntan a refacciones; unidades después |
-| 4.2 | ¿Qué cuenta como venta? | Fecha de la remisión, sin canceladas ni datos de prueba | Fecha de surtido o entrega | **A**: es la más simple y la que ya ven los reportes de Compras |
-| 4.3 | ¿Administrativos y supervisores ven todas las ventas? | Sí | Solo las de su equipo | **A**: ya ven todas las remisiones por RLS |
-| 4.4 | ¿El vendedor entra a Kardex y Rotación? | No | Sí | **A**: son de inventario; el vendedor solo tiene ventas y Entregas |
+Decisiones 4.1 a 4.4: **todas A, tomadas** (`PAQUETE-2-REPORTES-Y-BUSCADORES.md` §5). **Migraciones, reversas y guion listos y ensayados** (`VENTANA-PAQUETE-2.md`). Falta de tu lado:
 
-### Bloque 5 — Decisiones del Paquete 3 (crédito, fecha y eliminación). Depende del Paquete 2 y de la Fase 2 (usa la cartera vencida con `SECURITY INVOKER`)
+| # | Qué | Quién |
+|---|---|---|
+| 4.5 | **Dar el «sí» para escribir el front del Paquete 2** (pantalla de ventas, kárdex y rotación con buscador, filtros de Entregas, fecha programada) y su alta en la compuerta; sin él la ventana no tiene recorridos | Polo |
+| 4.6 | Fecha de la ventana, respaldo, persona de pruebas, y la frase «Autorizo paquete 2 (reportes y buscadores) en producción, ventana del `<fecha>`» | Polo |
 
-| # | Pregunta | A | B | Recomendación |
-|---|---|---|---|---|
-| 5.1 (D-A1) | «Modo prueba» para eliminar | Interruptor global nuevo, que Dirección apaga al entrar en operación | Eliminar solo remisiones de prueba | **A**: es lo que describiste |
-| 5.2 (D-A2) | Los borrados directos de administradores y de administradores de Comercial | Se cierran: solo el super admin elimina, por la función | Se dejan | **A** |
-| 5.3 (D-A3) | «Factura» que bloquea eliminar | `movimientos_financieros` (`factura_url`, `tiene_factura`) | Otro dato | **A**, si confirmas que es ese |
-| 5.4 (D-B1) | Fecha de una remisión de refacciones ya surtida | **Prohibir** editarla | Corregir también el movimiento del kárdex (cambia saldos históricos) | **A**: no toca el histórico |
-| 5.5 (D-B2) | Vencimiento al cambiar la fecha | Solo **avisar** a finanzas | Mover el vencimiento de la cuenta por cobrar | **A**: mover el vencimiento afecta cartera |
-| 5.6 (D-B3) | Alcance de la fecha editable | Las dos remisiones | Solo una | **A** |
-| 5.7 (D-C1) | Crédito | Cabe = límite − saldo abierto; se bloquea con cartera vencida; vencimiento = fecha + días de crédito (tope 60); aplica también a refacciones | Variantes por tipo de remisión | **A**; confírmalo línea por línea |
+### Bloque 5 — Paquete 3 (eliminar remisión y fecha de remisión). Depende de la Fase 2 y del Paquete 2
+
+Decisiones 5.1, 5.2, 5.4, 5.5 y 5.6: **A, tomadas.** **Migraciones, reversas y guion listos y ensayados** (`VENTANA-PAQUETE-3.md`). **El crédito (5.7) no se construyó: espera a Martin.** Falta de tu lado:
+
+| # | Qué | Quién |
+|---|---|---|
+| 5.3 | Confirmar qué dato es «factura» (hoy: `movimientos_financieros.tiene_factura`/`factura_uuid`/`factura_folio`; el paquete además rechaza **cualquier** movimiento financiero ligado, así que no bloquea la ventana) | Polo |
+| 5.7 | Las respuestas de Martin sobre crédito (¿«cabe» = límite − saldo abierto?, ¿se bloquea con cartera vencida?, ¿vencimiento = fecha + días de crédito con tope de 60?, ¿también refacciones?). Nota: «crédito» **ya existe** en `remisiones.tipo_pago` y en `remisiones_refacciones.forma_pago` | Martin |
+| 5.8 | **Dar el «sí» para escribir el front del Paquete 3** (botón «Eliminar», «Cambiar fecha», interruptor de modo prueba; quitar `fecha_remision` de la edición normal) y su alta en la compuerta | Polo |
+| 5.9 | Confirmar la regla adoptada para refacciones: **si ya surtió inventario, se cancela, no se elimina** | Polo |
+| 5.10 | Fecha de la ventana, respaldo, cuentas (super admin, Dirección sin ser super admin, admin y administrativo de Comercial) y la frase «Autorizo paquete 3 (crédito, fecha y eliminación de remisiones) en producción, ventana del `<fecha>`». La frase nombra el crédito pero esta ventana cubre solo eliminar y fecha: **dime si la quieres así o con «eliminación y fecha»** | Polo |
 
 ## Parte 2. Guion de cada ventana
 
@@ -133,6 +133,28 @@ Detalle: `docs/seguridad/RUNBOOK-VENTANA-FASE-2.md`. Antes de empezar: huellas d
 
 **Recorridos:** U1, U2, U9, U10 tras la 1.ª; U3–U8 tras la 2.ª; U12 y U13 tras la 4.ª; Edge Functions: U1/U3/U4/U5/U7/U8/U14, U6/U10 y U11. **Rastro obligatorio:** tras la primera edición debe aparecer `usuario.editar` en `bridge_bitacora`; si no aparece o hay 503, detener y revertir. **Detener y revertir** si falla un recorrido, un usuario legítimo pierde una acción, suben los errores o el rastro no aparece.
 
-### Paquete 2 y Paquete 3
+### Paquete 2 — fecha por fijar, después de la Fase 2
 
-**No tienen guion ejecutable todavía.** El Paquete 2 (solo lectura) y el Paquete 3 (crédito, fecha y eliminación) están solo en diseño (`PAQUETE-2-…md`, `PAQUETE-3-…md`) y esperan las decisiones de los Bloques 4 y 5. Con ellas, Code escribe las migraciones con su reversa, las ensaya en la réplica (con Fase 1, Paquete 1 y Fase 2 ya aplicados) y entrega su guion con el mismo formato. Van en ventanas propias, **en este orden: Paquete 2 después de la Fase 2, Paquete 3 al final**, cada una con su frase con fecha.
+Guion completo: `VENTANA-PAQUETE-2.md`. Orden: M1 reporte de ventas → M2 kárdex de varios artículos → M3 rotación filtrada; el front se mezcla **después** de las migraciones verificadas; recorridos S1–S6. Tres funciones nuevas de solo lectura; ninguna tabla, política ni trigger.
+
+| Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `registros_migraciones` |
+|---|---|---|---|---|---|---|
+| Antes | 274 | 177 | 300 | T0 | 93 | R |
+| Tras M1 | 275 | 177 | 300 | T0 | 93 | R+1 |
+| Tras M2 | 276 | 178 | 300 | T0 | 93 | R+2 |
+| Tras M3 | 277 | 179 | 300 | T0 | 93 | R+3 |
+
+**Detener y revertir** (M3, M2, M1) si el vendedor ve ventas de otro o entra a Kárdex o Rotación, si falla un recorrido que pasaba, si suben los errores de D2 o si P2V no coincide.
+
+### Paquete 3 — fecha por fijar, al final
+
+Guion completo: `VENTANA-PAQUETE-3.md`. Orden: M1 interruptor global → verificar → M2 eliminar remisión (cierra los DELETE directos) → verificar → mezclar el front → M3 fecha de remisión → verificar; recorridos T1–T8. **No incluye el crédito.**
+
+| Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `registros_migraciones` |
+|---|---|---|---|---|---|---|
+| Antes | 277 | 179 | 300 | T0 | 93 | R |
+| Tras M1 | 280 | 181 | 300 | T0+1 | 93 | R+1 |
+| Tras M2 | 281 | 182 | 298 | T0+1 | 93 | R+2 |
+| Tras M3 | 283 | 183 | 299 | T0+3 | 94 | R+3 |
+
+**Detener y revertir** (M3, M2, M1) si falla un recorrido que pasaba (sobre todo editar una remisión), si alguien que no es super admin logra eliminar, si se elimina algo con pago, cobranza, factura o entrega, si queda una fila huérfana, si suben los errores de D2 o si P3V no coincide.

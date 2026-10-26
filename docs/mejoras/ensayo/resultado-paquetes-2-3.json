@@ -1,0 +1,684 @@
+{
+ "antes": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 274,
+   "funciones_ejecutables_anon": 0,
+   "politicas": 300,
+   "secdef_ejecutables_authenticated": 177,
+   "tablas": 93,
+   "triggers": 247
+  }
+ },
+ "antes_admcom_borra_directo": [
+  "quedan=0"
+ ],
+ "chequeos": [
+  {
+   "caso": "ANTES: el administrador de Comercial SÍ borra directo una remisión (lo que cierra P3)",
+   "detalle": "['quedan=0']",
+   "ok": true
+  },
+  {
+   "caso": "ANTES: el vendedor SÍ cambia la fecha por edición normal (lo que cierra P3)",
+   "detalle": "['fecha=2026-10-01']",
+   "ok": true
+  },
+  {
+   "caso": "P2+P3 no cambian NINGUNA función que ya existía (Fase 1, Paquete 1, Fase 2 intactas)",
+   "detalle": "[]",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte de ventas: vend1 ve 8/430.00/1",
+   "detalle": "8/430.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte de ventas: vend2 ve 1/200.00/1",
+   "detalle": "1/200.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte de ventas: superv ve 9/630.00/2",
+   "detalle": "9/630.00/2",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte de ventas: admvo ve 9/630.00/2",
+   "detalle": "9/630.00/2",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte de ventas: direccion ve 9/630.00/2",
+   "detalle": "9/630.00/2",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: el vendedor NO ve las ventas del otro",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: usuario de prueba no ve datos reales (0 filas)",
+   "detalle": "0/0/0",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: usuario de prueba con _incluir_prueba ve solo lo de prueba",
+   "detalle": "1/10.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: canceladas excluidas (superv no suma 999)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: filtro almacén A",
+   "detalle": "8/430.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: filtro almacén B",
+   "detalle": "1/200.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: filtro vendedor 2",
+   "detalle": "1/200.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: filtro artículo 2",
+   "detalle": "1/200.00/1",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: el vendedor filtrando por el OTRO vendedor sigue sin ver nada ajeno",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 reporte: periodo inválido se rechaza",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: vend1 NO entra",
+   "detalle": "Sin acceso al kárdex",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: vend2 NO entra",
+   "detalle": "Sin acceso al kárdex",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: vprueba NO entra",
+   "detalle": "Sin acceso al kárdex",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: entra al menos un rol de inventario",
+   "detalle": "['compras', 'almacen', 'direccion', 'finanzas']",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: un artículo (pr1) = kardex_refaccion (fecha, tipo, entrada, salida, saldo)",
+   "detalle": "3 vs 3",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: un artículo (pr2) = kardex_refaccion (fecha, tipo, entrada, salida, saldo)",
+   "detalle": "2 vs 2",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: dos artículos juntos",
+   "detalle": "['2/5']",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: filtro de almacén A (saldos 10, 8)",
+   "detalle": "['10,8']",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: saldo inicial al 30/09 = 10",
+   "detalle": "['10']",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: lista vacía se rechaza",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 kárdex multi: más de 50 se rechaza",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: vend1 NO entra",
+   "detalle": "Sin acceso a rotación",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: vend2 NO entra",
+   "detalle": "Sin acceso a rotación",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: vprueba NO entra",
+   "detalle": "Sin acceso a rotación",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: entra al menos un rol de compras",
+   "detalle": "['compras', 'direccion', 'finanzas']",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada sin filtros = rotación original",
+   "detalle": "(['3/3/300.00'], ['3/3/300.00'])",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: filtro de artículo",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 rotación filtrada: almacén A (pr1 vendió 2; pr2 0)",
+   "detalle": "['f8f69a83-c95c-4bc1-9b57-93b2f8bbc449|2', '894d991e-3fc5-43a6-bf52-a67ed98a2ecf|0']",
+   "ok": true
+  },
+  {
+   "caso": "P2: las 3 funciones son STABLE (solo lectura)",
+   "detalle": "['kardex_refacciones_multi=s', 'reporte_ventas_refacciones=s', 'resumen_rotacion_refacciones_filtrado=s']",
+   "ok": true
+  },
+  {
+   "caso": "P2: ninguna función tiene INSERT/UPDATE/DELETE",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2: anon no ejecuta y authenticated sí (las 3)",
+   "detalle": "['falsetrue', 'falsetrue', 'falsetrue']",
+   "ok": true
+  },
+  {
+   "caso": "P2: el reporte de ventas es SECURITY INVOKER",
+   "detalle": "['true']",
+   "ok": true
+  },
+  {
+   "caso": "P3 modo prueba global: arranca encendido",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: quien puede compras/inventario NO lo cambia directo",
+   "detalle": "El modo prueba global solo se cambia con «fijar_modo_prueba_global» (Dirección o super admin)",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: quien puede compras/inventario no lo borra directo",
+   "detalle": "['filas=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: ni el dueño de la tabla (sin la función) lo borra o cambia",
+   "detalle": "El modo prueba global solo se cambia con «fijar_modo_prueba_global» (Dirección o super admin)",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: vend1 NO lo fija",
+   "detalle": "Solo Dirección o un super admin cambia el modo prueba global",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: superv NO lo fija",
+   "detalle": "Solo Dirección o un super admin cambia el modo prueba global",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: admvo NO lo fija",
+   "detalle": "Solo Dirección o un super admin cambia el modo prueba global",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: compras NO lo fija",
+   "detalle": "Solo Dirección o un super admin cambia el modo prueba global",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: finanzas NO lo fija",
+   "detalle": "Solo Dirección o un super admin cambia el modo prueba global",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: Dirección lo apaga y queda en bitácora",
+   "detalle": "['f', 'f', '1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 interruptor: sin motivo se rechaza",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: con el modo prueba APAGADO se rechaza",
+   "detalle": "El modo prueba está apagado: una remisión ya no se elimina, se cancela",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con pago registrado: se rechaza",
+   "detalle": "Tiene un pago registrado: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con cuenta por cobrar: se rechaza",
+   "detalle": "Tiene una cuenta por cobrar: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con factura: se rechaza",
+   "detalle": "Tiene factura: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con movimientos financieros: se rechaza",
+   "detalle": "Tiene movimientos financieros (cobranza): se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con entrega confirmada: se rechaza",
+   "detalle": "Tiene una entrega confirmada: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: folio distinto se rechaza",
+   "detalle": "El folio escrito no coincide con el de la remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: motivo corto se rechaza",
+   "detalle": "Escribe el motivo de la eliminación (mínimo 10 caracteres)",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: vend1 (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: superv (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: admvo (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: admcom (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: dirop (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: finanzas (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: compras (no super admin) se rechaza",
+   "detalle": "Solo un super admin puede eliminar remisiones",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro (super admin, limpia): se elimina",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: remision=0",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: unidades_liberadas=2",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: bitacora_de_la_remision=0",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: oportunidad_desligada=1",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: copia=1",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: evento=1",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar refacciones (pago registrado): se rechaza",
+   "detalle": "Tiene un pago registrado: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar refacciones (entrega confirmada): se rechaza",
+   "detalle": "Tiene una entrega confirmada: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar refacciones (surtió inventario): se rechaza",
+   "detalle": "Ya surtió inventario (hay movimientos de kárdex): se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar refacciones (limpia): se elimina, sin partidas huérfanas y con copia",
+   "detalle": "['{\"tipo\": \"refacciones\", \"folio\": \"ZZ-rr_limpia\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}', 'remision=0', 'partidas=0', 'apartado_pr1=2', 'copia=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar refacciones: el apartado se libera (baja en 3)",
+   "detalle": "('5', ['2'])",
+   "ok": true
+  },
+  {
+   "caso": "P3: el administrador de Comercial ya NO borra directo",
+   "detalle": "ERROR:  permission denied for table remisiones\n",
+   "ok": true
+  },
+  {
+   "caso": "P3: ni Dirección borra directo",
+   "detalle": "ERROR:  permission denied for table remisiones\n",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: vend1 NO la cambia",
+   "detalle": "Solo Dirección o un administrativo de Comercial cambia la fecha de una remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: superv NO la cambia",
+   "detalle": "Solo Dirección o un administrativo de Comercial cambia la fecha de una remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: finanzas NO la cambia",
+   "detalle": "Solo Dirección o un administrativo de Comercial cambia la fecha de una remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: admcom NO la cambia",
+   "detalle": "Solo Dirección o un administrativo de Comercial cambia la fecha de una remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: compras NO la cambia",
+   "detalle": "Solo Dirección o un administrativo de Comercial cambia la fecha de una remisión",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha motocarro: direccion la cambia, con historial y aviso a administración",
+   "detalle": "['{\"folio\": \"ZZ-RM-PAGO\", \"fecha_nueva\": \"2026-10-04\", \"fecha_original\": \"2026-10-05\"}', 'fecha=2026-10-04', 'historial=1', 'aviso=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha motocarro: admvo la cambia, con historial y aviso a administración",
+   "detalle": "['{\"folio\": \"ZZ-RM-PAGO\", \"fecha_nueva\": \"2026-10-04\", \"fecha_original\": \"2026-10-05\"}', 'fecha=2026-10-04', 'historial=1', 'aviso=1']",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha refacciones sin surtido: se cambia",
+   "detalle": "None",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha refacciones con inventario surtido: se rechaza (D-B1)",
+   "detalle": "Ya surtió inventario (hay movimientos de kárdex con esa fecha): la fecha no se edita",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: futura se rechaza",
+   "detalle": "La fecha nueva no puede ser futura",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: igual a la actual se rechaza",
+   "detalle": "La fecha nueva es igual a la actual",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: motivo corto se rechaza",
+   "detalle": "Escribe el motivo del cambio (mínimo 5 caracteres)",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: remisión cancelada se rechaza",
+   "detalle": "No se encontró la remisión (o está cancelada)",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: el vendedor ya NO cambia fecha_remision por la edición normal",
+   "detalle": "ERROR:  La fecha de la remisión solo se cambia con «Cambiar fecha» (Dirección o administrativo de Comercial), con motivo\nCONTEXT:  PL/pgSQL function remision_fecha_solo_por_funcion() line 5 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha refacciones: ni el dueño de la tabla cambia fecha_remision directo",
+   "detalle": "ERROR:  La fecha de la remisión solo se cambia con «Cambiar fecha» (Dirección o administrativo de Comercial), con motivo\nCONTEXT:  PL/pgSQL function remision_fecha_solo_por_funcion() line 5 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "P3 fecha: el vendedor SÍ edita otros campos (y reenviar la misma fecha no estorba)",
+   "detalle": "ok\n",
+   "ok": true
+  },
+  {
+   "caso": "P3: remision_fecha_cambios: anon nada, authenticated solo lee, con RLS",
+   "detalle": "falsefalsefalsefalse|true",
+   "ok": true
+  },
+  {
+   "caso": "P3: anon no ejecuta nada; authenticated ejecuta las 4 públicas y ninguna de trigger",
+   "detalle": "['cambiar_fecha_remision:falsetrue', 'eliminar_remision:falsetrue', 'fijar_modo_prueba_global:falsetrue', 'modo_prueba_global_activo:falsetrue', 'proteger_modo_prueba_global:falsefalse', 'remision_fecha_solo_por_funcion:falsefalse']",
+   "ok": true
+  },
+  {
+   "caso": "P3 respeta la Fase 2: cliente_tiene_cxc_vencidas y cxc_vencidas_resumen siguen SECURITY INVOKER",
+   "detalle": "['cliente_tiene_cxc_vencidas:true', 'cxc_vencidas_resumen:true']",
+   "ok": true
+  },
+  {
+   "caso": "Reaplicar las 6 migraciones no cambia nada (idempotentes)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Revertir solo el Paquete 3 deja el catálogo igual al de «tras el Paquete 2»",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Revertir todo deja el catálogo EXACTAMENTE como estaba antes",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Tras revertir todo vuelven a existir los dos DELETE directos y la fecha se edita como antes",
+   "detalle": "",
+   "ok": true
+  }
+ ],
+ "despues": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 283,
+   "funciones_ejecutables_anon": 0,
+   "politicas": 299,
+   "secdef_ejecutables_authenticated": 183,
+   "tablas": 94,
+   "triggers": 250
+  }
+ },
+ "filas_sinteticas": 37,
+ "migraciones": {
+  "20261108000001_paquete2_reporte_ventas_refacciones": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261108000002_paquete2_kardex_varios_articulos": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261108000003_paquete2_rotacion_filtrada": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261109000001_paquete3_modo_prueba_global": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261109000002_paquete3_eliminar_remision": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261109000003_paquete3_fecha_de_remision": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  }
+ },
+ "p2": {
+  "filtros": {
+   "almacén A": "8/430.00/1",
+   "almacén B": "1/200.00/1",
+   "artículo 2": "1/200.00/1",
+   "vendedor 2": "1/200.00/1"
+  },
+  "kardex_por_rol": {
+   "admcom": "Sin acceso al kárdex",
+   "admvo": "Sin acceso al kárdex",
+   "almacen": "ok",
+   "compras": "ok",
+   "direccion": "ok",
+   "dirop": "ok",
+   "fabrica": "Sin acceso al kárdex",
+   "finanzas": "ok",
+   "superv": "Sin acceso al kárdex",
+   "vend1": "Sin acceso al kárdex",
+   "vend2": "Sin acceso al kárdex",
+   "vprueba": "Sin acceso al kárdex"
+  },
+  "prueba_con_incluir": "1/10.00/1",
+  "reporte_por_rol": {
+   "admcom": "9/630.00/2",
+   "admvo": "9/630.00/2",
+   "almacen": "9/630.00/2",
+   "compras": "9/630.00/2",
+   "direccion": "9/630.00/2",
+   "dirop": "9/630.00/2",
+   "fabrica": "0/0/0",
+   "finanzas": "9/630.00/2",
+   "superv": "9/630.00/2",
+   "vend1": "8/430.00/1",
+   "vend2": "1/200.00/1",
+   "vprueba": "0/0/0"
+  },
+  "rotacion_por_rol": {
+   "admcom": "Sin acceso a rotación",
+   "admvo": "Sin acceso a rotación",
+   "almacen": "ok",
+   "compras": "ok",
+   "direccion": "ok",
+   "dirop": "ok",
+   "fabrica": "Sin acceso a rotación",
+   "finanzas": "ok",
+   "superv": "Sin acceso a rotación",
+   "vend1": "Sin acceso a rotación",
+   "vend2": "Sin acceso a rotación",
+   "vprueba": "Sin acceso a rotación"
+  }
+ },
+ "p3": {
+  "eliminar_motocarro": [
+   "{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}",
+   "remision=0",
+   "unidades_liberadas=2",
+   "bitacora_de_la_remision=0",
+   "oportunidad_desligada=1",
+   "copia=1",
+   "evento=1"
+  ],
+  "eliminar_refacciones": [
+   "5",
+   [
+    "{\"tipo\": \"refacciones\", \"folio\": \"ZZ-rr_limpia\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}",
+    "remision=0",
+    "partidas=0",
+    "apartado_pr1=2",
+    "copia=1"
+   ]
+  ]
+ },
+ "reaplicar_idempotente": true,
+ "reversa_total_restaura_exacto": true,
+ "tras_p2": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 277,
+   "funciones_ejecutables_anon": 0,
+   "politicas": 300,
+   "secdef_ejecutables_authenticated": 179,
+   "tablas": 93,
+   "triggers": 247
+  }
+ },
+ "tras_reversa_p3": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 277,
+   "funciones_ejecutables_anon": 0,
+   "politicas": 300,
+   "secdef_ejecutables_authenticated": 179,
+   "tablas": 93,
+   "triggers": 247
+  }
+ },
+ "tras_reversa_total": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 274,
+   "funciones_ejecutables_anon": 0,
+   "politicas": 300,
+   "secdef_ejecutables_authenticated": 177,
+   "tablas": 93,
+   "triggers": 247
+  }
+ }
+}

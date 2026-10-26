@@ -1,6 +1,6 @@
 # Paquete 2 — Reportes y buscadores (solo lectura)
 
-**Estado: DISEÑO. No se escribió código ni migraciones todavía.** Va **después de la Fase 2** (ventana propia). Frase: «Autorizo paquete 2 (reportes y buscadores) en producción, ventana del `<fecha>`». Hay decisiones de alcance (§5) que cambian lo que se construye; conviene tenerlas antes de escribir.
+**Estado: MIGRACIONES Y REVERSAS LISTAS Y ENSAYADAS; NADA APLICADO. El front de este paquete todavía NO está escrito.** Va **después de la Fase 2** (ventana propia; guion: `VENTANA-PAQUETE-2.md`). Frase: «Autorizo paquete 2 (reportes y buscadores) en producción, ventana del `<fecha>`». Hay decisiones de alcance (§5) que cambian lo que se construye; conviene tenerlas antes de escribir.
 
 ## 1. Lo que ya existe (leído del repo y del respaldo de producción)
 
@@ -32,12 +32,22 @@ Con los volúmenes actuales (1,079 movimientos; 2,237 productos; 32 partidas; 18
 
 3 funciones (`reporte_ventas_refacciones`, `kardex_refacciones_multi`, sobrecarga de rotación), cada una con `REVOKE ALL … FROM PUBLIC, anon` y `GRANT EXECUTE … TO authenticated` explícito, `SET search_path = public`. **Alta en la lista blanca de la compuerta** (`RPCS` de `kit-to-drive-front/src/allowlist.ts`: hoy 85) y en `contrato/funciones.json` + `src/test/contrato-back.json` del front. Versiones de migración **posteriores a `20261107…`**.
 
-## 5. Decisiones que faltan (cambian lo que se construye)
+## 5. Decisiones de Polo (26 oct 2026) — todas A
 
-1. **¿«Ventas» es solo de refacciones (productos) o también de unidades (motocarros)?** «Ítem uno o varios» y «almacén» apuntan a refacciones; las unidades se venden por remisión de motocarros (modelo, color).
-2. **¿Qué cuenta como venta?** La fecha de la remisión, la del surtido o la de la entrega; si entran las **canceladas**; y si entran los datos de **prueba** (hoy los reportes de Compras los excluyen salvo que se pida).
-3. **¿Qué pueden ver los administrativos y los supervisores en ventas?** Hoy ven todas las remisiones (por RLS); se asumió que ven todas las ventas.
-4. **¿El vendedor entra a «Kardex» y «Rotación»?** Hoy no. Se asumió que **no** (son de inventario); solo el reporte de ventas y Entregas son suyos.
+1. **«Ventas» = solo refacciones.** Las unidades (motocarros) quedan fuera por ahora.
+2. **Qué cuenta como venta:** la partida de una remisión de refacciones **no cancelada**, por la **fecha de la remisión**, **sin datos de prueba** (con `_incluir_prueba` solo para quien ve datos de prueba). El importe es el **vigente** de la cobranza (`importe_partida_refaccion` sobre surtido + bloqueado, con el descuento de la partida y el general).
+3. **Administrativos y supervisores ven todas las ventas.** Por construcción lo mismo ven los roles que ya leen todas las remisiones de refacciones por su RLS (**compras/inventario, finanzas/cobranza, almacén y Dirección**, medido en el ensayo): no hay una segunda regla que mantener. `fabrica` ve 0.
+4. **El vendedor no entra a Kardex ni Rotación** (el ensayo lo comprueba: «Sin acceso»); solo reporte de ventas y Entregas.
+
+## 5.1 Qué se construyó (migraciones `20261108…`, ensayadas con Fase 1 + Paquete 1 + Fase 2)
+
+| Archivo | Objeto | Notas |
+|---|---|---|
+| `…0001_paquete2_reporte_ventas_refacciones` | `reporte_ventas_refacciones(_desde, _hasta, _almacenes[], _vendedores[], _productos[], _incluir_prueba)` | **SECURITY INVOKER**, STABLE; una fila por mes × almacén × vendedor × artículo; el vendedor solo ve las suyas por la RLS |
+| `…0002_paquete2_kardex_varios_articulos` | `kardex_refacciones_multi(_productos[], _desde, _hasta, _almacen)` | DEFINER con la puerta del kárdex original; máx. 50 artículos; saldo corrido y saldo inicial por artículo; con un artículo da lo mismo que `kardex_refaccion` |
+| `…0003_paquete2_rotacion_filtrada` | `resumen_rotacion_refacciones_filtrado(_desde, _hasta, _incluir_prueba, _productos[], _almacen)` | **Otro nombre, no una sobrecarga** (con opcionales haría ambiguas las llamadas por RPC). La clasificación ABC la calcula el front (`clasificarABC`) sobre lo que recibe |
+
+Entregas (filtros) y la fecha programada son **solo front**. Ninguna función escribe (el ensayo y `tests/paquete-2.test.ts` lo verifican). **Falta el front** y el alta en la compuerta de las 3 RPC (`RPCS`: hoy 106 en `main`, 107 con el Paquete 1, 110 con este). Resultados: `ensayo/resultado-paquetes-2-3.json`.
 
 ## 6. Choques
 

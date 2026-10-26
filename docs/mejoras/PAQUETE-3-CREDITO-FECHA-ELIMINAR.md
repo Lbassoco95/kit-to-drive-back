@@ -1,6 +1,6 @@
 # Paquete 3 — Crédito, fecha de remisión y eliminar remisión
 
-**Estado: ANÁLISIS Y DISEÑO. No se escribió código ni migraciones todavía.** Va **al final** (después de la Fase 2 y del Paquete 2): usa `cliente_tiene_cxc_vencidas` y `cxc_vencidas_resumen`, que la Fase 2 pasa a `SECURITY INVOKER`. Frase: «Autorizo paquete 3 (crédito, fecha y eliminación de remisiones) en producción, ventana del `<fecha>`». **Hay decisiones de Polo que bloquean partes (§6); donde hay conflicto se reporta y se espera, como pediste.**
+**Estado: ELIMINAR Y FECHA — MIGRACIONES Y REVERSAS LISTAS Y ENSAYADAS; NADA APLICADO (guion: `VENTANA-PAQUETE-3.md`). CRÉDITO: SIN CONSTRUIR (espera a Martin, D-C1). El front de eliminar y fecha todavía NO está escrito.** Va **al final** (después de la Fase 2 y del Paquete 2): usa `cliente_tiene_cxc_vencidas` y `cxc_vencidas_resumen`, que la Fase 2 pasa a `SECURITY INVOKER`. Frase: «Autorizo paquete 3 (crédito, fecha y eliminación de remisiones) en producción, ventana del `<fecha>`». **Hay decisiones de Polo que bloquean partes (§6); donde hay conflicto se reporta y se espera, como pediste.**
 
 ## Reglas que se respetarán
 
@@ -37,9 +37,9 @@ La opción desaparece del front cuando el modo prueba se apaga (la función tamb
 | Folio | Es texto único (`folio_remision`), no se genera con la fecha | Sin efecto |
 | Reportes (ventas por periodo, Paquete 2) | Leen `fecha_remision` | Respetan la nueva fecha |
 
-## C. Tipo de pago «crédito»
+## C. Tipo de pago «crédito» — SIN CONSTRUIR (espera a Martin)
 
-**Hallazgo:** `tipo_pago` existe en `remisiones` (`'anticipado'`, `'contra_entrega'`, con `CHECK`) y en `remisiones_refacciones` (nulo o los mismos dos). **«Crédito» no existe**: hay que ampliar el `CHECK` en las dos tablas.
+**Corrección (catálogo de producción leído el 26 oct):** el análisis anterior decía que «crédito» no existía. **En `remisiones` (motocarros) el `CHECK` de `tipo_pago` YA permite `'credito'`** (`anticipado`, `contra_entrega`, `credito`; hoy 92 anticipado y 1 contra entrega, ninguna a crédito). En `remisiones_refacciones` `tipo_pago` solo permite `anticipado` y `contra_entrega`, pero **`forma_pago` ya permite `'credito'`**. Y `cuentas_por_cobrar` (2 filas, ninguna ligada a una remisión) no se crea sola al capturar una remisión. Lo que sigue es el diseño original; se reescribe cuando Martin responda D-C1.
 
 **Conexión con cuentas por cobrar (diseño):** una función `SECURITY DEFINER` que, al crear una remisión de crédito, (1) comprueba que el cliente **tiene crédito autorizado** (`clientes.limite_credito > 0` y `dias_credito > 0`, que son los campos que usa `v_clientes_credito`) y que el **monto cabe en el límite disponible** (límite menos saldo abierto de `cuentas_por_cobrar`); (2) **crea su cuenta por cobrar** con `fecha_vencimiento = fecha de la remisión + dias_credito` (tope `config_general.plazo_max_credito_dias` = 60); y (3) rechaza el alta si el cliente tiene cartera vencida (`cliente_tiene_cxc_vencidas`, **versión INVOKER de la Fase 2**).
 **Quién ve qué:** un vendedor ve la cartera **de los clientes que ve** (Fase 2 + Paquete 1: los suyos y los sin asignar); finanzas, Dirección y administrativos, la de todos; Compras, la de cobranza que ya lee. **La inserción de la cuenta por cobrar hoy es solo de finanzas** (`cxc_insert: es_finanzas`): por eso la crea la función `DEFINER`, no el vendedor.
@@ -52,12 +52,25 @@ La opción desaparece del front cuando el modo prueba se apaga (la función tamb
 - **Paquete 2:** el reporte de ventas lee `fecha_remision` y `tipo_pago`.
 - **Cambia permisos de `DELETE`** de remisiones (cierra los dos actuales): nada de eso lo toca otro paquete.
 
-## 6. Decisiones de Polo que bloquean partes
+## 6. Decisiones de Polo (26 oct 2026)
 
-- **D-A1 — «Modo prueba».** En el sistema, «modo prueba» es por **usuario** (la tabla `inventario_usuarios_prueba`, 7 correos en producción) y marca datos de prueba (`es_prueba`); **no existe un interruptor global**. ¿Quieres (a) un interruptor global nuevo (por ejemplo en `compras_parametros`) que Dirección apaga cuando el sistema entre en operación definitiva, o (b) que la eliminación solo funcione sobre remisiones marcadas como de prueba? Lo primero es lo que describiste; hay que crearlo.
-- **D-A2 — Los borrados directos actuales** (administradores y administradores de Comercial) **se cierran**: ¿confirmas que, tras el paquete, solo el super admin puede eliminar y solo por la función?
-- **D-A3 — «Factura».** En el esquema solo hay factura en `movimientos_financieros` (`factura_url`, `tiene_factura`): ¿es ese el dato que bloquea la eliminación?
-- **D-B1 — Kárdex y fecha.** Cambiar la fecha de una remisión de refacciones ya surtida deja el movimiento del kárdex con la fecha vieja. ¿Se corrige también la fecha del movimiento (cambia saldos históricos del kárdex) o se **prohíbe** editar la fecha de remisiones ya surtidas?
-- **D-B2 — Vencimiento.** Las cuentas por cobrar no dependen de la fecha de la remisión. ¿Se avisa a finanzas, o la nueva fecha debe mover el vencimiento de su cuenta por cobrar?
-- **D-B3 — Alcance.** ¿La fecha editable es de las dos remisiones (motocarros y refacciones) o solo de una?
-- **D-C1 — Crédito.** ¿«Monto cabe en su límite» = límite − saldo abierto de cuentas por cobrar? ¿Se bloquea con cartera vencida? ¿La fecha de vencimiento es fecha de la remisión + días de crédito del cliente (con el tope de 60 días)? ¿Aplica también a refacciones?
+| Decisión | Resultado | Dónde queda |
+|---|---|---|
+| **D-A1** modo prueba | **A**: interruptor global nuevo (`compras_parametros.modo_prueba_global`, arranca **encendido**; lo apaga Dirección o un super admin, solo por `fijar_modo_prueba_global`, con motivo y bitácora) | migración `…0001` |
+| **D-A2** borrados directos | **A**: se cierran; solo el super admin elimina y solo por la función | migración `…0002` |
+| **D-A3** «factura» | **Pendiente de Polo.** El paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado a la remisión: la eliminación no depende de la confirmación | `…0002` |
+| **D-B1** fecha y kárdex | **A**: no se edita la fecha de una remisión de refacciones que ya surtió inventario | `…0003` |
+| **D-B2** vencimiento | **A**: no se mueve ningún vencimiento; se **avisa** a administración (`avisos`) | `…0003` |
+| **D-B3** alcance | **A**: las dos remisiones (motocarros y refacciones) | `…0003` |
+| **D-C1** crédito | **Espera a Martin.** No se construyó | — |
+
+## 6.1 Qué se construyó (migraciones `20261109…`, ensayadas con Fase 1 + Paquete 1 + Fase 2 + Paquete 2)
+
+Ver `VENTANA-PAQUETE-3.md` (qué cambia, pasos, valores esperados, recorridos, reversas) y `ensayo/resultado-paquetes-2-3.json`. Puntos que conviene revisar:
+
+- **Hallazgo nuevo:** `crm_oportunidades.remision_id` también apunta a `remisiones` (`ON DELETE SET NULL`); no estaba en el análisis. Al eliminar, la oportunidad queda **sin remisión** (el ensayo lo comprueba y la copia en `bitacora_eliminaciones` guarda los ids).
+- **Regla adoptada para refacciones:** si la remisión **ya surtió inventario** (partidas surtidas o movimientos de kárdex) **se cancela, no se elimina** (el diseño original proponía devolver el inventario con movimientos inversos; es más riesgoso para el kárdex y no se pidió). Las cantidades **bloqueadas** se liberan solas al borrar las partidas (el ensayo mide que el apartado baja).
+- **Cambia la edición normal de remisiones:** hoy `Remisiones.tsx` manda `fecha_remision` en el `UPDATE` (línea ~1121) y el vendedor dueño puede editarla. Con el trigger **nadie** cambia la fecha por esa vía (ni el dueño de la tabla): el **front debe dejar de enviarla** y usar «Cambiar fecha». También revisar `Importar.tsx` (si hace `upsert` sobre remisiones con `fecha_remision`). Ese front **no está escrito**.
+- Desaparecen del front el `DELETE` directo de `Remisiones.tsx` (líneas ~966) y su `INSERT` previo en `bitacora_eliminaciones`; la compuerta debe abrir `eliminar_remision`, `cambiar_fecha_remision`, `modo_prueba_global_activo`, `fijar_modo_prueba_global` y la tabla `remision_fecha_cambios`.
+- Lo que **sí** vio el ensayo: `trg_log_remisiones`, `zzz_candado_modo_prueba` y `trg_vigilar_super_admin` no estorban a la eliminación ni al cambio de fecha.
+
