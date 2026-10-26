@@ -14,11 +14,16 @@ select s.version,
  order by s.version;
 rollback;
 
--- ─── B2. Registro propio (migraciones_aplicadas): estado y las últimas 12, y si algo de la Fase 1/2 ya figura ───
+-- ─── B2. Registro propio (migraciones_aplicadas): resumen por estado, las 12 más recientes y si algo de la Fase 1/2 ya figura (una sola consulta: tipo = resumen | reciente | fase1o2) ───
 begin read only;
-select estado, count(*) as scripts, min(script) as primero, max(script) as ultimo from public.migraciones_aplicadas group by estado order by estado;
-select script, estado, aplicada_at from public.migraciones_aplicadas order by script desc limit 12;
-select script, estado from public.migraciones_aplicadas where script like '2026103%' or script like '2026110%' or script like '202611%';
+select * from (
+  select 'resumen' as tipo, estado as dato1, count(*)::text as dato2, min(script) as dato3, max(script) as dato4 from public.migraciones_aplicadas group by estado
+  union all
+  (select 'reciente', script, estado, aplicada_at::text, null from public.migraciones_aplicadas order by script desc limit 12)
+  union all
+  select 'fase1o2', script, estado, null, null from public.migraciones_aplicadas where script like '2026103%' or script like '202611%'
+) x
+order by case tipo when 'resumen' then 1 when 'reciente' then 2 else 3 end, dato1 desc;
 rollback;
 
 -- ─── B3. ¿Algún historial anterior ya tocó lo que la Fase 1 cambia? (banderas por migración, sin texto) ──────

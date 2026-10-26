@@ -1,4 +1,5 @@
 -- Foto de integridad en formato COMPACTO (una sola fila, una sola celda de detalle). SOLO LECTURA.
+-- `huella_del_detalle` es el md5 de la celda `detalle_compacto`: sirve para comprobar que se pegó completa y sin cambios.
 -- Misma medición que 05 (conteo exacto + md5 por tabla, ordenado por llave primaria), pero con la huella
 -- recortada a 12 caracteres y separada con «;», para poder pegarla de vuelta en un solo mensaje.
 -- generar-comparacion.py acepta este formato directamente. No devuelve filas de datos.
@@ -11,6 +12,7 @@ r as (select t.relname,
 from tabs t left join pk on pk.indrelid=t.oid)
 select now() as medido_en, count(*) as tablas, sum(filas) as filas_total,
  md5(string_agg(relname||'|'||filas||'|'||huella, E'\n' order by relname)) as huella_global,
- string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname) as detalle_compacto
+ string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname) as detalle_compacto,
+ md5(string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname)) as huella_del_detalle
 from r;
 rollback;

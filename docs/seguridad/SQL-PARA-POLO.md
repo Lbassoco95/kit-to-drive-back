@@ -9,6 +9,7 @@
 3. Todo bloque es de **solo lectura**: va envuelto en `begin read only; … rollback;`. Si alguna instrucción intentara escribir, Postgres la rechaza.
 4. Solo se piden **conteos, huellas (md5) y catálogo**. Ningún bloque devuelve filas con datos de personas, correos, contraseñas ni el texto de migraciones. **Si un resultado trae algo que parezca un dato personal o un secreto, no lo pegues** y avísame.
 5. No hay nada que escribir en ninguna base. Los bloques no crean tablas ni funciones.
+6. **Todo SQL que se le pide a Polo va pegado completo en el chat**, en un bloque propio, con una línea de «resultado esperado». Este archivo es el respaldo en el repo, no la forma de entregarlo.
 
 ## Cómo correr un bloque (una vez por bloque)
 
@@ -187,7 +188,8 @@ r as (select t.relname,
 from tabs t left join pk on pk.indrelid=t.oid)
 select now() as medido_en, count(*) as tablas, sum(filas) as filas_total,
  md5(string_agg(relname||'|'||filas||'|'||huella, E'\n' order by relname)) as huella_global,
- string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname) as detalle_compacto
+ string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname) as detalle_compacto,
+ md5(string_agg(relname||'|'||filas||'|'||left(huella,12), ';' order by relname)) as huella_del_detalle
 from r;
 rollback;
 ```
@@ -236,13 +238,18 @@ select s.version,
 rollback;
 ```
 
-### B2. Registro propio (migraciones_aplicadas): estado y las últimas 12, y si algo de la Fase 1/2 ya figura
+### B2. Registro propio (migraciones_aplicadas): resumen por estado, las 12 más recientes y si algo de la Fase 1/2 ya figura (una sola consulta: tipo = resumen | reciente | fase1o2)
 
 ```sql
 begin read only;
-select estado, count(*) as scripts, min(script) as primero, max(script) as ultimo from public.migraciones_aplicadas group by estado order by estado;
-select script, estado, aplicada_at from public.migraciones_aplicadas order by script desc limit 12;
-select script, estado from public.migraciones_aplicadas where script like '2026103%' or script like '2026110%' or script like '202611%';
+select * from (
+  select 'resumen' as tipo, estado as dato1, count(*)::text as dato2, min(script) as dato3, max(script) as dato4 from public.migraciones_aplicadas group by estado
+  union all
+  (select 'reciente', script, estado, aplicada_at::text, null from public.migraciones_aplicadas order by script desc limit 12)
+  union all
+  select 'fase1o2', script, estado, null, null from public.migraciones_aplicadas where script like '2026103%' or script like '202611%'
+) x
+order by case tipo when 'resumen' then 1 when 'reciente' then 2 else 3 end, dato1 desc;
 rollback;
 ```
 

@@ -41,6 +41,7 @@ doc = f"""# SQL de solo lectura para Polo — todo en un solo documento
 3. Todo bloque es de **solo lectura**: va envuelto en `begin read only; … rollback;`. Si alguna instrucción intentara escribir, Postgres la rechaza.
 4. Solo se piden **conteos, huellas (md5) y catálogo**. Ningún bloque devuelve filas con datos de personas, correos, contraseñas ni el texto de migraciones. **Si un resultado trae algo que parezca un dato personal o un secreto, no lo pegues** y avísame.
 5. No hay nada que escribir en ninguna base. Los bloques no crean tablas ni funciones.
+6. **Todo SQL que se le pide a Polo va pegado completo en el chat**, en un bloque propio, con una línea de «resultado esperado». Este archivo es el respaldo en el repo, no la forma de entregarlo.
 
 ## Cómo correr un bloque (una vez por bloque)
 
