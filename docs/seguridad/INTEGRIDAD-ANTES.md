@@ -209,3 +209,7 @@ Consulta `consultas/02-conteos-linea-base.sql` más conteos adicionales, 26 oct 
 ## Nota del 26 oct (mediodía)
 
 A3 (Auth y Storage) coincide con esta foto salvo `auth.refresh_tokens`: **116 → 118**, con los 21 no revocados sin cambio. Son 2 tokens de renovación normal de sesión creados el 26 oct entre las 15:00 y las 15:59 UTC (dato de Polo). Los demás valores, incluidas las dos huellas de `auth.users`, son idénticos. `auth.sessions` y `auth.refresh_tokens` son **informativos** en las comparaciones de la ventana: cambian con el uso normal.
+
+## Nota del 26 oct (11:36 CDMX): +3 filas, explicadas
+
+El bloque V dio `filas_totales` = 20,613 (eran 20,610 a las 09:30). El A1 contra esta foto mostró 3 tablas con una fila más: `historial_conexiones` (+1), `crm_rutas` (+1) y `crm_ruta_paradas` (+1). Las horas de creación (dato de Polo) son del **26 oct, 17:03:36 UTC** (el inicio de sesión) y **17:04:49 UTC** (la ruta y su parada, creadas con 0.7 s de diferencia), es decir, dentro de la franja entre la medición de las 09:30 CDMX (15:30 UTC) y la de las 11:36 CDMX (17:36 UTC). Es el patrón de una persona que entra al sistema y crea una ruta de CRM con una parada. **Uso normal, no un cambio de permisos ni de datos de otras tablas.** Ninguna otra tabla cambió. El día de la ventana la referencia es la foto A2 de esa mañana.
