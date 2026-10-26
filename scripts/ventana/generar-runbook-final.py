@@ -25,8 +25,8 @@ MIG = ['20261031000001_fase1_quitar_truncate_trigger_references', '2026103100000
        '20261031000005_fase1_quitar_escritura_anon_de_tablas', '20261031000006_fase1_lo_nuevo_nace_cerrado']
 M = {i + 1: n for i, n in enumerate(MIG)}
 ORDEN = [1, 2, 4, 5, 6, 3]
-sumas = '\n'.join(f'{h("supabase/migrations/" + M[i] + ".sql")}  migrations/{M[i]}.sql' for i in range(1, 7)) + '\n' + \
-        '\n'.join(f'{h("supabase/reversas/" + M[i] + "_reversa.sql")}  reversas/{M[i]}_reversa.sql' for i in range(1, 7))
+sumas = '\n'.join(f'{h("supabase/migrations/" + M[i] + ".sql")}  supabase/migrations/{M[i]}.sql' for i in range(1, 7)) + '\n' + \
+        '\n'.join(f'{h("supabase/reversas/" + M[i] + "_reversa.sql")}  supabase/reversas/{M[i]}_reversa.sql' for i in range(1, 7))
 def aplicar(n):
     return f"""```bash
 psql -X -v ON_ERROR_STOP=1 --single-transaction \\

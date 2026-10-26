@@ -56,18 +56,18 @@ La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparac
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
 ```
 ```
-b7c0b998d0924ded  migrations/20261031000001_fase1_quitar_truncate_trigger_references.sql
-c585002782381041  migrations/20261031000002_fase1_cerrar_funciones_de_trigger.sql
-4712ed54a77f9bc4  migrations/20261031000003_fase1_fijar_search_path.sql
-8a6a203c847c774c  migrations/20261031000004_fase1_quitar_lectura_anon_de_vistas.sql
-1b6028ff9e2160bf  migrations/20261031000005_fase1_quitar_escritura_anon_de_tablas.sql
-41239028219a80ad  migrations/20261031000006_fase1_lo_nuevo_nace_cerrado.sql
-a0961cd3958d4767  reversas/20261031000001_fase1_quitar_truncate_trigger_references_reversa.sql
-0e5eaa52e84453e0  reversas/20261031000002_fase1_cerrar_funciones_de_trigger_reversa.sql
-f38187ccb5b492f5  reversas/20261031000003_fase1_fijar_search_path_reversa.sql
-fac482bda807dc05  reversas/20261031000004_fase1_quitar_lectura_anon_de_vistas_reversa.sql
-e6f908ba163022ee  reversas/20261031000005_fase1_quitar_escritura_anon_de_tablas_reversa.sql
-e202db64dd4d5c76  reversas/20261031000006_fase1_lo_nuevo_nace_cerrado_reversa.sql
+b7c0b998d0924ded  supabase/migrations/20261031000001_fase1_quitar_truncate_trigger_references.sql
+c585002782381041  supabase/migrations/20261031000002_fase1_cerrar_funciones_de_trigger.sql
+4712ed54a77f9bc4  supabase/migrations/20261031000003_fase1_fijar_search_path.sql
+8a6a203c847c774c  supabase/migrations/20261031000004_fase1_quitar_lectura_anon_de_vistas.sql
+1b6028ff9e2160bf  supabase/migrations/20261031000005_fase1_quitar_escritura_anon_de_tablas.sql
+41239028219a80ad  supabase/migrations/20261031000006_fase1_lo_nuevo_nace_cerrado.sql
+a0961cd3958d4767  supabase/reversas/20261031000001_fase1_quitar_truncate_trigger_references_reversa.sql
+0e5eaa52e84453e0  supabase/reversas/20261031000002_fase1_cerrar_funciones_de_trigger_reversa.sql
+f38187ccb5b492f5  supabase/reversas/20261031000003_fase1_fijar_search_path_reversa.sql
+fac482bda807dc05  supabase/reversas/20261031000004_fase1_quitar_lectura_anon_de_vistas_reversa.sql
+e6f908ba163022ee  supabase/reversas/20261031000005_fase1_quitar_escritura_anon_de_tablas_reversa.sql
+e202db64dd4d5c76  supabase/reversas/20261031000006_fase1_lo_nuevo_nace_cerrado_reversa.sql
 ```
 ☐ **Conexión a producción:** `source scripts/ventana/conectar.sh` (pide la contraseña sin mostrarla y se detiene si no es producción). Después: `export FECHA=<AAAA-MM-DD>` y `mkdir -p ventana-logs`.
 ☐ **Canal de reversa listo:** la misma terminal, los 6 archivos de `supabase/reversas/` presentes (arriba) y esta hoja abierta en la sección 8. La reversa se aplica en orden **inverso**: 3, 6, 5, 4, 2, 1.
