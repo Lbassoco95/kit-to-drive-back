@@ -513,7 +513,10 @@ WITH esperado(script, objeto) AS (VALUES
   -- Tope de unidades ya armadas sube a 150 (75 cargadas + 75 más): el script
   -- cambia el DEFAULT de la columna (y la fila), así que la marca es
   -- `column_default` = 150 (2026-10-22).
-  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150')
+  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
+
+  -- Firmas: ver la imagen de cada firma (2026-10-26).
+  ('20261026000001_firmas_ver_imagen_firma', 'politica|storage.objects.firmas_storage_select_firmas|firmas_puede_ver_solicitud')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

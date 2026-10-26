@@ -32,6 +32,18 @@ describe("firmas electrónicas (migración)", () => {
   });
 });
 
+describe("firmas electrónicas (ver imagen de la firma)", () => {
+  const sql = leer("supabase/migrations/20261026000001_firmas_ver_imagen_firma.sql");
+
+  it("política aditiva: solo las imágenes sig-*.png y solo quien ve la solicitud", () => {
+    expect(sql).toContain('CREATE POLICY "firmas_storage_select_firmas"');
+    expect(sql).toContain("FOR SELECT TO authenticated");
+    expect(sql).toContain("public.firmas_puede_ver_solicitud(((storage.foldername(name))[1])::uuid)");
+    expect(sql).toContain("REVERSA");
+    expect(sql).not.toMatch(/FOR (INSERT|UPDATE|DELETE)/i);
+  });
+});
+
 describe("firmas electrónicas (Edge Function)", () => {
   const fn = leer("supabase/functions/firmas/index.ts");
 
