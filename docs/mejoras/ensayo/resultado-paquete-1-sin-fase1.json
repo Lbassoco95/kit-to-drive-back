@@ -1,0 +1,764 @@
+{
+ "antes": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 268,
+   "politicas": 301,
+   "secdef_ejecutables_authenticated": 208,
+   "triggers": 243
+  },
+  "escritura": {
+   "administrativo crea cliente sin vendedor": "vendedor_del_cliente=NULL",
+   "crm_actividades: admvo usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_actividades: superv usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_actividades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_actividades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_actividades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "crm_oportunidades: admvo usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_oportunidades: superv usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_oportunidades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "ruta+parada: superv usa c_sin2": "vendedor_del_cliente=NULL",
+   "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=NULL",
+   "ruta+parada: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "ruta+parada: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",
+   "tras usarlo vend1, vend2 ve el cliente sin asignar?": "vend2_lo_ve=false",
+   "vend1 cambia su oportunidad a un cliente ajeno": "filas=1",
+   "vendedor crea cliente a nombre de OTRO vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "vendedor crea cliente sin indicar vendedor": "vendedor_del_cliente=NULL"
+  },
+  "matriz": {
+   "admvo": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "almacen": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "compras": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "direccion": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "fabrica": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [],
+    "rutas": []
+   },
+   "finanzas": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "superv": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "vend1": {
+    "actividades": [
+     "act_v1"
+    ],
+    "clientes": [
+     "c_v1"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_v1"
+    ],
+    "oportunidades": [
+     "op_v1"
+    ],
+    "remisiones": [
+     "r_v1"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1"
+    ]
+   },
+   "vend2": {
+    "actividades": [
+     "act_v2"
+    ],
+    "clientes": [
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v2"
+    ]
+   }
+  }
+ },
+ "despues": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 272,
+   "politicas": 301,
+   "secdef_ejecutables_authenticated": 208,
+   "triggers": 250
+  },
+  "escritura": {
+   "administrativo crea cliente sin vendedor": "vendedor_del_cliente=NULL",
+   "crm_actividades: admvo usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_actividades: superv usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_actividades: vend1 usa c_sin": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_actividades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_actividades: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "crm_oportunidades: admvo usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_oportunidades: superv usa c_sin": "vendedor_del_cliente=NULL",
+   "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_oportunidades: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "ruta+parada: superv usa c_sin2": "vendedor_del_cliente=NULL",
+   "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "ruta+parada: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "ruta+parada: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",
+   "tras usarlo vend1, vend2 ve el cliente sin asignar?": "vend2_lo_ve=false",
+   "vend1 cambia su oportunidad a un cliente ajeno": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "vendedor crea cliente a nombre de OTRO vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "vendedor crea cliente sin indicar vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105"
+  },
+  "matriz": {
+   "admvo": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "almacen": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "compras": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "direccion": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "fabrica": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [],
+    "rutas": []
+   },
+   "finanzas": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "superv": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "vend1": {
+    "actividades": [
+     "act_v1"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1"
+    ],
+    "oportunidades": [
+     "op_v1"
+    ],
+    "remisiones": [
+     "r_v1"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1"
+    ],
+    "rutas": [
+     "ruta_v1"
+    ]
+   },
+   "vend2": {
+    "actividades": [
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v2"
+    ]
+   }
+  }
+ },
+ "ids_sinteticos": 18,
+ "migraciones": {
+  "20261103000001_paquete1_clientes_sin_asignar_visibles": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261103000002_paquete1_crm_cliente_visible_y_asignacion": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261103000003_paquete1_remisiones_refacciones_solo_del_vendedor": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  }
+ },
+ "reaplicar_idempotente": true,
+ "reversa_restaura_exacto": true,
+ "tras_reversa": {
+  "catalogo": "                              ^",
+  "conteos": {
+   "funciones": 268,
+   "politicas": 301,
+   "secdef_ejecutables_authenticated": 208,
+   "triggers": 243
+  },
+  "matriz": {
+   "admvo": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "almacen": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "compras": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "direccion": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "fabrica": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [],
+    "rutas": []
+   },
+   "finanzas": {
+    "actividades": [],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
+   "superv": {
+    "actividades": [
+     "act_v1",
+     "act_v2"
+    ],
+    "clientes": [
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v1",
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1",
+     "ruta_v2"
+    ]
+   },
+   "vend1": {
+    "actividades": [
+     "act_v1"
+    ],
+    "clientes": [
+     "c_v1"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_v1"
+    ],
+    "oportunidades": [
+     "op_v1"
+    ],
+    "remisiones": [
+     "r_v1"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v1"
+    ]
+   },
+   "vend2": {
+    "actividades": [
+     "act_v2"
+    ],
+    "clientes": [
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_v2"
+    ],
+    "oportunidades": [
+     "op_v2"
+    ],
+    "remisiones": [
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": [
+     "ruta_v2"
+    ]
+   }
+  }
+ }
+}
