@@ -27,7 +27,7 @@
 | Ejecutar los recorridos de la hoja de pruebas y anotar «Después» | Persona de pruebas | Su hoja impresa (`HOJA-DE-PRUEBAS-POR-ROL.md`) |
 | Aplicar o revertir **algo** en producción | **Code, por el conector de escritura, solo dentro de la ventana y con la frase con fecha** (ver «Cómo aplica Code por el conector»); Polo habilita y quita el conector. Fuera de ventana nada se aplica | — |
 
-## 2. Horario propuesto: martes 27 de octubre de 2026, 19:00 a 00:00 (CDMX)
+## 2. Horario propuesto: lunes 26 de octubre de 2026, 19:00 a 00:00 (CDMX)
 
 La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho durante el día, antes de las 19:00) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
 
@@ -50,7 +50,7 @@ La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la prep
 ☐ Frase «Autorizo Fase 1 en producción, ventana del `<fecha>`» escrita en la sesión, con fecha, y la hora de inicio dentro de la ventana permitida.
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
-☐ **Aviso al equipo de Dazon** (el lunes 26 y al empezar): «Martes 27 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
+☐ **Aviso al equipo de Dazon** (hoy y al empezar): «Hoy lunes 26 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
 ☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
@@ -388,7 +388,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/aplicar-M3.log"
 ```
 
-**Esperado en pantalla:** termina sin la palabra `ERROR` y muestra el aviso «Funciones con search_path fijado: 14» y `0`. Si aparece «No existe …: se omite», **detente**. Si hay `ERROR`, no quedó nada aplicado (es una sola transacción): pasa el texto a Claude y **no repitas**.
+**Esperado en pantalla:** termina sin la palabra `ERROR` y muestra el aviso «Funciones con search_path fijado: 14» y `0`. **Antes de aplicarlo, Code corre `show search_path;` por el conector: debe incluir `public` (la migración resuelve dos tipos sin esquema; sin `public` omitiría dos funciones y haría COMMIT). Si no lo incluye, se detiene.** Si aparece «No existe …: se omite», **detente**. Si hay `ERROR`, no quedó nada aplicado (es una sola transacción): pasa el texto a Claude y **no repitas**.
 
 ### Rutina de cada paso (siempre igual)
 
@@ -607,6 +607,7 @@ Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
 - **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
 - Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
 
 ### Momento exacto, durante la ventana

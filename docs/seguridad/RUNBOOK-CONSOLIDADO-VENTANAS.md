@@ -26,7 +26,7 @@ Orden: Fase 1 → verificación completa → **un día de observación** → Fas
 
 | Ventana | Cuándo | Frase de autorización (la escribe Polo, en la sesión, con fecha) | Qué cubre |
 |---|---|---|---|
-| **1 — Fase 1** | **Martes 27 de octubre, 19:00 a 00:00 (CDMX)** | «Autorizo Fase 1 en producción, ventana del `<fecha>`» | Solo las 6 migraciones de la Fase 1 (§4) |
+| **1 — Fase 1** | **Lunes 26 de octubre, 19:00 a 00:00 (CDMX)** | «Autorizo Fase 1 en producción, ventana del `<fecha>`» | Solo las 6 migraciones de la Fase 1 (§4) |
 | **2 — Fase 2** | **Sábado 31 de octubre, 10:00 a 15:00**, **solo si la Fase 1 y el Paquete 1 salieron limpios** (§5) | «Autorizo Fase 2 en producción, ventana del `<fecha>`» | Solo las 5 migraciones de la Fase 2 y las 3 Edge Functions (§6) |
 
 La frase de la ventana 2 **no se escribe de antemano**: Polo la escribe después de ver el veredicto de §5. Cada frase vale solo lo que nombra; los scripts de cuentas tienen las suyas (§0).
@@ -133,7 +133,7 @@ Después de cada reversa: `catalogo.sh` debe volver a la línea base **y** `comp
 | Es **más de las 17:30** con un paso a medias | Se **revierte** ese paso y se cierra con integridad y catálogo. **Nunca se deja un paso sin verificar** |
 | Falta la persona de pruebas | **Se detiene.** No se avanza sin recorridos |
 
-> **Calendario fijado por Polo (26 oct):** Fase 1 **martes 27 de octubre, 19:00 a 00:00**; Paquete 1 **jueves 29 de octubre, 19:00 a 22:00**; Fase 2 **sábado 31 de octubre, 10:00 a 15:00**. Reemplaza el «día siguiente» de este documento y las fechas propuestas antes (31 oct, 3 nov, 7 nov). La observación entre ventanas es de días; los criterios de §5 siguen valiendo como mínimo. El Paquete 2 va después de la Fase 2 y el Paquete 3 al final (fechas por fijar).
+> **Calendario fijado por Polo (26 oct):** Fase 1 **lunes 26 de octubre, 19:00 a 00:00**; Paquete 1 **jueves 29 de octubre, 19:00 a 22:00**; Fase 2 **sábado 31 de octubre, 10:00 a 15:00**. Reemplaza el «día siguiente» de este documento y las fechas propuestas antes (31 oct, 3 nov, 7 nov). La observación entre ventanas es de días; los criterios de §5 siguen valiendo como mínimo. El Paquete 2 va después de la Fase 2 y el Paquete 3 al final (fechas por fijar).
 
 ## 5. Cierre de la ventana 1 y criterio «la Fase 1 salió limpia» (para abrir la ventana 2 al día siguiente)
 
@@ -255,6 +255,7 @@ Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
 - **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
 - Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
 
 ### Momento exacto, durante la ventana

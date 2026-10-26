@@ -11,19 +11,19 @@
 | 0.1 | **Desconectar el conector general de claude.ai** (Configuración → Conectores → Supabase) | **A (recomendada): desconectarlo** y dejar solo `supabase-prod-lectura` (+ el de escritura en ventana). B: dejarlo con herramientas de escritura y administración en «Nunca». Razón: ve todos los proyectos, QA incluido, y con él `get_project_url` no protege. |
 | 0.2 | Confirmar si los repos `kit-to-drive-back`, `kit-to-drive` y `kit-to-drive-front` son **privados** | Los documentos describen el esquema y los controles. **Recomendación:** privados. |
 
-### Bloque 1 — Para abrir la Fase 1 (martes 27 oct, 19:00–00:00)
+### Bloque 1 — Para abrir la Fase 1 (hoy lunes 26 oct, 19:00–00:00)
 
 | # | Qué | Quién |
 |---|---|---|
 | 1.1 | Revisar y **mezclar** el PR de la Fase 1 del repo back (Code no hace merge) | Polo |
 | 1.2 | **Respaldo** del mismo día o del anterior: fecha y hora, escritas en la sesión | Polo |
 | 1.3 | **Persona de pruebas** presente toda la ventana, con **una cuenta por rol** de `HOJA-DE-PRUEBAS-POR-ROL.md` (contraseñas solo con ella, nunca en el chat) | Polo |
-| 1.4 | **Aviso a Dazon** (lunes 26 y al empezar) | Polo |
+| 1.4 | **Aviso a Dazon** (hoy y al empezar) | Polo |
 | 1.5 | Persona dueña de la cuenta que aplicó migraciones anteriores | Polo (no bloquea) |
-| 1.6 | La frase: «Autorizo Fase 1 en producción, ventana del 2026-10-27» | Polo |
+| 1.6 | La frase: «Autorizo Fase 1 en producción, ventana del 2026-10-26» | Polo |
 | 1.7 | En la ventana: agregar `supabase-prod-escritura` tras la frase; quitarlo al terminar el último paso | Polo |
 
-### Bloque 2 — Para abrir el Paquete 1 (jueves 29 oct, 19:00–22:00). Depende de que la Fase 1 haya salido limpia (V, A1, A3 y D2 del miércoles 28 y del jueves antes de empezar, sin diferencias inexplicadas)
+### Bloque 2 — Para abrir el Paquete 1 (jueves 29 oct, 19:00–22:00). Depende de que la Fase 1 haya salido limpia (V, A1, A3 y D2 del martes 27, del miércoles 28 y del jueves antes de empezar, sin diferencias inexplicadas)
 
 | # | Qué | Quién |
 |---|---|---|
@@ -68,14 +68,14 @@ Decisiones 5.1, 5.2, 5.4, 5.5 y 5.6: **A, tomadas.** **Migraciones, reversas y g
 | 5.3 | Confirmar qué dato es «factura» (hoy: `movimientos_financieros.tiene_factura`/`factura_uuid`/`factura_folio`; el paquete además rechaza **cualquier** movimiento financiero ligado, así que no bloquea la ventana) | Polo |
 | 5.7 | Las respuestas de Martin sobre crédito (¿«cabe» = límite − saldo abierto?, ¿se bloquea con cartera vencida?, ¿vencimiento = fecha + días de crédito con tope de 60?, ¿también refacciones?). Nota: «crédito» **ya existe** en `remisiones.tipo_pago` y en `remisiones_refacciones.forma_pago` | Martin |
 | 5.8 | **Dar el «sí» para escribir el front del Paquete 3** (botón «Eliminar», «Cambiar fecha», interruptor de modo prueba; quitar `fecha_remision` de la edición normal) y su alta en la compuerta | Polo |
-| 5.9 | Confirmar la regla adoptada para refacciones: **si ya surtió inventario, se cancela, no se elimina** | Polo |
-| 5.10 | Fecha de la ventana, respaldo, cuentas (super admin, Dirección sin ser super admin, admin y administrativo de Comercial) y la frase «Autorizo paquete 3 (crédito, fecha y eliminación de remisiones) en producción, ventana del `<fecha>`». La frase nombra el crédito pero esta ventana cubre solo eliminar y fecha: **dime si la quieres así o con «eliminación y fecha»** | Polo |
+| 5.9 | **Acordada:** una remisión de refacciones que ya surtió inventario se cancela, no se elimina | — |
+| 5.10 | Fecha de la ventana, respaldo, cuentas (super admin, Dirección sin ser super admin, admin y administrativo de Comercial) y la frase **«Autorizo paquete 3 (eliminación y fecha de remisión) en producción, ventana del `<fecha>`»** (acordada; el crédito tendrá su propia frase) | Polo |
 
 ## Parte 2. Guion de cada ventana
 
 **Reglas comunes (aplican a todas):** nada sin la frase con fecha; la ventana permitida es después de las 19:00 entre semana o fines de semana. Cada paso lo hace Code por `execute_sql` en el conector de escritura (nunca `apply_migration`), **un archivo por llamada**, dentro de `begin; … commit;`, con el registro en `migraciones_aplicadas` en la misma llamada. Antes de **cada** escritura: `get_project_url` (debe decir `dmhzhyeivvuliumcgsmm`; si dice `qszllskpizvpnzcytqpj`, detenerse) y bloque 0 (`zz_lista_oct = 2219`, `super_admins = 2`). Code dice qué herramienta va a usar y pega la huella `sha256` del archivo. Tú apruebas cada llamada. Después de cada paso, Code pega V, A1 y A3 y espera tu «sigue». Se detiene y revierte si V no coincide, si un recorrido que pasaba falla, si suben los 401/403/5xx (D2) o si algo no se comporta como una sola transacción. Al terminar el último paso: D2 final, bloques finales, y tú quitas el conector de escritura.
 
-### Ventana Fase 1 — martes 27 oct, 19:00 a 00:00
+### Ventana Fase 1 — hoy lunes 26 oct, 19:00 a 00:00
 
 Orden: M1, M2, M4, M5, M6 y, **al final y solo**, M3 (solo si empieza a más tardar a las 22:15). Detalle y SQL completo: `docs/seguridad/RUNBOOK-FINAL-FASE-1.md`.
 
@@ -148,7 +148,7 @@ Guion completo: `VENTANA-PAQUETE-2.md`. Orden: M1 reporte de ventas → M2 kárd
 
 ### Paquete 3 — fecha por fijar, al final
 
-Guion completo: `VENTANA-PAQUETE-3.md`. Orden: M1 interruptor global → verificar → M2 eliminar remisión (cierra los DELETE directos) → verificar → mezclar el front → M3 fecha de remisión → verificar; recorridos T1–T8. **No incluye el crédito.**
+Guion completo: `VENTANA-PAQUETE-3.md`. Orden: M1 interruptor global → verificar → M2 eliminar remisión (cierra los DELETE directos) → verificar → M3 fecha de remisión → verificar → **mezclar el front inmediatamente después** → recorridos T1–T8. **No incluye el crédito.**
 
 | Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `registros_migraciones` |
 |---|---|---|---|---|---|---|

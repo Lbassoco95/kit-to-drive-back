@@ -53,6 +53,7 @@ Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
 - **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
 - Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
 
 ### Momento exacto, durante la ventana

@@ -4,7 +4,7 @@
 
 | Orden | Cuándo (propuesto) | Qué | Estado |
 |---|---|---|---|
-| 1 | Mar 27 oct, 19:00–00:00 | Fase 1 (permisos) | `docs/seguridad/RUNBOOK-FINAL-FASE-1.md` |
+| 1 | Lun 26 oct, 19:00–00:00 | Fase 1 (permisos) | `docs/seguridad/RUNBOOK-FINAL-FASE-1.md` |
 | 2 | Jue 29 oct, 19:00–22:00 | **Paquete 1** — permisos del vendedor | **Preparado**: migraciones + reversas + ensayo + guion |
 | 3 | Sáb 31 oct, 10:00–15:00 | Fase 2 (PR #14 y #74) | Ensayo rehecho con el Paquete 1 |
 | 4 | Después de la Fase 2 (fecha por fijar) | **Paquete 2** — reportes y buscadores | **Migraciones + reversas + ensayo + guion** (`VENTANA-PAQUETE-2.md`); **falta el front** |

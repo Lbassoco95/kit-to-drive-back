@@ -1,19 +1,19 @@
 # Ventana del Paquete 3 (eliminar remisión y fecha de remisión) — guion
 
-**Estado: NADA APLICADO.** Fecha **por fijar** (al final: después de la Fase 2 y del Paquete 2). Frase (la escribe Polo, con fecha): «Autorizo paquete 3 (crédito, fecha y eliminación de remisiones) en producción, ventana del `<fecha>`». **Esta ventana cubre solo la eliminación y la fecha; el crédito (D-C1) espera a Martin y se hará con su propia frase.** Mecanismo: Code aplica con `execute_sql` por el conector de escritura solo dentro de la ventana; nunca `apply_migration`.
+**Estado: NADA APLICADO.** Fecha **por fijar** (al final: después de la Fase 2 y del Paquete 2). Frase (la escribe Polo, con fecha): «Autorizo paquete 3 (eliminación y fecha de remisión) en producción, ventana del `<fecha>`». **Esta ventana cubre solo la eliminación y la fecha; el crédito (D-C1) espera a Martin y se hará con su propia frase.** Mecanismo: Code aplica con `execute_sql` por el conector de escritura solo dentro de la ventana; nunca `apply_migration`.
 
 **Qué cambia**
 - **M1** `modo_prueba_global`: una fila en `compras_parametros` (clave `modo_prueba_global`, **arranca encendido**), 2 funciones (`modo_prueba_global_activo`, `fijar_modo_prueba_global`) y un trigger que impide cambiar esa fila de otro modo. Solo Dirección o super admin lo cambian.
 - **M2** `eliminar_remision`: función atómica (solo super admin, modo prueba encendido, folio y motivo; rechaza pago, cuenta por cobrar, movimiento financiero o factura, entrega confirmada e inventario surtido; guarda copia completa; libera unidades; comprueba que no queden filas huérfanas). **Se cierran los dos DELETE directos** de `remisiones` (rol `admin` y administradores de Comercial) y se revoca DELETE a `authenticated`.
 - **M3** fecha: tabla `remision_fecha_cambios` (RLS, solo lectura), función `cambiar_fecha_remision` (solo Dirección y administrativos de Comercial, con motivo; no se mueve ningún vencimiento; se avisa a administración) y un trigger que impide cambiar `fecha_remision` por cualquier otra vía (**cambia lo que hoy hace la pantalla de edición de la remisión: el front debe dejar de enviarla**).
 
-**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A. **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
+**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
 
 **Depende de:** Fase 2 (cartera vencida INVOKER; este paquete no la toca) y del **front del Paquete 3** (botón «Eliminar» solo para super admin con modo prueba, «Cambiar fecha» con motivo, interruptor para Dirección), que **todavía no está escrito**. La compuerta necesita `eliminar_remision`, `cambiar_fecha_remision`, `modo_prueba_global_activo`, `fijar_modo_prueba_global` en `RPCS` y `remision_fecha_cambios` en `TABLAS`.
 
 ## 1. Antes de abrir la ventana
 
-☐ Frase con fecha; ventana permitida. ☐ Paquete 2 y Fase 2 limpios (V, A1, A3, D2 el día anterior y al empezar). ☐ **Respaldo** del día o del anterior (fecha y hora escritas). ☐ **El front del Paquete 3 listo para mezclar** después de las migraciones verificadas. ☐ Cuentas: **super admin**, Dirección **sin** ser super admin, administrativo de Comercial, administrador de Comercial, un vendedor, un supervisor. ☐ Datos de prueba creados antes: una remisión de motocarros **sin pagos ni entregas** con 2 unidades asignadas; una con pago; una de refacciones sin surtir; una de refacciones surtida (todas con el prefijo «ZZ PRUEBA P3»). ☐ **Aviso a Dazon:** «durante la ventana la pantalla de remisiones puede pedir recargar; la fecha de la remisión solo la cambia Dirección o un administrativo».
+☐ Frase con fecha; ventana permitida. ☐ Paquete 2 y Fase 2 limpios (V, A1, A3, D2 el día anterior y al empezar). ☐ **Respaldo** del día o del anterior (fecha y hora escritas). ☐ **El front del Paquete 3 listo para mezclar** (rama sin mezclar), para desplegarlo justo después de verificar M3. ☐ Cuentas: **super admin**, Dirección **sin** ser super admin, administrativo de Comercial, administrador de Comercial, un vendedor, un supervisor. ☐ Datos de prueba creados antes: una remisión de motocarros **sin pagos ni entregas** con 2 unidades asignadas; una con pago; una de refacciones sin surtir; una de refacciones surtida (todas con el prefijo «ZZ PRUEBA P3»). ☐ **Aviso a Dazon:** «durante la ventana la pantalla de remisiones puede pedir recargar; la fecha de la remisión solo la cambia Dirección o un administrativo».
 
 ## 2. Pasos y tiempos (estimación: 1 h 45 min)
 
@@ -43,9 +43,6 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
 
 **Esperado:** sin `ERROR`; `funcion_definer_con_search_path` = 1, `anon_ejecuta` = false, `politicas_delete_remisiones` = **0**, `authenticated_puede_delete` = false.
 
-### Momento exacto: mezclar el front del Paquete 3 (después de verificar M2, antes de M3)
-Mezclar los PR del front (y de la compuerta si va aparte) **despliega en producción**: se hace con M1 y M2 verificados, esperando «Ready» en Vercel y anotando el commit. Si falla, se revierte el commit de la mezcla.
-
 ### Paso M3
 ```bash
 psql -X -v ON_ERROR_STOP=1 --single-transaction \
@@ -57,6 +54,9 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
 **Esperado:** sin `ERROR`; `tabla_con_rls` = true, `politicas_tabla` = 1, `triggers_fecha` = 2, `funcion_definer_con_search_path` = 1, `anon_ejecuta` = false, `anon_lee_tabla` = false.
 
 Si hay `ERROR`, no quedó nada aplicado (una sola transacción). *`| tee` oculta el código de salida: se lee la pantalla.*
+
+### Momento exacto: mezclar el front del Paquete 3 (inmediatamente después de verificar M3)
+Orden fijado por Polo: **M1 → verificar → M2 → verificar → M3 → verificar → front**. El front (y su compuerta, si va aparte) se mezcla **justo después de verificar M3**, no antes: mezclar **despliega en producción en Vercel**; se espera «Ready» y se anota el commit. Si falla, se revierte el commit de la mezcla. **Mientras no se despliega el front, la pantalla anterior convive con las migraciones:** desde M2 el botón «Eliminar» de la pantalla anterior (borrado directo) falla con «permission denied», y desde M3 la edición normal falla **solo si el usuario cambia la fecha** (reenviar la misma fecha no estorba). Por eso la ventana avisa a Dazon y el tiempo entre M2 y el despliegue del front debe ser corto. Los recorridos T1–T8 se hacen **después** del despliegue.
 
 ## 3. Verificación después de cada paso (solo lectura; la corre Code)
 
@@ -98,7 +98,7 @@ rollback;
 | Tras M2 | 281 | 182 | 298 | 248 | 93 | true | 4 | **0** | false | 1 | R+2 |
 | Tras M3 | 283 | 183 | 299 | 250 | 94 | true | 6 | 0 | true | 3 | R+3 |
 
-Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, `cartera_sigue_invoker` = 2, `authenticated_puede_delete_remisiones` = false desde M2. (Los valores de «Antes» suponen el Paquete 2 aplicado; sin él, restar 3 funciones y 2 SECDEF.)
+Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, `cartera_sigue_invoker` = 2, `authenticated_puede_delete_remisiones` = false desde M2. (Los valores de «Antes» suponen el Paquete 2 aplicado; sin él, restar 3 funciones y 2 SECDEF.) Los recorridos de la §5 se hacen **después** de desplegar el front.
 
 ## 5. Recorridos (cada uno con su cuenta; requieren el front del Paquete 3)
 
@@ -141,7 +141,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/revertir-P3-M1.log"
 ```
 
-**Después de cada reversa:** la verificación debe dar la fila anterior de la §4. *Las tres reversas se ensayaron exactas en la réplica.*
+**Después de cada reversa:** la verificación debe dar la fila anterior de la §4. Si se revierte, el front se revierte **primero** (o a la vez). *Las tres reversas se ensayaron exactas en la réplica.*
 
 ## 7. Cuándo detenerse y revertir
 

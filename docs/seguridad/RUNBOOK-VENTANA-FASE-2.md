@@ -16,7 +16,7 @@ Sin la frase exacta y con fecha, **no se aplica nada**. Si la hora real no está
 ## 1. Ventana
 
 - **Permitida:** sábados y domingos, o entre semana **después de las 19:00 (hora de la Ciudad de México)**. Nunca durante el uso normal de Dazon.
-- **Propuesta:** sábado **31 de octubre de 2026**, 10:00 a 15:00 (calendario fijado por Polo), **si la Fase 1 (martes 27) y el Paquete 1 (jueves 29) salieron limpios**. La observación entre ellas es de días, no de una semana: los criterios de salida limpia se revisan igual. Si alguna ventana anterior se mueve, la Fase 2 se mueve con ella.
+- **Propuesta:** sábado **31 de octubre de 2026**, 10:00 a 15:00 (calendario fijado por Polo), **si la Fase 1 (lunes 26) y el Paquete 1 (jueves 29) salieron limpios**. La observación entre ellas es de días, no de una semana: los criterios de salida limpia se revisan igual. Si alguna ventana anterior se mueve, la Fase 2 se mueve con ella.
 - **Una fase por ventana.** No se junta con la Fase 1.
 - Avisar a los administradores (uno de ellos en China) al empezar y al terminar.
 
@@ -162,6 +162,7 @@ Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
 - **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
 - Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
 
 ### Momento exacto, durante la ventana

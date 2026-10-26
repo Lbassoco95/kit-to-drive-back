@@ -5,7 +5,7 @@
 ## 1. Antes de abrir la ventana (todo en verde)
 
 ☐ Frase con fecha, y hora dentro de la ventana permitida (entre semana, después de las 19:00).
-☐ **La Fase 1 salió limpia:** los bloques V, A1 y A3 del `docs/seguridad/RUNBOOK-FINAL-FASE-1.md` repetidos **el miércoles 28 y el jueves 29 antes de empezar**, sin diferencias inexplicadas. *Claude vuelve a pegar esos bloques en el chat el día de la ventana.*
+☐ **La Fase 1 salió limpia:** los bloques V, A1 y A3 del `docs/seguridad/RUNBOOK-FINAL-FASE-1.md` repetidos **el martes 27, el miércoles 28 y el jueves 29 antes de empezar**, sin diferencias inexplicadas. *Claude vuelve a pegar esos bloques en el chat el día de la ventana.*
 ☐ **Respaldo** del mismo día o del anterior (fecha y hora escritas en la sesión).
 ☐ **Front publicado o no, da igual:** funciona en cualquier orden (si la RPC no existe, usa lo que ya leía). Aun así, el orden recomendado es **migraciones primero, front después**.
 ☐ **Persona de pruebas** y **cuentas**: un vendedor **sin clientes asignados**, **otro** vendedor, un supervisor de Comercial, un administrativo de Comercial y Dirección. Las contraseñas las maneja ella; nunca en el chat.
@@ -219,6 +219,7 @@ Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
 - **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
 - Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
 
 ### Momento exacto, durante la ventana

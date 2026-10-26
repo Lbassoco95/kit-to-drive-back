@@ -48,7 +48,7 @@ PASOS = [  # (paso, M, titulo, salida esperada del script, recorridos, minutos)
     (3, 4, 'Quitar la lectura de `anon` en 16 vistas', 'el aviso «Vistas cerradas a anon: 16» y `0 | 18`', '1, 6, 7', 30),
     (4, 5, 'Quitar INSERT, UPDATE y DELETE de `anon` en las tablas', 'un solo valor: `0`', '1, 6, 8', 30),
     (5, 6, 'Que lo que se cree en el futuro nazca cerrado', '`t | t | t`', '1, 6', 15),
-    (6, 3, 'Fijar el `search_path` de 14 funciones (**al final y sola**)', 'el aviso «Funciones con search_path fijado: 14» y `0`. Si aparece «No existe …: se omite», **detente**', '**todos, del 1 al 11**', 40),
+    (6, 3, 'Fijar el `search_path` de 14 funciones (**al final y sola**)', 'el aviso «Funciones con search_path fijado: 14» y `0`. **Antes de aplicarlo, Code corre `show search_path;` por el conector: debe incluir `public` (la migración resuelve dos tipos sin esquema; sin `public` omitiría dos funciones y haría COMMIT). Si no lo incluye, se detiene.** Si aparece «No existe …: se omite», **detente**', '**todos, del 1 al 11**', 40),
 ]
 ESP = {  # tras cada migración: tablas_anon_escribe, trunc_auth, trunc_anon, con_trigger, con_references, vistas_anon_lee, funciones_anon, secdef_auth, sin_search_path, politicas, registros, filas
     'Antes (preparación)': (81, 82, 82, 103, 103, 16, 2, 208, 14, 301, 90, 'F'),
@@ -111,7 +111,7 @@ doc = f"""# Runbook final de la Fase 1 (solo permisos) — ventana del **`<fecha
 | Ejecutar los recorridos de la hoja de pruebas y anotar «Después» | Persona de pruebas | Su hoja impresa (`HOJA-DE-PRUEBAS-POR-ROL.md`) |
 | Aplicar o revertir **algo** en producción | **Code, por el conector de escritura, solo dentro de la ventana y con la frase con fecha** (ver «Cómo aplica Code por el conector»); Polo habilita y quita el conector. Fuera de ventana nada se aplica | — |
 
-## 2. Horario propuesto: martes 27 de octubre de 2026, 19:00 a 00:00 (CDMX)
+## 2. Horario propuesto: lunes 26 de octubre de 2026, 19:00 a 00:00 (CDMX)
 
 La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho durante el día, antes de las 19:00) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
 
@@ -134,7 +134,7 @@ La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la prep
 ☐ Frase «Autorizo Fase 1 en producción, ventana del `<fecha>`» escrita en la sesión, con fecha, y la hora de inicio dentro de la ventana permitida.
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
-☐ **Aviso al equipo de Dazon** (el lunes 26 y al empezar): «Martes 27 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
+☐ **Aviso al equipo de Dazon** (hoy y al empezar): «Hoy lunes 26 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
 ☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-

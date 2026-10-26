@@ -36,7 +36,7 @@ Con los volúmenes actuales (1,079 movimientos; 2,237 productos; 32 partidas; 18
 
 1. **«Ventas» = solo refacciones.** Las unidades (motocarros) quedan fuera por ahora.
 2. **Qué cuenta como venta:** la partida de una remisión de refacciones **no cancelada**, por la **fecha de la remisión**, **sin datos de prueba** (con `_incluir_prueba` solo para quien ve datos de prueba). El importe es el **vigente** de la cobranza (`importe_partida_refaccion` sobre surtido + bloqueado, con el descuento de la partida y el general).
-3. **Administrativos y supervisores ven todas las ventas.** Por construcción lo mismo ven los roles que ya leen todas las remisiones de refacciones por su RLS (**compras/inventario, finanzas/cobranza, almacén y Dirección**, medido en el ensayo): no hay una segunda regla que mantener. `fabrica` ve 0.
+3. **Administrativos y supervisores ven todas las ventas.** **Confirmado por Polo: se mantiene la visibilidad por RLS actual.** Por construcción lo mismo ven los roles que ya leen todas las remisiones de refacciones por su RLS (**compras/inventario, finanzas/cobranza, almacén y Dirección**, medido en el ensayo): no hay una segunda regla que mantener. `fabrica` ve 0.
 4. **El vendedor no entra a Kardex ni Rotación** (el ensayo lo comprueba: «Sin acceso»); solo reporte de ventas y Entregas.
 
 ## 5.1 Qué se construyó (migraciones `20261108…`, ensayadas con Fase 1 + Paquete 1 + Fase 2)

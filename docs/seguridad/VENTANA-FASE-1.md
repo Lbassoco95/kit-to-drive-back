@@ -6,7 +6,7 @@
 
 ## 1. Ventana
 
-- **Propuesta:** **martes 27 de octubre de 2026**, de 19:00 a 00:00 (hora de la Ciudad de México). Calendario fijado por Polo: Fase 1 el martes 27 de octubre; Paquete 1 el jueves 29 de octubre (19:00–22:00); Fase 2 el sábado 31 de octubre (10:00–15:00). Si el ensayo no queda limpio: la nueva fecha la fija Polo.
+- **Propuesta:** **lunes 26 de octubre de 2026**, de 19:00 a 00:00 (hora de la Ciudad de México). Calendario fijado por Polo: Fase 1 el lunes 26 de octubre; Paquete 1 el jueves 29 de octubre (19:00–22:00); Fase 2 el sábado 31 de octubre (10:00–15:00). Si el ensayo no queda limpio: la nueva fecha la fija Polo.
 - Es fuera del uso de Dazon (después de las 19:00). Los administradores (uno de ellos en China) pueden entrar a cualquier hora: **avisarles** al empezar y al terminar.
 - **Una fase o paquete por ventana.** Entre la Fase 1 y la Fase 2 quedan el Paquete 1 (jueves 29) y solo unos días de observación (calendario de Polo; antes se proponía una semana). Esta ventana es solo la Fase 1.
 

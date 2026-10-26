@@ -15,7 +15,7 @@ Registran lo que hacen en `ventana-logs/` (carpeta local, no se versiona). Ver `
 Uso típico:
 ```bash
 source scripts/ventana/conectar.sh                       # una vez por terminal
-scripts/ventana/aplicar.sh 20261031000001_fase1_quitar_truncate_trigger_references 1 2026-10-27
+scripts/ventana/aplicar.sh 20261031000001_fase1_quitar_truncate_trigger_references 1 2026-10-26
 scripts/ventana/catalogo.sh
 scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt
 ```
