@@ -2,7 +2,7 @@
 
 **Estado: NADA APLICADO.** Fecha **por fijar** (después de la Fase 2 y de que la Fase 2 haya salido limpia). Frase (la escribe Polo, con fecha): «Autorizo paquete 2 (reportes y buscadores) en producción, ventana del `<fecha>`». Mecanismo: Code aplica con `execute_sql` por el conector de escritura **solo dentro de la ventana** (ver «Cómo aplica Code por el conector» en `docs/seguridad/COMO-APLICA-CODE-POR-EL-CONECTOR.md`); nunca `apply_migration`. Las órdenes de abajo son el respaldo manual (psql) y la referencia de qué se aplica.
 
-**Qué cambia:** 3 funciones nuevas, todas de **solo lectura** (STABLE, sin INSERT/UPDATE/DELETE): `reporte_ventas_refacciones` (SECURITY INVOKER: el vendedor solo ve sus ventas por la RLS del Paquete 1), `kardex_refacciones_multi` y `resumen_rotacion_refacciones_filtrado` (DEFINER con la misma puerta que las originales; el vendedor **no** entra). Ninguna tabla, política ni trigger. Las funciones originales (`kardex_refaccion`, `resumen_rotacion_refacciones`) **no se tocan**. Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
+**Qué cambia:** 4 funciones nuevas, todas de **solo lectura** (STABLE, sin INSERT/UPDATE/DELETE): `reporte_ventas_refacciones` y `reporte_ventas_refacciones_totales` (SECURITY INVOKER: el vendedor solo ve sus ventas por la RLS del Paquete 1; los totales cuentan **remisiones distintas**, porque sumar la columna por fila cuenta de más una remisión con varios artículos), `kardex_refacciones_multi` y `resumen_rotacion_refacciones_filtrado` (DEFINER con la misma puerta que las originales; el vendedor **no** entra). Ninguna tabla, política ni trigger. Las funciones originales (`kardex_refaccion`, `resumen_rotacion_refacciones`) **no se tocan**. Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (114/114 chequeos en verde).
 
 **Ramas listas, sin mezclar:** front `claude/paquete-2-front` (kit-to-drive, commit `8b52a21`) y compuerta `claude/paquete-2-compuerta` (kit-to-drive-front). Se mezclan dentro de la ventana, después de verificar M1 a M3 (la compuerta primero, luego el front); cada mezcla despliega en Vercel.
 
@@ -17,13 +17,14 @@
 ☐ Dos remisiones de refacciones de prueba creadas antes por vendedores distintos, con fechas en el mes en curso.
 ☐ El **front del Paquete 2** listo para mezclar dentro de la ventana (después de las migraciones verificadas) y la **compuerta** con las 3 RPC nuevas en `RPCS`.
 
-## 2. Pasos y tiempos (estimaciones, no mediciones: 1 h 30 min en total)
+## 2. Pasos y tiempos (estimaciones, no mediciones: 1 h 50 min en total)
 
 | Paso | Archivo | Qué cambia | Estimado |
 |---|---|---|---|
 | M1 | `20261108000001_paquete2_reporte_ventas_refacciones` | `reporte_ventas_refacciones` | 20 min |
 | M2 | `20261108000002_paquete2_kardex_varios_articulos` | `kardex_refacciones_multi` | 20 min |
 | M3 | `20261108000003_paquete2_rotacion_filtrada` | `resumen_rotacion_refacciones_filtrado` | 20 min |
+| M4 | `20261108000004_paquete2_reporte_ventas_totales` | `reporte_ventas_refacciones_totales` (remisiones distintas) | 20 min |
 
 ### Paso M1
 ```bash
@@ -54,6 +55,16 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
 ```
 
 **Esperado:** sin `ERROR`; `funcion_definer_con_search_path` = 1, `authenticated_ejecuta` = true, `anon_ejecuta` = false, `original_sigue` = 1.
+
+### Paso M4
+```bash
+psql -X -v ON_ERROR_STOP=1 --single-transaction \
+  -f supabase/migrations/20261108000004_paquete2_reporte_ventas_totales.sql \
+  -c "INSERT INTO public.migraciones_aplicadas (script, estado, notas) VALUES ('20261108000004_paquete2_reporte_ventas_totales', 'aplicado', 'Paquete 2, ventana del $FECHA') ON CONFLICT (script) DO UPDATE SET estado='aplicado', aplicada_at=now(), notas=EXCLUDED.notas" \
+  2>&1 | tee "ventana-logs/aplicar-P2-M4.log"
+```
+
+**Esperado:** sin `ERROR`; `funcion_invoker` = 1, `authenticated_ejecuta` = true, `anon_ejecuta` = false, `reporte_de_filas_sigue` = 1.
 
 Si hay `ERROR`, no quedó nada aplicado (una sola transacción): se detiene y se reporta, no se repite. *El comando termina en `| tee`: su código de salida no avisa de un error; se lee la pantalla.*
 
@@ -87,7 +98,7 @@ select
 rollback;
 ```
 
-Después de cada paso también V, A1, A3 y D2 (Code los pega; **no deben cambiar** salvo `registros_migraciones` y `filas_totales` +1 por paso y `secdef_authenticated` +1 con M2 y +1 con M3).
+Después de cada paso también V, A1, A3 y D2 (Code los pega; **no deben cambiar** salvo `registros_migraciones` y `filas_totales` +1 por paso y `secdef_authenticated` +1 con M2 y +1 con M3; M1 y M4 son INVOKER y no lo mueven).
 
 ## 4. Valores esperados (salen del ensayo local; `R` = `registros_migraciones` antes)
 
@@ -97,6 +108,7 @@ Después de cada paso también V, A1, A3 y D2 (Code los pega; **no deben cambiar
 | Tras M1 | 275 | 177 | 300 | 247 | 93 | 1 | 1 | 0 | 1 | 2 | R+1 |
 | Tras M2 | 276 | 178 | 300 | 247 | 93 | 2 | 1 | 0 | 2 | 2 | R+2 |
 | Tras M3 | 277 | 179 | 300 | 247 | 93 | 3 | 1 | 0 | 3 | 2 | R+3 |
+| Tras M4 | 278 | 179 | 300 | 247 | 93 | 4 | 2 | 0 | 4 | 2 | R+4 |
 
 (Los valores de «Antes» suponen Fase 1, Paquete 1 y Fase 2 aplicados, con la 5.ª de la Fase 2 incluida. `triggers` es el de la réplica: en producción es **tu línea base T0** y debe quedar igual.)
 
@@ -113,9 +125,17 @@ Después de cada paso también V, A1, A3 y D2 (Code los pega; **no deben cambiar
 
 **Cualquier falla de un recorrido que antes pasaba detiene la ventana.**
 
-## 6. Reversa (orden inverso: M3, M2, M1)
+## 6. Reversa (orden inverso: M4, M3, M2, M1)
 
-Cada reversa borra solo la función que creó y marca el renglón de `migraciones_aplicadas` como `superado`. **Antes de revertir** el front debe volver a la versión anterior (o los reportes nuevos quedarían sin función). No hay datos que restituir: el paquete no escribe nada.
+Cada reversa borra solo la función que creó (la de M4 quita los totales; el front vuelve a mostrar la nota de remisiones por fila) y marca el renglón de `migraciones_aplicadas` como `superado`. **Antes de revertir** el front debe volver a la versión anterior (o los reportes nuevos quedarían sin función). No hay datos que restituir: el paquete no escribe nada.
+
+**Revertir M4**
+```bash
+psql -X -v ON_ERROR_STOP=1 --single-transaction \
+  -f supabase/reversas/20261108000004_paquete2_reporte_ventas_totales_reversa.sql \
+  -c "UPDATE public.migraciones_aplicadas SET estado='superado', notas='REVERTIDA en la ventana del $FECHA (Paquete 2)' WHERE script='20261108000004_paquete2_reporte_ventas_totales'" \
+  2>&1 | tee "ventana-logs/revertir-P2-M4.log"
+```
 
 **Revertir M3**
 ```bash

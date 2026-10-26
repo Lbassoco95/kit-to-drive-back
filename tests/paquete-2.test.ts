@@ -6,8 +6,8 @@ const leer = (f: string) => readFileSync(`supabase/migrations/${f}`, 'utf8');
 const sinComentarios = (s: string) => s.replace(/--.*$/gm, '');
 
 describe('Paquete 2 — reportes y buscadores (solo lectura)', () => {
-  it('son 3 migraciones con versión única, posteriores a la Fase 2 (20261107…) y con su reversa', () => {
-    expect(MIG).toHaveLength(3);
+  it('son 4 migraciones con versión única, posteriores a la Fase 2 (20261107…) y con su reversa', () => {
+    expect(MIG).toHaveLength(4);
     const versiones = readdirSync('supabase/migrations').map((f) => f.split('_')[0]);
     for (const m of MIG) {
       const v = m.split('_')[0];
@@ -23,6 +23,16 @@ describe('Paquete 2 — reportes y buscadores (solo lectura)', () => {
       expect(sql, m).not.toMatch(/\b(INSERT\s+INTO|UPDATE\s+public|DELETE\s+FROM|CREATE\s+TABLE|CREATE\s+POLICY|ALTER\s+TABLE)\b/i);
       expect(sql, m).toMatch(/STABLE/);
     }
+  });
+
+  it('los totales cuentan remisiones DISTINTAS con el mismo criterio de venta y también son SECURITY INVOKER', () => {
+    const sql = sinComentarios(leer(MIG[3]));
+    expect(sql).toMatch(/SECURITY INVOKER/);
+    expect(sql).not.toMatch(/SECURITY DEFINER/);
+    expect(sql).toMatch(/count\(DISTINCT r\.id\)/);
+    expect(sql).toMatch(/r\.etapa <> 'cancelada'/);
+    expect(sql).toMatch(/importe_partida_refaccion/);
+    expect(sql).toMatch(/RETURNS TABLE \(remisiones bigint, piezas bigint, monto_neto numeric\)/);
   });
 
   it('el reporte de ventas es SECURITY INVOKER: la visibilidad es la de las remisiones de quien llama', () => {

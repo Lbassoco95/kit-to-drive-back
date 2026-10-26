@@ -35,23 +35,23 @@
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: vend2 ve 1/200.00/1",
-   "detalle": "1/200.00/1",
+   "caso": "P2 reporte de ventas: vend2 ve 3/220.00/2",
+   "detalle": "3/220.00/2",
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: superv ve 9/630.00/2",
-   "detalle": "9/630.00/2",
+   "caso": "P2 reporte de ventas: superv ve 11/650.00/3",
+   "detalle": "11/650.00/3",
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: admvo ve 9/630.00/2",
-   "detalle": "9/630.00/2",
+   "caso": "P2 reporte de ventas: admvo ve 11/650.00/3",
+   "detalle": "11/650.00/3",
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: direccion ve 9/630.00/2",
-   "detalle": "9/630.00/2",
+   "caso": "P2 reporte de ventas: direccion ve 11/650.00/3",
+   "detalle": "11/650.00/3",
    "ok": true
   },
   {
@@ -76,7 +76,7 @@
   },
   {
    "caso": "P2 reporte: filtro almacén A",
-   "detalle": "8/430.00/1",
+   "detalle": "10/450.00/2",
    "ok": true
   },
   {
@@ -86,7 +86,7 @@
   },
   {
    "caso": "P2 reporte: filtro vendedor 2",
-   "detalle": "1/200.00/1",
+   "detalle": "3/220.00/2",
    "ok": true
   },
   {
@@ -101,6 +101,61 @@
   },
   {
    "caso": "P2 reporte: periodo inválido se rechaza",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: vend1 cuenta 4 remisión(es) distintas, 8 piezas y 430.00",
+   "detalle": "4/8/430.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: vend2 cuenta 1 remisión(es) distintas, 3 piezas y 220.00",
+   "detalle": "1/3/220.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: superv cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
+   "detalle": "5/11/650.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: admvo cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
+   "detalle": "5/11/650.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: direccion cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
+   "detalle": "5/11/650.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: la suma de la columna `remisiones` por fila CUENTA DE MÁS (vend2: 2 filas ≠ 1 remisión), los totales no",
+   "detalle": "('2', '1/3/220.00')",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: coinciden en piezas y monto con la suma de las filas",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: el vendedor solo cuenta las suyas (vend1 ≠ superv)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: el usuario de prueba no cuenta datos reales",
+   "detalle": "0/0/0",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: con filtro de almacén B cuenta 1 remisión",
+   "detalle": "1/1/200.00",
+   "ok": true
+  },
+  {
+   "caso": "P2 totales: periodo inválido se rechaza",
    "detalle": "",
    "ok": true
   },
@@ -191,12 +246,12 @@
   },
   {
    "caso": "P2 rotación filtrada: almacén A (pr1 vendió 2; pr2 0)",
-   "detalle": "['f8f69a83-c95c-4bc1-9b57-93b2f8bbc449|2', '894d991e-3fc5-43a6-bf52-a67ed98a2ecf|0']",
+   "detalle": "['ecda12af-00fc-4763-883f-9502f62b39d1|2', 'ea318b18-06fd-4431-bd4d-13a7c807427f|0']",
    "ok": true
   },
   {
-   "caso": "P2: las 3 funciones son STABLE (solo lectura)",
-   "detalle": "['kardex_refacciones_multi=s', 'reporte_ventas_refacciones=s', 'resumen_rotacion_refacciones_filtrado=s']",
+   "caso": "P2: las 4 funciones son STABLE (solo lectura)",
+   "detalle": "['kardex_refacciones_multi=s', 'reporte_ventas_refacciones=s', 'reporte_ventas_refacciones_totales=s', 'resumen_rotacion_refacciones_filtrado=s']",
    "ok": true
   },
   {
@@ -205,13 +260,13 @@
    "ok": true
   },
   {
-   "caso": "P2: anon no ejecuta y authenticated sí (las 3)",
-   "detalle": "['falsetrue', 'falsetrue', 'falsetrue']",
+   "caso": "P2: anon no ejecuta y authenticated sí (las 4)",
+   "detalle": "['falsetrue', 'falsetrue', 'falsetrue', 'falsetrue']",
    "ok": true
   },
   {
-   "caso": "P2: el reporte de ventas es SECURITY INVOKER",
-   "detalle": "['true']",
+   "caso": "P2: el reporte de ventas y sus totales son SECURITY INVOKER",
+   "detalle": "['true', 'true']",
    "ok": true
   },
   {
@@ -533,7 +588,7 @@
  "despues": {
   "catalogo": "                              ^",
   "conteos": {
-   "funciones": 283,
+   "funciones": 284,
    "funciones_ejecutables_anon": 0,
    "politicas": 299,
    "secdef_ejecutables_authenticated": 183,
@@ -541,7 +596,7 @@
    "triggers": 250
   }
  },
- "filas_sinteticas": 37,
+ "filas_sinteticas": 38,
  "migraciones": {
   "20261108000001_paquete2_reporte_ventas_refacciones": {
    "aplica_ok": true,
@@ -554,6 +609,11 @@
    "reversa_ok": true
   },
   "20261108000003_paquete2_rotacion_filtrada": {
+   "aplica_ok": true,
+   "error": "",
+   "reversa_ok": true
+  },
+  "20261108000004_paquete2_reporte_ventas_totales": {
    "aplica_ok": true,
    "error": "",
    "reversa_ok": true
@@ -576,10 +636,10 @@
  },
  "p2": {
   "filtros": {
-   "almacén A": "8/430.00/1",
+   "almacén A": "10/450.00/2",
    "almacén B": "1/200.00/1",
    "artículo 2": "1/200.00/1",
-   "vendedor 2": "1/200.00/1"
+   "vendedor 2": "3/220.00/2"
   },
   "kardex_por_rol": {
    "admcom": "Sin acceso al kárdex",
@@ -597,17 +657,17 @@
   },
   "prueba_con_incluir": "1/10.00/1",
   "reporte_por_rol": {
-   "admcom": "9/630.00/2",
-   "admvo": "9/630.00/2",
-   "almacen": "9/630.00/2",
-   "compras": "9/630.00/2",
-   "direccion": "9/630.00/2",
-   "dirop": "9/630.00/2",
+   "admcom": "11/650.00/3",
+   "admvo": "11/650.00/3",
+   "almacen": "11/650.00/3",
+   "compras": "11/650.00/3",
+   "direccion": "11/650.00/3",
+   "dirop": "11/650.00/3",
    "fabrica": "0/0/0",
-   "finanzas": "9/630.00/2",
-   "superv": "9/630.00/2",
+   "finanzas": "11/650.00/3",
+   "superv": "11/650.00/3",
    "vend1": "8/430.00/1",
-   "vend2": "1/200.00/1",
+   "vend2": "3/220.00/2",
    "vprueba": "0/0/0"
   },
   "rotacion_por_rol": {
@@ -623,6 +683,20 @@
    "vend1": "Sin acceso a rotación",
    "vend2": "Sin acceso a rotación",
    "vprueba": "Sin acceso a rotación"
+  },
+  "totales_por_rol": {
+   "admcom": "5/11/650.00",
+   "admvo": "5/11/650.00",
+   "almacen": "5/11/650.00",
+   "compras": "5/11/650.00",
+   "direccion": "5/11/650.00",
+   "dirop": "5/11/650.00",
+   "fabrica": "0/0/0",
+   "finanzas": "5/11/650.00",
+   "superv": "5/11/650.00",
+   "vend1": "4/8/430.00",
+   "vend2": "1/3/220.00",
+   "vprueba": "0/0/0"
   }
  },
  "p3": {
@@ -651,7 +725,7 @@
  "tras_p2": {
   "catalogo": "                              ^",
   "conteos": {
-   "funciones": 277,
+   "funciones": 278,
    "funciones_ejecutables_anon": 0,
    "politicas": 300,
    "secdef_ejecutables_authenticated": 179,
@@ -662,7 +736,7 @@
  "tras_reversa_p3": {
   "catalogo": "                              ^",
   "conteos": {
-   "funciones": 277,
+   "funciones": 278,
    "funciones_ejecutables_anon": 0,
    "politicas": 300,
    "secdef_ejecutables_authenticated": 179,

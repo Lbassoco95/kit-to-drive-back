@@ -135,7 +135,7 @@ Detalle: `docs/seguridad/RUNBOOK-VENTANA-FASE-2.md`. Antes de empezar: huellas d
 
 ### Paquete 2 — fecha por fijar, después de la Fase 2
 
-Guion completo: `VENTANA-PAQUETE-2.md`. Orden: M1 reporte de ventas → M2 kárdex de varios artículos → M3 rotación filtrada; el front se mezcla **después** de las migraciones verificadas; recorridos S1–S6. Tres funciones nuevas de solo lectura; ninguna tabla, política ni trigger.
+Guion completo: `VENTANA-PAQUETE-2.md`. Orden: M1 reporte de ventas → M2 kárdex de varios artículos → M3 rotación filtrada → M4 totales de remisiones distintas; el front se mezcla **después** de las migraciones verificadas; recorridos S1–S6. Cuatro funciones nuevas de solo lectura; ninguna tabla, política ni trigger.
 
 | Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `registros_migraciones` |
 |---|---|---|---|---|---|---|
@@ -143,8 +143,9 @@ Guion completo: `VENTANA-PAQUETE-2.md`. Orden: M1 reporte de ventas → M2 kárd
 | Tras M1 | 275 | 177 | 300 | T0 | 93 | R+1 |
 | Tras M2 | 276 | 178 | 300 | T0 | 93 | R+2 |
 | Tras M3 | 277 | 179 | 300 | T0 | 93 | R+3 |
+| Tras M4 | 278 | 179 | 300 | T0 | 93 | R+4 |
 
-**Detener y revertir** (M3, M2, M1) si el vendedor ve ventas de otro o entra a Kárdex o Rotación, si falla un recorrido que pasaba, si suben los errores de D2 o si P2V no coincide.
+**Detener y revertir** (M4, M3, M2, M1) si el vendedor ve ventas de otro o entra a Kárdex o Rotación, si falla un recorrido que pasaba, si suben los errores de D2 o si P2V no coincide.
 
 ### Paquete 3 — fecha por fijar, al final
 
@@ -152,9 +153,9 @@ Guion completo: `VENTANA-PAQUETE-3.md`. Orden: M1 interruptor global → verific
 
 | Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `registros_migraciones` |
 |---|---|---|---|---|---|---|
-| Antes | 277 | 179 | 300 | T0 | 93 | R |
-| Tras M1 | 280 | 181 | 300 | T0+1 | 93 | R+1 |
-| Tras M2 | 281 | 182 | 298 | T0+1 | 93 | R+2 |
-| Tras M3 | 283 | 183 | 299 | T0+3 | 94 | R+3 |
+| Antes | 278 | 179 | 300 | T0 | 93 | R |
+| Tras M1 | 281 | 181 | 300 | T0+1 | 93 | R+1 |
+| Tras M2 | 282 | 182 | 298 | T0+1 | 93 | R+2 |
+| Tras M3 | 284 | 183 | 299 | T0+3 | 94 | R+3 |
 
 **Detener y revertir** (M3, M2, M1) si falla un recorrido que pasaba (sobre todo editar una remisión), si alguien que no es super admin logra eliminar, si se elimina algo con pago, cobranza, factura o entrega, si queda una fila huérfana, si suben los errores de D2 o si P3V no coincide.

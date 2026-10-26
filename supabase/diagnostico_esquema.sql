@@ -569,6 +569,9 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261108000002_paquete2_kardex_varios_articulos', 'sin_privilegio|kardex_refacciones_multi(uuid[],date,date,text)|anon'),
   ('20261108000003_paquete2_rotacion_filtrada', 'funcion|resumen_rotacion_refacciones_filtrado(date,date,boolean,uuid[],text)'),
   ('20261108000003_paquete2_rotacion_filtrada', 'sin_privilegio|resumen_rotacion_refacciones_filtrado(date,date,boolean,uuid[],text)|anon'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'funcion|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'sin_definer|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'sin_privilegio|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)|anon'),
   -- Paquete 3 (eliminar remisión y fecha de remisión; se aplica al final, versiones 20261109…)
   ('20261109000001_paquete3_modo_prueba_global', 'funcion|modo_prueba_global_activo()'),
   ('20261109000001_paquete3_modo_prueba_global', 'funcion|fijar_modo_prueba_global(boolean,text)'),

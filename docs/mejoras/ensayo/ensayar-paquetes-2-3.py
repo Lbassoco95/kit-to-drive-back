@@ -14,7 +14,7 @@ import json, os, re, subprocess, sys
 DB, SALIDA = sys.argv[1], sys.argv[2]
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 P2 = ['20261108000001_paquete2_reporte_ventas_refacciones', '20261108000002_paquete2_kardex_varios_articulos',
-      '20261108000003_paquete2_rotacion_filtrada']
+      '20261108000003_paquete2_rotacion_filtrada', '20261108000004_paquete2_reporte_ventas_totales']
 P3 = ['20261109000001_paquete3_modo_prueba_global', '20261109000002_paquete3_eliminar_remision',
       '20261109000003_paquete3_fecha_de_remision']
 ROLES = {  # nombre: (area, nivel, es_administrativo, super_admin)
@@ -104,7 +104,7 @@ INSERT INTO public.user_roles (user_id, area, nivel) VALUES ('{u}', '{area}', '{
     def it(etq, rem, prod, alm, precio, cant, sur, blo, desc, est):
         fila(etq, 'remision_refaccion_items', f"remision_id = '{{{rem}}}', producto_id = '{{{prod}}}', codigo_nuevo = 'ZZ', descripcion = 'Sintético', almacen = '{alm}', precio_unitario = {precio}, cantidad = {cant}, cantidad_surtida = {sur}, cantidad_bloqueada = {blo}, cantidad_faltante = 0, descuento_pct = {desc}, estatus = '{est}'")
     it('i1', 'rr_v1', 'pr1', 'A', 100, 3, 2, 1, 10, 'surtida'); it('i2', 'rr_v2', 'pr2', 'B', 200, 1, 1, 0, 0, 'surtida')
-    it('i3', 'rr_can', 'pr1', 'A', 999, 1, 0, 0, 0, 'cancelada'); it('i4', 'rr_pru', 'pr1', 'A', 10, 1, 1, 0, 0, 'surtida')
+    it('i8', 'rr_v2', 'pr1', 'A', 10, 2, 2, 0, 0, 'surtida'); it('i3', 'rr_can', 'pr1', 'A', 999, 1, 0, 0, 0, 'cancelada'); it('i4', 'rr_pru', 'pr1', 'A', 10, 1, 1, 0, 0, 'surtida')
     it('i5', 'rr_limpia', 'pr1', 'A', 50, 3, 0, 3, 0, 'bloqueada'); it('i6', 'rr_ent', 'pr1', 'A', 5, 1, 0, 1, 0, 'bloqueada'); it('i7', 'rr_pago', 'pr1', 'A', 5, 1, 0, 1, 0, 'bloqueada')
     def mv(etq, prod, tipo, cant, fecha, alm, doc=None):
         doc_id = f"'{ids[doc]}'" if doc else 'NULL'
@@ -161,7 +161,7 @@ def total_reporte(rol, extra=''):
 
 def pruebas_p2():
     res = {}
-    esperado = {'vend1': '8/430.00/1', 'vend2': '1/200.00/1', 'superv': '9/630.00/2', 'admvo': '9/630.00/2', 'direccion': '9/630.00/2'}
+    esperado = {'vend1': '8/430.00/1', 'vend2': '3/220.00/2', 'superv': '11/650.00/3', 'admvo': '11/650.00/3', 'direccion': '11/650.00/3'}
     res['reporte_por_rol'] = {rol: total_reporte(rol) for rol in ROLES}
     for rol, e in esperado.items(): chk(f"P2 reporte de ventas: {rol} ve {e}", res['reporte_por_rol'][rol] == e, res['reporte_por_rol'][rol])
     chk('P2 reporte: el vendedor NO ve las ventas del otro', res['reporte_por_rol']['vend1'] != res['reporte_por_rol']['superv'])
@@ -169,11 +169,25 @@ def pruebas_p2():
     res['prueba_con_incluir'] = total_reporte('vprueba', ", _incluir_prueba => true"); chk('P2 reporte: usuario de prueba con _incluir_prueba ve solo lo de prueba', res['prueba_con_incluir'] == '1/10.00/1', res['prueba_con_incluir'])
     chk('P2 reporte: canceladas excluidas (superv no suma 999)', '999' not in res['reporte_por_rol']['superv'])
     f = {'almacén A': ", _almacenes => ARRAY['A']", 'almacén B': ", _almacenes => ARRAY['B']", 'vendedor 2': f", _vendedores => ARRAY['{uid('vend2')}'::uuid]", 'artículo 2': f", _productos => ARRAY['{ids['pr2']}'::uuid]"}
-    exp = {'almacén A': '8/430.00/1', 'almacén B': '1/200.00/1', 'vendedor 2': '1/200.00/1', 'artículo 2': '1/200.00/1'}
+    exp = {'almacén A': '10/450.00/2', 'almacén B': '1/200.00/1', 'vendedor 2': '3/220.00/2', 'artículo 2': '1/200.00/1'}
     res['filtros'] = {k: total_reporte('direccion', v) for k, v in f.items()}
     for k in f: chk(f"P2 reporte: filtro {k}", res['filtros'][k] == exp[k], res['filtros'][k])
     chk('P2 reporte: el vendedor filtrando por el OTRO vendedor sigue sin ver nada ajeno', total_reporte('vend1', f", _vendedores => ARRAY['{uid('vend2')}'::uuid]").startswith('0/'))
     chk('P2 reporte: periodo inválido se rechaza', 'periodo' in (error_de(como('direccion', "SELECT * FROM public.reporte_ventas_refacciones('2026-10-31','2026-10-01');")) or ''))
+    # totales: remisiones DISTINTAS (rr_v2 sale en dos filas del reporte pero cuenta una sola vez)
+    def tot(rol, extra=''):
+        r = como(rol, f"SELECT remisiones||'/'||piezas||'/'||monto_neto FROM public.reporte_ventas_refacciones_totales('2026-10-01','2026-10-31'{extra});")
+        return error_de(r) or (util(r) or [''])[0]
+    suma_filas = lambda rol: (util(como(rol, "SELECT sum(remisiones) FROM public.reporte_ventas_refacciones('2026-10-01','2026-10-31');")) or [''])[0]
+    res['totales_por_rol'] = {rol: tot(rol) for rol in ROLES}
+    for rol, e in {'vend1': '4/8/430.00', 'vend2': '1/3/220.00', 'superv': '5/11/650.00', 'admvo': '5/11/650.00', 'direccion': '5/11/650.00'}.items():
+        chk(f"P2 totales: {rol} cuenta {e.split('/')[0]} remisión(es) distintas, {e.split('/')[1]} piezas y {e.split('/')[2]}", res['totales_por_rol'][rol] == e, res['totales_por_rol'][rol])
+    chk('P2 totales: la suma de la columna `remisiones` por fila CUENTA DE MÁS (vend2: 2 filas ≠ 1 remisión), los totales no', suma_filas('vend2') == '2' and res['totales_por_rol']['vend2'].startswith('1/'), (suma_filas('vend2'), res['totales_por_rol']['vend2']))
+    chk('P2 totales: coinciden en piezas y monto con la suma de las filas', all(res['totales_por_rol'][r].split('/')[1:] == total_reporte(r).split('/')[:2] for r in ('vend1', 'vend2', 'superv')))
+    chk('P2 totales: el vendedor solo cuenta las suyas (vend1 ≠ superv)', res['totales_por_rol']['vend1'] != res['totales_por_rol']['superv'])
+    chk('P2 totales: el usuario de prueba no cuenta datos reales', res['totales_por_rol']['vprueba'].startswith('0/'), res['totales_por_rol']['vprueba'])
+    chk('P2 totales: con filtro de almacén B cuenta 1 remisión', tot('direccion', ", _almacenes => ARRAY['B']") == '1/1/200.00', tot('direccion', ", _almacenes => ARRAY['B']"))
+    chk('P2 totales: periodo inválido se rechaza', 'periodo' in (error_de(como('direccion', "SELECT * FROM public.reporte_ventas_refacciones_totales('2026-10-31','2026-10-01');")) or ''))
     # kárdex de varios artículos
     def kdx(rol, sql): r = como(rol, sql); return error_de(r), util(r)
     res['kardex_por_rol'] = {rol: (kdx(rol, f"SELECT count(*) FROM public.kardex_refacciones_multi(ARRAY['{ids['pr1']}'::uuid]);")[0] or 'ok') for rol in ROLES}
@@ -204,14 +218,14 @@ def pruebas_p2():
     a = rot(f"SELECT producto_id, piezas_vendidas FROM public.resumen_rotacion_refacciones_filtrado('2026-10-01','2026-10-31', false, ARRAY['{ids['pr1']}'::uuid,'{ids['pr2']}'::uuid], 'A') ORDER BY codigo;")
     chk('P2 rotación filtrada: almacén A (pr1 vendió 2; pr2 0)', [x.split('|')[1] for x in a] == ['2', '0'], a)
     # solo lectura y permisos
-    vol = psql("SELECT p.proname||'='||p.provolatile::text FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado') ORDER BY 1;", True).split()
-    chk('P2: las 3 funciones son STABLE (solo lectura)', all(v.endswith('=s') for v in vol) and len(vol) == 3, vol)
-    cuerpos = psql("SELECT p.proname, pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado');", True)
+    vol = psql("SELECT p.proname||'='||p.provolatile::text FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','reporte_ventas_refacciones_totales','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado') ORDER BY 1;", True).split()
+    chk('P2: las 4 funciones son STABLE (solo lectura)', all(v.endswith('=s') for v in vol) and len(vol) == 4, vol)
+    cuerpos = psql("SELECT p.proname, pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','reporte_ventas_refacciones_totales','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado');", True)
     chk('P2: ninguna función tiene INSERT/UPDATE/DELETE', not re.search(r'\b(INSERT\s+INTO|UPDATE\s+public|DELETE\s+FROM)\b', cuerpos, re.I))
-    pe = psql("SELECT has_function_privilege('anon',p.oid,'EXECUTE')::text||has_function_privilege('authenticated',p.oid,'EXECUTE')::text FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado');", True).split()
-    chk('P2: anon no ejecuta y authenticated sí (las 3)', pe == ['falsetrue'] * 3, pe)
-    inv = psql("SELECT (NOT prosecdef)::text FROM pg_proc WHERE proname='reporte_ventas_refacciones';", True).split()
-    chk('P2: el reporte de ventas es SECURITY INVOKER', inv == ['true'], inv)
+    pe = psql("SELECT has_function_privilege('anon',p.oid,'EXECUTE')::text||has_function_privilege('authenticated',p.oid,'EXECUTE')::text FROM pg_proc p WHERE p.proname IN ('reporte_ventas_refacciones','reporte_ventas_refacciones_totales','kardex_refacciones_multi','resumen_rotacion_refacciones_filtrado');", True).split()
+    chk('P2: anon no ejecuta y authenticated sí (las 4)', pe == ['falsetrue'] * 4, pe)
+    inv = psql("SELECT (NOT prosecdef)::text FROM pg_proc WHERE proname IN ('reporte_ventas_refacciones','reporte_ventas_refacciones_totales');", True).split()
+    chk('P2: el reporte de ventas y sus totales son SECURITY INVOKER', inv == ['true', 'true'], inv)
     return res
 
 # ──────────────────────────── PAQUETE 3 ────────────────────────────

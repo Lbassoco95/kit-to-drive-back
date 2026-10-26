@@ -7,7 +7,7 @@
 - **M2** `eliminar_remision`: función atómica (solo super admin, modo prueba encendido, folio y motivo; rechaza pago, cuenta por cobrar, movimiento financiero o factura, entrega confirmada e inventario surtido; guarda copia completa; libera unidades; comprueba que no queden filas huérfanas). **Se cierran los dos DELETE directos** de `remisiones` (rol `admin` y administradores de Comercial) y se revoca DELETE a `authenticated`.
 - **M3** fecha: tabla `remision_fecha_cambios` (RLS, solo lectura), función `cambiar_fecha_remision` (solo Dirección y administrativos de Comercial, con motivo; no se mueve ningún vencimiento; se avisa a administración) y un trigger que impide cambiar `fecha_remision` por cualquier otra vía (**cambia lo que hoy hace la pantalla de edición de la remisión: el front debe dejar de enviarla**).
 
-**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
+**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (114/114 chequeos en verde).
 
 **Ramas listas, sin mezclar:** front `claude/paquete-3-front` (kit-to-drive, commit `d499851`) y compuerta `claude/paquete-3-compuerta` (kit-to-drive-front). Se mezclan **inmediatamente después de verificar M3** (la compuerta primero, luego el front); cada mezcla despliega en Vercel.
 
@@ -95,12 +95,12 @@ rollback;
 
 | Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `modo_prueba_global` | `funciones_p3` | `politicas_delete_remisiones` | `existe_tabla_fechas` | `triggers_p3` | `registros_migraciones` |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Antes | 277 | 179 | 300 | 247 | 93 | (nulo) | 0 | 2 | false | 0 | R |
-| Tras M1 | 280 | 181 | 300 | 248 | 93 | true | 3 | 2 | false | 1 | R+1 |
-| Tras M2 | 281 | 182 | 298 | 248 | 93 | true | 4 | **0** | false | 1 | R+2 |
-| Tras M3 | 283 | 183 | 299 | 250 | 94 | true | 6 | 0 | true | 3 | R+3 |
+| Antes | 278 | 179 | 300 | 247 | 93 | (nulo) | 0 | 2 | false | 0 | R |
+| Tras M1 | 281 | 181 | 300 | 248 | 93 | true | 3 | 2 | false | 1 | R+1 |
+| Tras M2 | 282 | 182 | 298 | 248 | 93 | true | 4 | **0** | false | 1 | R+2 |
+| Tras M3 | 284 | 183 | 299 | 250 | 94 | true | 6 | 0 | true | 3 | R+3 |
 
-Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, `cartera_sigue_invoker` = 2, `authenticated_puede_delete_remisiones` = false desde M2. (Los valores de «Antes» suponen el Paquete 2 aplicado; sin él, restar 3 funciones y 2 SECDEF.) Los recorridos de la §5 se hacen **después** de desplegar el front.
+Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, `cartera_sigue_invoker` = 2, `authenticated_puede_delete_remisiones` = false desde M2. (Los valores de «Antes» suponen el Paquete 2 aplicado; sin él, restar 4 funciones y 2 SECDEF.) Los recorridos de la §5 se hacen **después** de desplegar el front.
 
 ## 5. Recorridos (cada uno con su cuenta; requieren el front del Paquete 3)
 

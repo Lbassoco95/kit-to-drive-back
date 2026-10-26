@@ -227,6 +227,7 @@
     "reportar_faltante_refaccion",
     "reportar_incidencia_chasis",
     "reporte_ventas_refacciones",
+    "reporte_ventas_refacciones_totales",
     "resolver_incidencia_chasis",
     "resolver_pendiente_compra_refacciones",
     "resolver_solicitud_aprobacion",
