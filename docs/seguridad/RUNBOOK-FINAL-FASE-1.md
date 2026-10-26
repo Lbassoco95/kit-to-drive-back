@@ -8,8 +8,8 @@
 
 | Dato | Valor |
 |---|---|
-| Fecha de la ventana | `<por llenar>` |
-| Respaldo (fecha y hora, Database → Backups) | `<por llenar>` |
+| Fecha de la ventana | **2026-10-26** (lunes, 19:00–00:00 CDMX) |
+| Respaldo (fecha y hora, Database → Backups) | **26 oct 2026, 07:29 CDMX (13:29 UTC)**, programado y físico (declarado por Polo) |
 | Persona de pruebas | `<por llenar>` |
 | Cuentas por rol (una por cada rol de `HOJA-DE-PRUEBAS-POR-ROL.md`, **sin contraseñas aquí**) | `<por llenar>` |
 | Persona dueña de la cuenta que aplicó las migraciones anteriores | **pendiente de Polo** (no bloquea la ventana) |
