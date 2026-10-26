@@ -119,26 +119,31 @@ La referencia del proyecto va **en la URL**: el conector no puede ver ningún ot
 
 | Nombre | URL | Cuándo está habilitado |
 |---|---|---|
-| `supabase-prod-lectura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database` | Siempre (solo lectura) |
-| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database` | **Solo dentro de la ventana**, de que Polo escribe la frase a que cierra la ventana |
+| `supabase-prod-lectura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging` | Siempre (solo lectura) |
+| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development` | **Solo dentro de la ventana**, de que Polo escribe la frase a que cierra la ventana |
 
-`features=database` deja solo las herramientas de base de datos (entre ellas `execute_sql`); no se publican las de proyectos, ramas ni funciones. **Verifica estos parámetros contra la documentación vigente de Supabase antes de la primera ventana** (no pude consultarla desde mi entorno al escribir esto); lo que no cambia es la regla: la URL **debe llevar `project_ref=dmhzhyeivvuliumcgsmm`**.
+`features` limita los grupos de herramientas (verificado por Polo en la documentación de Supabase): `database` trae `execute_sql` y **también `apply_migration`** (ambas están en el mismo grupo y **no se pueden separar por URL**); `development` trae `get_project_url`; `debugging` (solo en lectura) trae `query_logs`. Si el cliente no reconoce las comas en `features`, se usa `%2C` (`features=database%2Cdevelopment`). La URL **debe llevar `project_ref=dmhzhyeivvuliumcgsmm`**: fija el proyecto y no existe argumento para cambiarlo.
+
+**`apply_migration` queda prohibida por regla, no por URL.** Polo la rechaza siempre: si aparece una solicitud de `apply_migration`, se rechaza. **Antes de cada llamada Code dice qué herramienta va a usar** (siempre `execute_sql` para aplicar y revertir; `get_project_url` y, en lectura, `query_logs`).
 
 **Agregar y quitar (Claude Code en terminal)**
 
 ```bash
-claude mcp add --transport http supabase-prod-lectura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database"
-claude mcp add --transport http supabase-prod-escritura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database"
-claude mcp remove supabase-prod-escritura
+claude mcp add --transport http --scope local supabase-prod-lectura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging"
+claude mcp add --transport http --scope local supabase-prod-escritura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development"
+claude mcp remove supabase-prod-escritura --scope local
 claude mcp list
 ```
+
+**No se usa `--scope project`**: guardaría la configuración del conector en el repo (`.mcp.json`). Se usa el alcance **local** (`--scope local`, el predeterminado), que queda solo en la máquina de Polo y no se sube a git.
 
 **Esperado:** `list` muestra `supabase-prod-lectura` siempre y `supabase-prod-escritura` solo durante la ventana. En una sesión en la nube, el mismo par de URL se agrega como conector personalizado en claude.ai (**Configuración → Conectores → Agregar conector personalizado**) y se quita con **Desconectar**; Polo elige la ruta que corresponda a la sesión.
 
 ### Condiciones de cada llamada
 
 - **Aprobación manual de cada llamada** (permiso «preguntar» para `execute_sql` en el conector de escritura). Nada se aprueba por adelantado.
-- **Antes de cada escritura**, Code llama a `get_project_url` y pega el resultado. Debe decir `https://dmhzhyeivvuliumcgsmm.supabase.co`. Si dice `qszllskpizvpnzcytqpj` (QA) o cualquier otra cosa: **detenerse**.
+- **Antes de cada escritura**, Code llama a `get_project_url` y pega el resultado. Debe decir `https://dmhzhyeivvuliumcgsmm.supabase.co`. Si dice `qszllskpizvpnzcytqpj` (QA) o cualquier otra cosa: **detenerse**. **Además confirma la identidad con el bloque 0** (`zz_lista_oct = 2219`, `super_admins = 2`), también antes de cada escritura: `project_ref` fija el proyecto, pero el bloque 0 lo comprueba por los datos.
+- **Antes de cada llamada, Code dice qué herramienta va a usar.** Aplicar y revertir es siempre `execute_sql`; **nunca `apply_migration`**.
 - Se aplica con **`execute_sql`, un archivo por llamada, dentro de `begin; … commit;`**, con el `INSERT` en `migraciones_aplicadas` **en la misma llamada**. **No se usa `apply_migration`.**
 - Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
 - **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
@@ -151,7 +156,7 @@ claude mcp list
 |---|---|---|---|
 | 1 | Polo | Escribe la frase con fecha | Al abrir la ventana, ya con respaldo y persona de pruebas |
 | 2 | Polo | **Habilita** `supabase-prod-escritura` (y verifica que el general de claude.ai esté desconectado) | Justo después de la frase |
-| 3 | Code | `get_project_url` + V, A1 y A3 «antes» por lectura | Antes de la primera escritura |
+| 3 | Code | `get_project_url`, bloque 0 y V, A1 y A3 «antes» por lectura | Antes de la primera escritura |
 | 4 | Code | Aplica un paso, pega V, A1 y A3 | Cada paso; espera «sigue» |
 | 5 | Polo | **Deshabilita** (quita) `supabase-prod-escritura` | En cuanto se aplica el último paso y se pegan los bloques finales, **o** a la hora de cierre de la ventana, lo que ocurra primero |
 | 6 | Code | Confirma por lectura que ya no puede escribir | Después de quitarlo |
