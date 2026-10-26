@@ -27,6 +27,7 @@ Trabajo del 25 de octubre de 2026 con base en la guía de principios de datos de
 | `HOJA-DE-INTEGRIDAD.md` | Comandos y comparador para comprobar, después de cada paso, que la información se mantuvo |
 | `HISTORIAL-MIGRACIONES-HALLAZGO.md` | Migraciones de otro proyecto (Patio) y las 21 sin equivalente en el repo; cruce con las 17 políticas «solo producción»; propuesta de alineación |
 | `PROPUESTA-LEE-CIERRE-DE-SESIONES.md` | Qué haría cerrar las sesiones de `lee` (hoy: nada, tiene 0) |
-| `COMPROBACION-CANAL-SOLO-LECTURA.md` | Lo que Claude comprueba cuando Polo configure el MCP de solo lectura |
+| `SQL-PARA-POLO.md` | **Todo el SQL de solo lectura que corre Polo** (foto de integridad, historial, Patio, catálogo, errores), en orden, con instrucciones |
+| `COMPROBACION-CANAL-SOLO-LECTURA.md` | **Sin uso:** el 26 oct se decidió que no habrá canal de solo lectura para Claude |
 
 Carpetas: `integridad/` (foto de integridad, comparador), `../../scripts/ventana/` (scripts que corre Polo en la ventana), `respaldo/` (permisos, políticas y huellas, sin datos), `consultas/` (consultas de solo lectura), `ensayo/` (scripts de la réplica y del ensayo, y su resultado). Las migraciones están en `supabase/migrations/20261031…` (Fase 1) y `20261107…` (Fase 2) y sus reversas en `supabase/reversas/`. Las operaciones de datos de una sola vez (cuentas demo) están en `supabase/operaciones/`, **fuera** de las migraciones a propósito.

@@ -13,7 +13,7 @@ Referencia (la foto de antes): `docs/seguridad/integridad/antes-tablas.txt` (93 
 | 3 | **Catálogo** (permisos, políticas, funciones) | `scripts/ventana/catalogo.sh` | Cambia **solo** lo previsto en el runbook para ese paso |
 | 4 | **Foto nueva** (opcional, para el informe) | `scripts/ventana/foto-integridad.sh ventana-logs/despues-paso-<n>.txt` | `tablas=93 filas=20610 …` |
 
-**Claude repite 1, 2 y 3** por su canal de solo lectura y compara; si Claude y Polo ven lo mismo, se sigue.
+**Claude no tiene canal a producción** (no usa el conector de Supabase de claude.ai, ni para leer): Polo corre 1, 2 y 3 (`SQL-PARA-POLO.md`) y **pega el resultado**; Claude lo compara y dice «sigue» o «detente».
 
 ## 2. Si hay una diferencia
 
@@ -34,4 +34,4 @@ La salida indica **tabla**, **filas antes / ahora** y **qué** (`cambió el núm
 
 - La huella de cada tabla es el `md5` de todas sus filas en texto, ordenadas por la llave primaria (las 93 tienen). Una tabla vacía se marca `vacia`.
 - `generar-comparacion.py` construye una consulta que une «lo que hay hoy» con «la foto» y devuelve solo lo distinto. Se **probó contra producción** el 26 oct (resultado vacío) y contra una base local donde se cambió una fila (la detectó).
-- Por el canal de Claude, la misma consulta se pega en el MCP de solo lectura (`python3 docs/seguridad/integridad/generar-comparacion.py docs/seguridad/integridad/antes-tablas.txt`).
+- La misma consulta se pega en el SQL Editor y el resultado se pasa a Claude (`python3 docs/seguridad/integridad/generar-comparacion.py docs/seguridad/integridad/antes-tablas.txt`).

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Integridad de la información: conteo exacto y huella de cada tabla de public.
 -- SOLO LECTURA. Envolver SIEMPRE en una transacción de solo lectura:
---     begin read only;  <esta consulta>;  commit;
+--     begin read only;  <esta consulta>;  rollback;
 -- No devuelve filas de datos: solo nombre de tabla, número de filas y un hash (md5).
 -- Huella = md5 del contenido de la tabla en texto, ordenado por la llave primaria
 -- (las 93 tablas tienen llave primaria; si alguna no la tuviera, se ordena por el texto de la fila).

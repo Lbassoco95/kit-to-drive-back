@@ -41,7 +41,7 @@ El archivo completo, con las huellas enteras, es **`integridad/antes-tablas.txt`
 ```bash
 python3 docs/seguridad/integridad/generar-comparacion.py docs/seguridad/integridad/antes-tablas.txt   # imprime una consulta de solo lectura
 ```
-Se pega esa consulta en el SQL Editor (o en el MCP de solo lectura). **Devuelve solo las tablas que cambiaron.** Resultado vacío = la información se mantuvo igual. Se probó hoy contra producción: devolvió vacío.
+Se pega esa consulta en el SQL Editor (Polo la corre y pega el resultado; ver `SQL-PARA-POLO.md`, bloque A1). **Devuelve solo las tablas que cambiaron.** Resultado vacío = la información se mantuvo igual. Se probó hoy contra producción: devolvió vacío.
 
 **Qué detecta y qué no:** cualquier cambio en cualquier columna de cualquier fila, o filas nuevas o borradas. **No detecta** cambios de estructura (eso lo cubren las consultas de catálogo de la sección 5).
 

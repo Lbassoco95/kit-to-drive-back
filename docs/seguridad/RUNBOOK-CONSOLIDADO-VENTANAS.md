@@ -2,7 +2,9 @@
 
 **Estado: NADA APLICADO.** Este guion reemplaza el orden y el mecanismo de `VENTANA-FASE-1.md` y de `RUNBOOK-VENTANA-FASE-2.md`. Esos dos siguen valiendo para el detalle de cada migración y de cada recorrido.
 
-**Decisiones de Polo (26 oct):** cada archivo se aplica **tal cual** con `psql`, **en una transacción**, **desde la terminal de Polo**, y se registra en `migraciones_aplicadas`. No se usa `supabase db push` ni `apply_migration`. **Polo escribe la contraseña de la base; Claude no la ve.** Claude **mide solo con el MCP de solo lectura** limitado a producción; el conector de claude.ai con escritura y el token de cuenta se desactivan.
+**Decisiones de Polo (26 oct):** cada archivo se aplica **tal cual** con `psql`, **en una transacción**, **desde la terminal de Polo**, y se registra en `migraciones_aplicadas`. No se usa `supabase db push` ni `apply_migration`. **Polo escribe la contraseña de la base; Claude no la ve.**
+
+**Modo de medición (cambio del 26 oct, tarde):** **no hay canal de solo lectura para Claude.** Claude **no usa el conector de Supabase de claude.ai para nada, ni para leer** (se repite en cada reporte). Todo dato de producción lo obtiene **Polo** corriendo SQL de solo lectura (`begin read only; … rollback;`) en el SQL Editor o con los scripts de `scripts/ventana/`, y **pegándolo en la sesión**: solo conteos, huellas y catálogo, nunca filas con datos personales. Todo el SQL está en **`SQL-PARA-POLO.md`**. Claude compara lo pegado con lo previsto y dice «sigue» o «detente». **Puente de Patio:** confirmado por Polo que no existe; `20261009000002` **no entra a ninguna ventana** (solo se registra en `migraciones_aplicadas` como aplicada, aparte).
 
 ## 0. Frases de autorización (las escribe Polo, en la sesión, con fecha)
 
@@ -15,16 +17,25 @@
 | «Autorizo cambio de contraseña obligatorio a lee, ventana del `<fecha>`» | El script de cambio obligatorio, solo `lee` |
 | (sin frase aún) cerrar las sesiones de `lee` | Ver `PROPUESTA-LEE-CIERRE-DE-SESIONES.md`: necesita su propia frase |
 
-Orden: Fase 1 → verificación completa → **una semana de observación** → Fase 2 (otra ventana) → **bloqueo de cuentas, al final y separado** (su propia frase, su propia ventana o el cierre de la de la Fase 2). Cada frase vale solo lo que nombra.
+Orden: Fase 1 → verificación completa → **un día de observación** → Fase 2 (otra ventana) → **bloqueo de cuentas, al final y separado** (su propia frase, su propia ventana o el cierre de la de la Fase 2). Cada frase vale solo lo que nombra.
 **Ventana permitida:** sábados y domingos, o entre semana **después de las 19:00 (CDMX)**. Nunca durante el uso normal de Dazon.
+
+### Resumen de las dos ventanas
+
+| Ventana | Cuándo | Frase de autorización (la escribe Polo, en la sesión, con fecha) | Qué cubre |
+|---|---|---|---|
+| **1 — Fase 1** | Sábado o domingo, o entre semana **después de las 19:00 CDMX** | «Autorizo Fase 1 en producción, ventana del `<fecha>`» | Solo las 6 migraciones de la Fase 1 (§4) |
+| **2 — Fase 2** | **El día siguiente** a la ventana 1, **solo si la Fase 1 salió limpia** (§5) y dentro de la ventana permitida | «Autorizo Fase 2 en producción, ventana del `<fecha>`» | Solo las 5 migraciones de la Fase 2 y las 3 Edge Functions (§6) |
+
+La frase de la ventana 2 **no se escribe de antemano**: Polo la escribe después de ver el veredicto de §5. Cada frase vale solo lo que nombra; los scripts de cuentas tienen las suyas (§0).
 
 ## 1. Quién y con qué
 
 | Quién | Qué hace |
 |---|---|
-| **Polo** | Autoriza. **Corre** los scripts de `scripts/ventana/` en su terminal. Escribe la contraseña de la base (una vez, sin eco). Escribe la fecha del respaldo. Pasa a Claude los resultados de pantalla |
+| **Polo** | Autoriza. **Corre** los scripts de `scripts/ventana/` en su terminal. Escribe la contraseña de la base (una vez, sin eco). Escribe la fecha del respaldo. **Corre los bloques de `SQL-PARA-POLO.md`** y pasa a Claude los resultados |
 | **Persona de pruebas** (la designa Polo) | Ejecuta `HOJA-DE-PRUEBAS-POR-ROL.md` antes y después de cada paso. **No necesita saber de programación**; necesita una cuenta por cada rol y estar **toda la ventana**. Si no hay quién pruebe, no se empieza |
-| **Claude** | Mide con el **MCP de solo lectura**: catálogo, huellas, registros. Compara con lo previsto y dice «sigue» o «detente». **No aplica nada** |
+| **Claude** | **No tiene canal a producción** y no usa el conector de Supabase de claude.ai (ni para leer). Compara **lo que Polo pega** (catálogo, huellas, registros) con lo previsto y dice «sigue» o «detente». **No aplica nada** |
 | Administradores (incluido el de China) | Se les avisa al empezar y al terminar |
 
 ## 2. Preparar la terminal de Polo (una vez por ventana)
@@ -42,9 +53,9 @@ Al terminar la ventana: `unset PGPASSWORD PGHOST PGUSER` y cerrar la terminal. *
 
 1. ☐ **Frase de autorización con fecha** y hora **dentro de la ventana permitida**.
 2. ☐ **Respaldo:** Polo le escribe a Claude «Respaldo del `<fecha y hora>`» (Database → Backups): **del mismo día o del anterior**. Opcional recomendado: copia lógica en su terminal (`PARTE-A-CONEXION-Y-VENTANA.md` §5). **Sin esto, no empieza.**
-3. ☐ **Canal de solo lectura de Claude**, comprobado (Polo avisa que lo configuró): `get_project_url` = `dmhzhyeivvuliumcgsmm`; **`show transaction_read_only;` = `on`**; y un `CREATE TABLE` de prueba dentro de `begin read only` **es rechazado** (`25006`) y no deja nada (`rollback`). El conector con escritura, **desactivado**.
-4. ☐ **Foto fresca de integridad comparada con la de referencia:** `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` (y Claude lo repite por su canal). Cero diferencias, o diferencias **explicadas** con fecha y hora de cada fila nueva. Si no se pueden explicar: **no se empieza.**
-5. ☐ **Catálogo igual que la línea base:** `scripts/ventana/catalogo.sh` (y la ventana 2, igual que el cierre de la Fase 1).
+3. ☐ **Bloques de `SQL-PARA-POLO.md` corridos por Polo y pegados** el mismo día: **0** (es producción, no QA; sin bloqueos), **A2** (foto fresca; se guarda como `integridad/antes-ventana-fase-1.txt`), **A3**, **D1** y **D2**. Claude los lee y dice «verde» o «detente».
+4. ☐ **Integridad contra la referencia del 25 oct:** bloque **A1** de `SQL-PARA-POLO.md` (o `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` en la terminal). Cero diferencias, o diferencias **explicadas** con fecha y hora de cada fila nueva. Si no se pueden explicar: **no se empieza.**
+5. ☐ **Catálogo igual que la línea base:** bloque **D1** (o `scripts/ventana/catalogo.sh`); la ventana 2, igual que el cierre de la ventana 1.
 6. ☐ **Recorridos de pantalla hechos una vez antes** (hoja de pruebas, columna «Antes»).
 7. ☐ **Dos super admins activos** y uno con sesión durante la ventana. No se modifican.
 8. ☐ **Línea base de errores** 401/403/5xx de las últimas 24 h (API y Postgres), anotada.
@@ -77,12 +88,12 @@ Al terminar la ventana: `unset PGPASSWORD PGHOST PGUSER` y cerrar la terminal. *
      -c "INSERT INTO public.migraciones_aplicadas (script, estado, notas) VALUES ('<N>', 'aplicado', 'Fase 1, ventana del <fecha>') ON CONFLICT (script) DO UPDATE SET estado='aplicado', aplicada_at=now(), notas=EXCLUDED.notas"
    ```
    Leer la verificación que imprime y compararla con la tabla. Queda copia en `ventana-logs/`.
-2. **B1, permisos:** `scripts/ventana/catalogo.sh` (Polo) y Claude lo repite con el canal de solo lectura: debe cambiar **solo** lo previsto (`PARTE-A-CONEXION-Y-VENTANA.md` §4.5).
+2. **B1, permisos:** bloque **D1** de `SQL-PARA-POLO.md` (o `scripts/ventana/catalogo.sh`), que Polo pega a Claude: debe cambiar **solo** lo previsto (`PARTE-A-CONEXION-Y-VENTANA.md` §4.5).
 3. **B2, recorridos:** la persona de pruebas ejecuta la hoja (**1, 2, 3, 5 y 6 obligatorios tras los pasos 1 y 2**) y anota en «Después».
-4. **B3, integridad:** `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` (Polo) y la misma consulta por el canal de Claude.
+4. **B3, integridad:** `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` (Polo) **o** `generar-comparacion.py` sobre `antes-ventana-fase-1.txt` pegado en el SQL Editor; Polo pega el resultado a Claude.
    - Una migración de solo permisos debe dar **«CERO diferencias»**. Cualquier otra salida **detiene**.
    - Una diferencia solo se acepta si se **demuestra**, con fecha y hora de creación de cada fila nueva, que la causó una operación normal de un usuario. La explicación va por escrito en `INTEGRIDAD-RESULTADO-FASE-1.md`. **No se da por buena sin esa evidencia.**
-5. **B4, errores:** 401/403/5xx y errores de Postgres contra la línea base (los hace Claude con el canal de solo lectura).
+5. **B4, errores:** 401/403/5xx y errores de Postgres contra la línea base (Polo corre los dos conteos de **D2** en Logs Explorer y pega el resultado; Claude compara con la línea base).
 6. **Registrar** ya lo hizo el paso 1. **Decisión «sigue / detente»** la dice Claude por escrito; la ejecuta Polo.
 
 ### 4.2 Reversa de cada paso (misma forma, una transacción)
@@ -120,13 +131,21 @@ Después de cada reversa: `catalogo.sh` debe volver a la línea base **y** `comp
 | Es **más de las 17:30** con un paso a medias | Se **revierte** ese paso y se cierra con integridad y catálogo. **Nunca se deja un paso sin verificar** |
 | Falta la persona de pruebas | **Se detiene.** No se avanza sin recorridos |
 
-## 5. Una semana de observación
+## 5. Cierre de la ventana 1 y criterio «la Fase 1 salió limpia» (para abrir la ventana 2 al día siguiente)
 
-Sin cambios. Cada día se revisan los registros; si alguien reporta algo, se revisa **antes** de la ventana 2. Al cabo de la semana, repetir la foto de integridad: las diferencias contra el cierre de la ventana 1 deben ser **solo actividad normal, explicada**.
+Al terminar el paso 6, Polo corre **A1** (contra `antes-ventana-fase-1.txt`), **A3**, **D1** y **D2**, y Claude escribe `INTEGRIDAD-RESULTADO-FASE-1.md`. **La Fase 1 salió limpia** solo si se cumple **todo**:
+
+1. Los 6 pasos aplicados y registrados como `aplicado` en `migraciones_aplicadas` (bloque **B2**).
+2. **Cero diferencias** de integridad en las 93 tablas, Auth y Storage (A1 y A3), o solo actividad normal **demostrada** con fecha y hora.
+3. **D1** igual a lo previsto (tabla de §4); `anon` sin escritura ni TRUNCATE; funciones de trigger cerradas.
+4. Recorridos por rol sin falla (hoja de pruebas), incluida el **alta de usuario**.
+5. Errores de **D2** sin aumento contra la línea base de la mañana.
+
+**Mañana siguiente (antes de la ventana 2):** Polo vuelve a correr **A1**, **A3**, **D1** y **D2** (las últimas 24 h ya cubren el uso normal de Dazon con la Fase 1 puesta). Claude compara: si algo subió (401/403/5xx) o cambió sin explicación, **la ventana 2 no se abre** y se revisa. Si todo está igual, Claude lo dice por escrito y Polo decide si escribe la frase de la Fase 2. **Una semana de observación ya no es requisito**; sí lo es este día de observación. Quien prefiera esperar más, puede.
 
 ## 6. Ventana 2 — Fase 2 (y, al final y aparte, los scripts de cuentas)
 
-Prerrequisito: **Fase 1 aplicada, observada una semana, y `INTEGRIDAD-RESULTADO-FASE-1.md` con veredicto «la información se mantuvo: sí».**
+Prerrequisito: **Fase 1 aplicada, con el veredicto «salió limpia» de §5 por escrito y la comprobación de la mañana siguiente en verde**, y `INTEGRIDAD-RESULTADO-FASE-1.md` con «la información se mantuvo: sí». Además se repite el **§3** completo (respaldo del mismo día o del anterior, foto fresca nueva guardada como `antes-ventana-fase-2.txt`, persona de pruebas, ventana horaria permitida).
 
 ### 6.1 Migraciones (frase «Autorizo Fase 2…») — orden 1, 2, 3, 4, 5
 

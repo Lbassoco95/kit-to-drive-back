@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Integridad: Auth y Storage (conteos y huellas, sin filas). SOLO LECTURA.
--- Envolver en: begin read only; … commit;
+-- Envolver en: begin read only; … rollback;
 -- huella_sin_contrasena: id, correo, alta, banned_until, app/user metadata (cambia si se bloquea una cuenta o se marca «debe cambiar contraseña»).
 -- huella_contrasenas: md5 de los hashes de contraseña (cambia cuando alguien cambia su contraseña: actividad normal o el script de cambio obligatorio no la cambia).
 -- En storage, `activos_no_bloqueados` en las filas de objetos es la SUMA DE BYTES.

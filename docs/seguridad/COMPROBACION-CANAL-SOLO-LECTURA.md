@@ -1,3 +1,5 @@
+> **SIN USO (26 oct, tarde).** Polo decidió no configurar un canal de solo lectura para Claude. Claude no usa el conector de Supabase de claude.ai, ni para leer. Todo dato de producción llega por `SQL-PARA-POLO.md`.
+
 # Comprobación del canal de solo lectura (para cuando Polo avise)
 
 **Pendiente hasta que Polo avise que configuró el MCP de solo lectura (`supabase-prod`) y desactivó el conector con escritura y el token.** Mientras tanto, Claude **no consulta producción**.

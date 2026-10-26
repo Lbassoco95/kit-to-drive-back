@@ -1,3 +1,5 @@
+> **Nota del 26 oct (tarde):** los canales de §2 quedaron superados. No habrá MCP de solo lectura para Claude; el SQL de medición lo corre Polo (`SQL-PARA-POLO.md`). El mecanismo de aplicación (psql desde la terminal de Polo) sigue igual.
+
 # Parte A — conexión a producción, estado actual y plan de ventana (25–26 oct 2026)
 
 **Solo lectura. No se aplicó nada, no se tocó QA, no se inició sesión en ninguna cuenta.** Cada consulta de esta corrida corrió dentro de `begin read only; … commit;` (comprobado: `transaction_read_only = on`).

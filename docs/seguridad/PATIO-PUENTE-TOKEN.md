@@ -2,8 +2,8 @@
 
 Solo lectura, solo repos. No se consultó la base de datos. Aquí no hay valores.
 
-## Nota de estado (corrección)
-Una versión anterior de este documento decía que el puente seguía en producción hasta aplicar `20261009000002`. **Eso contradecía lo ya medido en la Fase 0:** el catálogo del 25 oct no tiene funciones `patio_*` ni la tabla `patio_bridge_secret`, y `20261009000002` falta en `migraciones_aplicadas` pese a estar aplicada (hallazgo D3). Lo coherente es: **se aplicó a mano sin registrarla y el puente ya no existe.** Falta confirmarlo con `consultas/08-puente-patio-estado.sql` en el canal de solo lectura.
+## Estado (confirmado por Polo el 26 oct)
+**No existe** la tabla `patio_bridge_secret` ni ninguna función `patio_*` en producción. Es coherente con la Fase 0: `20261009000002` se aplicó a mano sin registrarla (hallazgo D3). Una versión anterior de este documento decía lo contrario; era un error mío. **`20261009000002` no entra a ninguna ventana**: solo falta registrarla como aplicada en `migraciones_aplicadas` (columna `script`), aparte. La constancia en SQL es el bloque C de `SQL-PARA-POLO.md`. La investigación de si el puente se usó queda **pospuesta** hasta después de la Fase 1.
 
 ## Qué es
 - Puente anterior: funciones `public.patio_kit_*` (`list_users`, `overview`, `set_user_active`, `set_user_role`, `update_config`) más `public._patio_bridge_ok(text)`.
@@ -16,7 +16,7 @@ Una versión anterior de este documento decía que el puente seguía en producci
 |---|---|
 | Migraciones del repo (113 archivos) | **No.** La creación del puente y del token **no está en el repo**. Solo aparece la tabla en `20260925193000` (un `REVOKE`) y en `20261009000002` (el `DROP`). |
 | Historial remoto (`supabase_migrations.schema_migrations`, migraciones del 21 sep) | **Probable, no verificado.** Es donde se creó la tabla y se sembró el token. Se confirma con la consulta 07 una vez comprobado el canal de solo lectura. |
-| Tabla `public.patio_bridge_secret` en producción | **Probablemente ya no existe** (ver la nota de estado abajo). |
+| Tabla `public.patio_bridge_secret` en producción | **No existe** (confirmado por Polo; ver «Estado»). |
 | Respaldos de la base anteriores a esa fecha | Sí, por consecuencia de lo anterior. |
 
 **Corrección de documentación:** el encabezado de `20261009000002` dice que "las definiciones originales siguen en `20260925193000`". Es falso: ese archivo no las contiene. Si hiciera falta volver atrás, la definición hay que sacarla del historial remoto, no del repo. La corrección del comentario se hace en la próxima edición de ese archivo, sin cambiar el SQL.
@@ -34,7 +34,7 @@ Se revisaron los cuatro repos que tengo clonados: `kit-to-drive`, `kit-to-drive-
 3. Si el token está en el historial remoto de migraciones. Se confirma en la tarea 2.
 
 ## Qué rotar
-1. **Nada urgente por el puente en sí**, si se confirma que ya no existe (ver la nota de estado).
+1. **Nada urgente por el puente en sí**, porque ya no existe (ver «Estado»).
 2. **Rotar `MATI_ADMIN_BRIDGE_SECRET` y `KIT_TO_DRIVE_BRIDGE_SECRET` solo si coinciden con el token de Patio.** Polo puede comprobarlo sin mostrarlo: comparar en su terminal el hash de ambos valores. Si coinciden, se genera un valor nuevo y se pone el mismo en Supabase y en mati-api.
 3. **El historial remoto seguirá guardando el token** aunque se borre la tabla. Decisión de Polo: dejar el historial como está (el token ya no sirve) o limpiar esa fila del historial. No lo hago yo.
 4. Si el token se compartió fuera del equipo, tratarlo como comprometido y revisar el uso entre el 21 sep y el 9 oct (tarea 3, pendiente del canal de solo lectura).
