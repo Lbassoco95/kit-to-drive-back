@@ -4,6 +4,8 @@
 
 **Decisiones de Polo (26 oct):** cada archivo se aplica **tal cual** con `psql`, **en una transacción**, **desde la terminal de Polo**, y se registra en `migraciones_aplicadas`. No se usa `supabase db push` ni `apply_migration`. **Polo escribe la contraseña de la base; Claude no la ve.**
 
+> **Para la ventana 1 (Fase 1) el guion vigente es `RUNBOOK-FINAL-FASE-1.md`.** Este documento sigue valiendo para la ventana 2 y los scripts de cuentas.
+
 **Modo de medición (cambio del 26 oct, tarde):** **no hay canal de solo lectura para Claude.** Claude **no usa el conector de Supabase de claude.ai para nada, ni para leer** (se repite en cada reporte). Todo dato de producción lo obtiene **Polo** corriendo SQL de solo lectura (`begin read only; … rollback;`) en el SQL Editor o con los scripts de `scripts/ventana/`, y **pegándolo en la sesión**: solo conteos, huellas y catálogo, nunca filas con datos personales. Todo el SQL está en **`SQL-PARA-POLO.md`**. Claude compara lo pegado con lo previsto y dice «sigue» o «detente». **Puente de Patio:** confirmado por Polo que no existe; `20261009000002` **no entra a ninguna ventana** (solo se registra en `migraciones_aplicadas` como aplicada, aparte).
 
 ## 0. Frases de autorización (las escribe Polo, en la sesión, con fecha)

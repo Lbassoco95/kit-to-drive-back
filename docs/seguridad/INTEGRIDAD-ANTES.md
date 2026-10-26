@@ -204,3 +204,8 @@ Consulta `consultas/02-conteos-linea-base.sql` más conteos adicionales, 26 oct 
 - **Datos de Auth que cambian solos** (sesiones, tokens, `last_sign_in_at`): se cuentan, no se comparan por huella.
 - **Los archivos de Storage por dentro**: se comparan por nombre, tamaño y `eTag`.
 - **Tablas de otros esquemas** (`bkp`, 8 tablas, no se tocan en ninguna fase).
+
+
+## Nota del 26 oct (mediodía)
+
+A3 (Auth y Storage) coincide con esta foto salvo `auth.refresh_tokens`: **116 → 118**, con los 21 no revocados sin cambio. Son 2 tokens de renovación normal de sesión creados el 26 oct entre las 15:00 y las 15:59 UTC (dato de Polo). Los demás valores, incluidas las dos huellas de `auth.users`, son idénticos. `auth.sessions` y `auth.refresh_tokens` son **informativos** en las comparaciones de la ventana: cambian con el uso normal.

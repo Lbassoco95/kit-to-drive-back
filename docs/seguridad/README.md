@@ -27,6 +27,7 @@ Trabajo del 25 de octubre de 2026 con base en la guía de principios de datos de
 | `HOJA-DE-INTEGRIDAD.md` | Comandos y comparador para comprobar, después de cada paso, que la información se mantuvo |
 | `HISTORIAL-MIGRACIONES-HALLAZGO.md` | Migraciones de otro proyecto (Patio) y las 21 sin equivalente en el repo; cruce con las 17 políticas «solo producción»; propuesta de alineación |
 | `PROPUESTA-LEE-CIERRE-DE-SESIONES.md` | Qué haría cerrar las sesiones de `lee` (hoy: nada, tiene 0) |
+| `RUNBOOK-FINAL-FASE-1.md` | **El guion de la ventana de la Fase 1**, para seguirlo sin conocimiento técnico: lista previa, comandos de `psql`, verificación y valores esperados por paso, reversas, tiempos y criterios de detención |
 | `SQL-PARA-POLO.md` | **Todo el SQL de solo lectura que corre Polo** (foto de integridad, historial, Patio, catálogo, errores), en orden, con instrucciones |
 | `COMPROBACION-CANAL-SOLO-LECTURA.md` | **Sin uso:** el 26 oct se decidió que no habrá canal de solo lectura para Claude |
 
