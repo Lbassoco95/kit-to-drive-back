@@ -133,6 +133,8 @@ Después de cada reversa: `catalogo.sh` debe volver a la línea base **y** `comp
 | Es **más de las 17:30** con un paso a medias | Se **revierte** ese paso y se cierra con integridad y catálogo. **Nunca se deja un paso sin verificar** |
 | Falta la persona de pruebas | **Se detiene.** No se avanza sin recorridos |
 
+> **Cambio del 26 oct (tarde):** Polo propone la **ventana de la Fase 2 el sábado 7 de noviembre de 2026**, aparte de la de la Fase 1 (sábado 31 de octubre). Eso reemplaza el «día siguiente» de este documento. Entre las dos queda una semana de observación; los criterios de §5 siguen valiendo como mínimo. Hay otros tres bloques de trabajo propuestos (Bloque 1: martes 3 de noviembre después de las 19:00; Bloque 2 después de la Fase 2; Bloque 3 al final): **pendiente que Polo pegue su contenido** para revisar qué choca con la Fase 2.
+
 ## 5. Cierre de la ventana 1 y criterio «la Fase 1 salió limpia» (para abrir la ventana 2 al día siguiente)
 
 Al terminar el paso 6, Polo corre **A1** (contra `antes-ventana-fase-1.txt`), **A3**, **D1** y **D2**, y Claude escribe `INTEGRIDAD-RESULTADO-FASE-1.md`. **La Fase 1 salió limpia** solo si se cumple **todo**:
