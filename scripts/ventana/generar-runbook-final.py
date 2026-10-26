@@ -214,7 +214,7 @@ Correspondencia con la **hoja de pruebas**, que numera por orden de ejecución: 
 Se revierte **el paso que falló y los anteriores**, en el orden inverso al aplicado (si falló M5, se revierte M5 y luego M4, M2, M1... según lo que ya se aplicó, siempre del último al primero). Cada reversa es una transacción y marca el renglón de `migraciones_aplicadas` como `superado` (**no se borra**: por eso `registros_migraciones` y `filas_totales` **no bajan**). La reversa de M4 devuelve a `anon` los permisos tal como estaban el 25 oct, incluido `MAINTAIN` (permiso de PostgreSQL 17, que no existe en mi réplica local: **esa línea no la pude ensayar**; el resto de las reversas sí se ensayó completo).
 
 {chr(10).join(f'**Revertir M{n}**' + chr(10) + chr(10) + revertir(n) + chr(10) for n in [3, 6, 5, 4, 2, 1])}
-**Después de cada reversa:** bloque V, que debe dar los valores de esta tabla (la primera columna de cada fila es lo que se acaba de revertir); y al final de **todas**, A1 (la única diferencia, `migraciones_aplicadas`, con seis renglones más).
+**Después de cada reversa:** bloque V, que debe dar los valores de esta tabla (la primera columna de cada fila es lo que se acaba de revertir; los valores suponen que se aplicaron los seis pasos: si solo se aplicaron algunos, el valor esperado es el de la fila de la §6 del paso anterior al que revertiste); y al final de **todas**, A1 (la única diferencia, `migraciones_aplicadas`, con seis renglones más).
 
 {tabla(ESP_REV)}
 

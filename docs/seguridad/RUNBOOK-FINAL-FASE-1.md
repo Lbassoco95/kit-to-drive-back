@@ -474,7 +474,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/revertir-M1.log"
 ```
 
-**Después de cada reversa:** bloque V, que debe dar los valores de esta tabla (la primera columna de cada fila es lo que se acaba de revertir); y al final de **todas**, A1 (la única diferencia, `migraciones_aplicadas`, con seis renglones más).
+**Después de cada reversa:** bloque V, que debe dar los valores de esta tabla (la primera columna de cada fila es lo que se acaba de revertir; los valores suponen que se aplicaron los seis pasos: si solo se aplicaron algunos, el valor esperado es el de la fila de la §6 del paso anterior al que revertiste); y al final de **todas**, A1 (la única diferencia, `migraciones_aplicadas`, con seis renglones más).
 
 | Momento | `tablas_anon_escribe` | `truncate_authenticated` | `truncate_anon` | `con_trigger` | `con_references` | `vistas_anon_lee` | `funciones_anon` | `secdef_authenticated` | `sin_search_path` | `politicas` | `registros_migraciones` | `filas_totales` |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
