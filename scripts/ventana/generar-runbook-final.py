@@ -51,24 +51,24 @@ PASOS = [  # (paso, M, titulo, salida esperada del script, recorridos, minutos)
     (6, 3, 'Fijar el `search_path` de 14 funciones (**al final y sola**)', 'el aviso «Funciones con search_path fijado: 14» y `0`. Si aparece «No existe …: se omite», **detente**', '**todos, del 1 al 11**', 40),
 ]
 ESP = {  # tras cada migración: tablas_anon_escribe, trunc_auth, trunc_anon, con_trigger, con_references, vistas_anon_lee, funciones_anon, secdef_auth, sin_search_path, politicas, registros, filas
-    'Antes (preparación)': (81, 82, 82, 103, 103, 16, 2, 208, 14, 301, 90, 20610),
-    'Tras el paso 1 (M1)': (81, 0, 0, 0, 0, 16, 2, 208, 14, 301, 91, 20611),
-    'Tras el paso 2 (M2)': (81, 0, 0, 0, 0, 16, 0, 178, 14, 301, 92, 20612),
-    'Tras el paso 3 (M4)': (81, 0, 0, 0, 0, 0, 0, 178, 14, 301, 93, 20613),
-    'Tras el paso 4 (M5)': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 94, 20614),
-    'Tras el paso 5 (M6)': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 95, 20615),
-    'Tras el paso 6 (M3)': (0, 0, 0, 0, 0, 0, 0, 178, 0, 301, 96, 20616),
+    'Antes (preparación)': (81, 82, 82, 103, 103, 16, 2, 208, 14, 301, 90, 'F'),
+    'Tras el paso 1 (M1)': (81, 0, 0, 0, 0, 16, 2, 208, 14, 301, 91, 'F+1'),
+    'Tras el paso 2 (M2)': (81, 0, 0, 0, 0, 16, 0, 178, 14, 301, 92, 'F+2'),
+    'Tras el paso 3 (M4)': (81, 0, 0, 0, 0, 0, 0, 178, 14, 301, 93, 'F+3'),
+    'Tras el paso 4 (M5)': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 94, 'F+4'),
+    'Tras el paso 5 (M6)': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 95, 'F+5'),
+    'Tras el paso 6 (M3)': (0, 0, 0, 0, 0, 0, 0, 178, 0, 301, 96, 'F+6'),
 }
 ESP_REV = {
-    'Tras revertir M3': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 20616),
-    'Tras revertir M6': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 20616),
-    'Tras revertir M5': (81, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 20616),
-    'Tras revertir M4': (81, 0, 0, 0, 0, 16, 0, 178, 14, 301, 96, 20616),
-    'Tras revertir M2': (81, 0, 0, 0, 0, 16, 2, 208, 14, 301, 96, 20616),
-    'Tras revertir M1': (81, 82, 82, 103, 103, 16, 2, 208, 14, 301, 96, 20616),
+    'Tras revertir M3': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 'F+6'),
+    'Tras revertir M6': (0, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 'F+6'),
+    'Tras revertir M5': (81, 0, 0, 0, 0, 0, 0, 178, 14, 301, 96, 'F+6'),
+    'Tras revertir M4': (81, 0, 0, 0, 0, 16, 0, 178, 14, 301, 96, 'F+6'),
+    'Tras revertir M2': (81, 0, 0, 0, 0, 16, 2, 208, 14, 301, 96, 'F+6'),
+    'Tras revertir M1': (81, 82, 82, 103, 103, 16, 2, 208, 14, 301, 96, 'F+6'),
 }
 COLS = '| Momento | `tablas_anon_escribe` | `truncate_authenticated` | `truncate_anon` | `con_trigger` | `con_references` | `vistas_anon_lee` | `funciones_anon` | `secdef_authenticated` | `sin_search_path` | `politicas` | `registros_migraciones` | `filas_totales` |\n|---|' + '---|' * 12
-def tabla(d): return COLS + '\n' + '\n'.join('| ' + k + ' | ' + ' | '.join(f'{x:,}'.replace(',', ',') if x > 999 else str(x) for x in v) + ' |' for k, v in d.items())
+def tabla(d): return COLS + '\n' + '\n'.join('| ' + k + ' | ' + ' | '.join(str(x) for x in v) + ' |' for k, v in d.items())
 pasos_txt = ''
 for paso, n, titulo, salida, rec, mins in PASOS:
     pasos_txt += f"""
@@ -171,13 +171,13 @@ shasum -a 256 supabase/migrations/2026103100000*.sql supabase/reversas/202610310
 
 ### Bloque A1 — ¿Cambió alguna tabla respecto a la foto del 25 oct?
 
-**Esperado antes del paso 1:** **ninguna fila**. **Esperado después de cada paso, antes de que la persona de pruebas entre al sistema: exactamente una fila**, la de `migraciones_aplicadas` (`cambió el número de filas`, de 90 a 90 + los pasos hechos). Cualquier otra tabla en la lista: **detente**.
+**Este bloque compara con la foto del 25 oct.** Con el uso normal de Dazon habrá diferencias en tablas de **actividad** (esperadas, pero se explican con la hora de sus filas). **El día de la ventana la referencia es la foto A2 de esa mañana, no la del 25 oct:** Claude te manda en el chat este mismo bloque ya generado con esa foto, y ese es el que se repite después de cada paso. **Esperado con la foto de esa mañana, antes del paso 1: ninguna fila. Después de cada paso, antes de que la persona de pruebas entre al sistema: exactamente una fila**, la de `migraciones_aplicadas` (`cambió el número de filas`, de 90 a 90 + los pasos hechos). Cualquier otra tabla en la lista: **detente**.
 
 {cod(A1)}
 
 ### Bloque A2 — Foto fresca de las 93 tablas (para guardar)
 
-**Esperado antes del paso 1:** `tablas` = 93, `filas_total` = 20610, `huella_global` = `f14b7f9d221eb9465000913f8aaf5f36`. Pégalo en la sesión como se indicó: los valores sueltos en un bloque y `detalle_compacto` completo en otro, con `huella_del_detalle` para comprobar que se pegó completo. **Esperado después de un paso:** distinta solo por `migraciones_aplicadas` (más filas); A1 dice cuál.
+**Esperado el 25–26 oct (por la mañana):** `tablas` = 93, `filas_total` = 20610, `huella_global` = `f14b7f9d221eb9465000913f8aaf5f36`; **el día de la ventana puede ser distinta por uso normal** (A1 dice qué tablas) y esa foto de la mañana pasa a ser la referencia. Pégalo en la sesión como se indicó: los valores sueltos en un bloque y `detalle_compacto` completo en otro, con `huella_del_detalle` para comprobar que se pegó completo. **Esperado después de un paso:** distinta solo por `migraciones_aplicadas` (más filas); A1 dice cuál.
 
 {cod(A2)}
 
@@ -195,7 +195,7 @@ Correspondencia con la **hoja de pruebas**, que numera por orden de ejecución: 
 
 1. **Aplicar** el comando del paso (terminal). Leer lo que muestra y compararlo con «Esperado en pantalla».
 2. **Bloque V** (SQL Editor) y compararlo con la fila de la §6. Pegar en la sesión.
-3. **Bloque A1** (debe dar solo `migraciones_aplicadas`) y **A3**. Pegar en la sesión. **Todavía nadie entra al sistema.**
+3. **Bloque A1 generado con la foto A2 de la mañana** (debe dar solo `migraciones_aplicadas`) y **A3**. Pegar en la sesión. **Todavía nadie entra al sistema.**
 4. Claude dice «verde, sigue a los recorridos» o «detente».
 5. La **persona de pruebas** hace los recorridos obligatorios de ese paso y anota «Después» en su hoja. Cualquier falla que antes pasaba: **detente**.
 6. **Bloque A1 otra vez**: ahora pueden aparecer tablas de **actividad** (historial de conexiones, bitácoras, notificaciones) por las pruebas; se aceptan **solo con la hora de creación de sus filas dentro del rato de pruebas** (Claude te pide un bloque de solo lectura para comprobarlo). Datos de negocio que cambian sin explicación: **detente**.
@@ -203,7 +203,7 @@ Correspondencia con la **hoja de pruebas**, que numera por orden de ejecución: 
 
 ## 6. Valores esperados del bloque V
 
-`registros_migraciones` y `filas_totales` suben **de uno en uno** porque cada migración se anota en `migraciones_aplicadas` (**las 20,610 filas de hoy pasan a 20,616 al final; no es un cambio de datos**). Los valores salen del ensayo local en el orden de la ventana (aplicar, medir, revertir, medir) y de la medición de producción del 26 oct.
+`registros_migraciones` y `filas_totales` suben **de uno en uno** porque cada migración se anota en `migraciones_aplicadas` (**no es un cambio de datos**). **`F` es el `filas_totales` que da el bloque V en la mañana de la ventana** (era 20,610 el 25 oct y a las 09:30 del 26 oct, y 20,613 a las 11:36 del 26 oct por uso normal de Dazon): `F+1` es F más uno, y así hasta `F+6`. Los valores salen del ensayo local en el orden de la ventana (aplicar, medir, revertir, medir) y de la medición de producción del 26 oct.
 
 {tabla(ESP)}
 
