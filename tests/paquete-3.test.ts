@@ -26,9 +26,9 @@ describe('Paquete 3 — eliminar remisión y fecha de remisión (el crédito esp
     }
   });
 
-  it('el interruptor global: arranca encendido, solo Dirección o super admin lo cambian, y un trigger protege la fila', () => {
+  it('el interruptor global: NACE APAGADO, solo Dirección o super admin lo cambian, y un trigger protege la fila', () => {
     const sql = sinComentarios(leer(MIG[0]));
-    expect(sql).toMatch(/'modo_prueba_global', 'true'::jsonb/);
+    expect(sql).toMatch(/'modo_prueba_global', 'false'::jsonb/);
     expect(sql).toMatch(/es_area\(auth\.uid\(\), 'direccion'::public\.user_area\)/);
     expect(sql).toMatch(/es_super_admin\(auth\.uid\(\)\)/);
     expect(sql).toMatch(/CREATE TRIGGER trg_proteger_modo_prueba_global[\s\S]*BEFORE INSERT OR UPDATE OR DELETE ON public\.compras_parametros/);
@@ -44,7 +44,17 @@ describe('Paquete 3 — eliminar remisión y fecha de remisión (el crédito esp
     expect(sql).toMatch(/NOT public\.modo_prueba_global_activo\(\)/);
     expect(sql).toMatch(/_folio_confirmacion/);
     expect(sql).toMatch(/char_length\(trim\(_motivo\)\) < 10/);
-    for (const frag of ['pago registrado', 'cuenta por cobrar', 'factura', 'entrega confirmada', 'surtió inventario']) expect(sql).toContain(frag);
+    for (const frag of ['pago registrado', 'comprobante de pago', 'cuenta por cobrar', 'factura', 'solicitud de firma', 'entrega confirmada', 'surtió inventario']) expect(sql).toContain(frag);
+    // `remisiones.pagado` vale true por omisión en TODA remisión de producción: no puede ser criterio de pago de motocarros
+    expect(sql.slice(sql.indexOf("IF _tipo = 'motocarro' THEN\n    -- Se bloquean"), sql.indexOf('ELSE\n    -- Se bloquean las partidas'))).not.toMatch(/\bpagado\b/);
+    // se bloquean unidades y partidas ANTES de verificar (carreras), y la liberación solo toca unidades no entregadas
+    expect(sql).toMatch(/FROM public\.motocarros m WHERE m\.remision_id = _remision_id FOR UPDATE/);
+    expect(sql).toMatch(/FROM public\.remision_refaccion_items i WHERE i\.remision_id = _remision_id FOR UPDATE/);
+    expect(sql).toMatch(/AND estatus_entrega <> 'ENTREGADA'/);
+    // el folio se compara sin espacios en los dos lados
+    expect(sql).toMatch(/trim\(coalesce\(_folio_confirmacion, ''\)\) <> trim\(coalesce\(v_folio, ''\)\)/);
+    // la migración ABORTA si falta una columna que la función usa
+    expect(sql).toMatch(/Esta migración necesita columnas que no existen en esta base/);
     // copia completa antes de borrar, y comprobación de huérfanos contra TODAS las llaves foráneas
     expect(sql.indexOf('INSERT INTO public.bitacora_eliminaciones')).toBeLessThan(sql.indexOf('DELETE FROM public.remisiones WHERE'));
     expect(sql).toMatch(/c\.contype = 'f' AND c\.confrelid = v_tabla/);
@@ -57,9 +67,11 @@ describe('Paquete 3 — eliminar remisión y fecha de remisión (el crédito esp
     expect(sql).toMatch(/DROP POLICY IF EXISTS "borrar remisiones admin" ON public\.remisiones;/);
     expect(sql).toMatch(/DROP POLICY IF EXISTS "admin de area borra remisiones" ON public\.remisiones;/);
     expect(sql).toMatch(/REVOKE DELETE ON TABLE public\.remisiones FROM authenticated;/);
+    expect(sql).toMatch(/REVOKE DELETE ON TABLE public\.remisiones_refacciones FROM authenticated;/);
     expect(rev).toMatch(/CREATE POLICY "borrar remisiones admin" ON public\.remisiones FOR DELETE TO authenticated\s+USING \(has_role\(auth\.uid\(\), 'admin'::app_role\)\);/);
     expect(rev).toMatch(/CREATE POLICY "admin de area borra remisiones" ON public\.remisiones FOR DELETE TO authenticated\s+USING \(es_admin_area\(auth\.uid\(\), 'comercial'::user_area\)\);/);
     expect(rev).toMatch(/GRANT DELETE ON TABLE public\.remisiones TO authenticated;/);
+    expect(rev).toMatch(/GRANT DELETE ON TABLE public\.remisiones_refacciones TO authenticated;/);
   });
 
   it('la fecha: solo Dirección y administrativos de Comercial, con motivo; no se mueve ningún vencimiento; la tabla nace cerrada', () => {

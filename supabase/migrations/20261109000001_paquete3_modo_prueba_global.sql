@@ -5,8 +5,8 @@
 -- marca datos de prueba. Para poder eliminar remisiones mientras el sistema está en pruebas, y dejar de poder
 -- hacerlo cuando entre en operación definitiva, se crea un interruptor GLOBAL que apaga Dirección.
 --
--- Dónde vive: una fila en `compras_parametros` (clave `modo_prueba_global`, valor true/false). Arranca ENCENDIDO
--- (el sistema está en pruebas). Quién lo cambia: solo Dirección o un super admin, SOLO por `fijar_modo_prueba_global`
+-- Dónde vive: una fila en `compras_parametros` (clave `modo_prueba_global`, valor true/false). Nace APAGADO
+-- (decisión de Polo tras la revisión independiente: hay datos reales en producción; Dirección lo enciende solo cuando lo necesite). Quién lo cambia: solo Dirección o un super admin, SOLO por `fijar_modo_prueba_global`
 -- (queda en `bitacora_eventos`). Un trigger impide tocar esa fila de otra forma (la política actual de
 -- `compras_parametros` deja escribir a quien puede compras/inventario, y no debe poder apagarlo ni encenderlo).
 -- Si la fila no existe se interpreta como APAGADO (lo seguro).
@@ -16,8 +16,8 @@
 -- Reversa: supabase/reversas/20261109000001_paquete3_modo_prueba_global_reversa.sql
 -- ============================================================================
 INSERT INTO public.compras_parametros (clave, valor, descripcion)
-VALUES ('modo_prueba_global', 'true'::jsonb,
-        'Interruptor global de modo prueba (Paquete 3). Encendido: Dirección/super admin pueden eliminar remisiones de prueba sin pagos ni entregas. Se cambia solo con fijar_modo_prueba_global.')
+VALUES ('modo_prueba_global', 'false'::jsonb,
+        'Interruptor global de modo prueba (Paquete 3). Encendido: un super admin puede eliminar remisiones sin pagos ni entregas (con folio y motivo). Se cambia solo con fijar_modo_prueba_global.')
 ON CONFLICT (clave) DO NOTHING;
 
 CREATE OR REPLACE FUNCTION public.proteger_modo_prueba_global()
@@ -75,7 +75,7 @@ REVOKE ALL ON FUNCTION public.fijar_modo_prueba_global(boolean, text) FROM PUBLI
 GRANT EXECUTE ON FUNCTION public.modo_prueba_global_activo() TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.fijar_modo_prueba_global(boolean, text) TO authenticated, service_role;
 
--- Verificación: fila encendida, trigger de protección, 2 funciones DEFINER con search_path fijo, anon sin EXECUTE.
+-- Verificación: fila apagada, trigger de protección, 2 funciones DEFINER con search_path fijo, anon sin EXECUTE.
 SELECT
   (SELECT valor FROM public.compras_parametros WHERE clave = 'modo_prueba_global') AS valor_inicial,
   (SELECT count(*) FROM pg_trigger WHERE tgname = 'trg_proteger_modo_prueba_global' AND NOT tgisinternal) AS trigger_proteccion,

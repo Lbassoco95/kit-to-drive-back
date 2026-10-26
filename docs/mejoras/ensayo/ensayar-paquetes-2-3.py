@@ -114,13 +114,21 @@ INSERT INTO public.user_roles (user_id, area, nivel) VALUES ('{u}', '{area}', '{
     mv('m1', 'pr1', 'entrada', 10, '2026-09-01', 'A'); mv('m2', 'pr1', 'venta', -2, '2026-10-10', 'A', 'rr_v1'); mv('m3', 'pr1', 'entrada', 5, '2026-10-20', 'B')
     mv('m4', 'pr2', 'entrada', 4, '2026-09-15', 'B'); mv('m5', 'pr2', 'venta', -1, '2026-10-12', 'B', 'rr_v2')
     # motocarros
-    def rm(etq, folio, pagado='false'):
-        fila(etq, 'remisiones', f"vendedor_id = '{v1}', cliente_id = '{{c_v1}}', folio_remision = '{folio}', fecha_remision = '2026-10-05', estatus = 'NUEVA', tipo_pago = 'anticipado', pagado = {pagado}")
-    rm('rm_limpia', 'ZZ-RM-LIMPIA'); rm('rm_pago', 'ZZ-RM-PAGO', 'true'); rm('rm_cxc', 'ZZ-RM-CXC'); rm('rm_fact', 'ZZ-RM-FACT'); rm('rm_mov', 'ZZ-RM-MOV'); rm('rm_ent', 'ZZ-RM-ENT')
+    def rm(etq, folio, extra=''):
+        # Producción: pagado NOT NULL DEFAULT true (las 93 remisiones tienen pagado = true); el pago real se ve en el comprobante.
+        fila(etq, 'remisiones', f"vendedor_id = '{v1}', cliente_id = '{{c_v1}}', folio_remision = '{folio}', fecha_remision = '2026-10-05', estatus = 'NUEVA', tipo_pago = 'anticipado', pagado = true{extra}")
+    rm('rm_limpia', 'ZZ-RM-LIMPIA'); rm('rm_pago', 'ZZ-RM-PAGO', ", comprobante_pago_url = 'https://ejemplo.test/comprobante.pdf'"); rm('rm_cxc', 'ZZ-RM-CXC'); rm('rm_fact', 'ZZ-RM-FACT'); rm('rm_mov', 'ZZ-RM-MOV'); rm('rm_ent', 'ZZ-RM-ENT'); rm('rm_firma', 'ZZ-RM-FIRMA'); rm('rm_esp', 'ZZ-RM-ESP '); rm('rm_carrera', 'ZZ-RM-CARRERA')
     for etq, rem, est in (('mc_a', 'rm_limpia', 'PROGRAMADA'), ('mc_b', 'rm_limpia', 'EN_RUTA'), ('mc_e', 'rm_ent', 'ENTREGADA')):
         r = psql(f"SET session_replication_role = replica; INSERT INTO public.motocarros (orden_armado, remision_id, estatus_entrega) VALUES ((SELECT coalesce(max(orden_armado), 0) + 1 FROM public.motocarros), '{ids[rem]}', '{est}') RETURNING id;", True)
         i = [x for x in r.split() if re.fullmatch(r'[0-9a-f-]{36}', x)]
         assert i, (etq, r); ids[etq] = i[0]
+    fila('mc_c', 'motocarros', "remision_id = '{rm_carrera}', estatus_entrega = 'PROGRAMADA'") if False else None
+    r = psql(f"SET session_replication_role = replica; INSERT INTO public.motocarros (orden_armado, remision_id, estatus_entrega, ns_chasis, ns_motor) VALUES ((SELECT coalesce(max(orden_armado), 0) + 1 FROM public.motocarros), '{ids['rm_carrera']}', 'PROGRAMADA', 'ZZ-CHASIS-CARRERA', 'ZZ-MOTOR-CARRERA') RETURNING id;", True)
+    ids['mc_c'] = [x for x in r.split() if re.fullmatch(r'[0-9a-f-]{36}', x)][0]
+    fila('rr_carrera', 'remisiones_refacciones', f"vendedor_id = '{v1}', created_by = '{v1}', nombre_vendedor = 'Vend1', cliente_id = '{{c_v1}}', folio = 'ZZ-rr_carrera', fecha_remision = '2026-10-14', descuento_pct = 0, etapa = 'almacen', es_prueba = false")
+    fila('i_carrera', 'remision_refaccion_items', "remision_id = '{rr_carrera}', producto_id = '{pr1}', codigo_nuevo = 'ZZ', descripcion = 'Sintético', almacen = 'A', precio_unitario = 5, cantidad = 1, cantidad_surtida = 0, cantidad_bloqueada = 1, cantidad_faltante = 0, descuento_pct = 0, estatus = 'bloqueada'")
+    psql(f"SET session_replication_role = replica; INSERT INTO public.firmas_solicitudes (creado_por, titulo, entidad_tipo, entidad_id, nombre_archivo, estatus, ruta_original, sha256_original) VALUES ('{uid('direccion')}', 'Sintético', 'remision', '{ids['rm_firma']}', 'x.pdf', 'pendiente', 'x/x.pdf', 'abc');")
+    psql(f"SET session_replication_role = replica; INSERT INTO public.avisos (area_destino, tipo, titulo, cuerpo, remision_id, es_prueba) VALUES ('administracion', 'sintetico', 'Sintético', 'x', '{ids['rm_limpia']}', false);")
     fila('bit1', 'remisiones_bitacora', "remision_id = '{rm_limpia}', tipo_cambio = 'sintetico', nombre_usuario = 'x'")
     fila('op1', 'crm_oportunidades', f"remision_id = '{{rm_limpia}}', vendedor_id = '{v1}', cliente_id = '{{c_v1}}'")
     fila('cxc1', 'cuentas_por_cobrar', "remision_id = '{rm_cxc}', cliente_id = '{c_v1}'")
@@ -161,7 +169,7 @@ def total_reporte(rol, extra=''):
 
 def pruebas_p2():
     res = {}
-    esperado = {'vend1': '8/430.00/1', 'vend2': '3/220.00/2', 'superv': '11/650.00/3', 'admvo': '11/650.00/3', 'direccion': '11/650.00/3'}
+    esperado = {'vend1': '9/435.00/1', 'vend2': '3/220.00/2', 'superv': '12/655.00/3', 'admvo': '12/655.00/3', 'direccion': '12/655.00/3'}
     res['reporte_por_rol'] = {rol: total_reporte(rol) for rol in ROLES}
     for rol, e in esperado.items(): chk(f"P2 reporte de ventas: {rol} ve {e}", res['reporte_por_rol'][rol] == e, res['reporte_por_rol'][rol])
     chk('P2 reporte: el vendedor NO ve las ventas del otro', res['reporte_por_rol']['vend1'] != res['reporte_por_rol']['superv'])
@@ -169,7 +177,7 @@ def pruebas_p2():
     res['prueba_con_incluir'] = total_reporte('vprueba', ", _incluir_prueba => true"); chk('P2 reporte: usuario de prueba con _incluir_prueba ve solo lo de prueba', res['prueba_con_incluir'] == '1/10.00/1', res['prueba_con_incluir'])
     chk('P2 reporte: canceladas excluidas (superv no suma 999)', '999' not in res['reporte_por_rol']['superv'])
     f = {'almacén A': ", _almacenes => ARRAY['A']", 'almacén B': ", _almacenes => ARRAY['B']", 'vendedor 2': f", _vendedores => ARRAY['{uid('vend2')}'::uuid]", 'artículo 2': f", _productos => ARRAY['{ids['pr2']}'::uuid]"}
-    exp = {'almacén A': '10/450.00/2', 'almacén B': '1/200.00/1', 'vendedor 2': '3/220.00/2', 'artículo 2': '1/200.00/1'}
+    exp = {'almacén A': '11/455.00/2', 'almacén B': '1/200.00/1', 'vendedor 2': '3/220.00/2', 'artículo 2': '1/200.00/1'}
     res['filtros'] = {k: total_reporte('direccion', v) for k, v in f.items()}
     for k in f: chk(f"P2 reporte: filtro {k}", res['filtros'][k] == exp[k], res['filtros'][k])
     chk('P2 reporte: el vendedor filtrando por el OTRO vendedor sigue sin ver nada ajeno', total_reporte('vend1', f", _vendedores => ARRAY['{uid('vend2')}'::uuid]").startswith('0/'))
@@ -180,7 +188,7 @@ def pruebas_p2():
         return error_de(r) or (util(r) or [''])[0]
     suma_filas = lambda rol: (util(como(rol, "SELECT sum(remisiones) FROM public.reporte_ventas_refacciones('2026-10-01','2026-10-31');")) or [''])[0]
     res['totales_por_rol'] = {rol: tot(rol) for rol in ROLES}
-    for rol, e in {'vend1': '4/8/430.00', 'vend2': '1/3/220.00', 'superv': '5/11/650.00', 'admvo': '5/11/650.00', 'direccion': '5/11/650.00'}.items():
+    for rol, e in {'vend1': '5/9/435.00', 'vend2': '1/3/220.00', 'superv': '6/12/655.00', 'admvo': '6/12/655.00', 'direccion': '6/12/655.00'}.items():
         chk(f"P2 totales: {rol} cuenta {e.split('/')[0]} remisión(es) distintas, {e.split('/')[1]} piezas y {e.split('/')[2]}", res['totales_por_rol'][rol] == e, res['totales_por_rol'][rol])
     chk('P2 totales: la suma de la columna `remisiones` por fila CUENTA DE MÁS (vend2: 2 filas ≠ 1 remisión), los totales no', suma_filas('vend2') == '2' and res['totales_por_rol']['vend2'].startswith('1/'), (suma_filas('vend2'), res['totales_por_rol']['vend2']))
     chk('P2 totales: coinciden en piezas y monto con la suma de las filas', all(res['totales_por_rol'][r].split('/')[1:] == total_reporte(r).split('/')[:2] for r in ('vend1', 'vend2', 'superv')))
@@ -234,14 +242,14 @@ def hay(sql_existe): return psql(f"SELECT ({sql_existe})::int;", True).split()[-
 def pruebas_p3():
     res = {}
     # interruptor global
-    chk('P3 modo prueba global: arranca encendido', psql("SELECT public.modo_prueba_global_activo();", True).split()[-1] == 't')
+    chk('P3 modo prueba global: nace APAGADO (decisión H8)', psql("SELECT public.modo_prueba_global_activo();", True).split()[-1] == 'f')
     e = error_de(como('compras', "UPDATE public.compras_parametros SET valor = 'false'::jsonb WHERE clave = 'modo_prueba_global';")); chk('P3 interruptor: quien puede compras/inventario NO lo cambia directo', e and 'fijar_modo_prueba_global' in e, e)
     r = como('compras', "DELETE FROM public.compras_parametros WHERE clave = 'modo_prueba_global';\nRESET ROLE;\nSELECT 'filas=' || count(*) FROM public.compras_parametros WHERE clave = 'modo_prueba_global';"); chk('P3 interruptor: quien puede compras/inventario no lo borra directo', 'filas=1' in r, util(r))
     e = error_de(psql("BEGIN; DELETE FROM public.compras_parametros WHERE clave = 'modo_prueba_global'; ROLLBACK;", True)); chk('P3 interruptor: ni el dueño de la tabla (sin la función) lo borra o cambia', e and 'fijar_modo_prueba_global' in e, e)
     for rol in ('vend1', 'superv', 'admvo', 'compras', 'finanzas'):
-        e = error_de(como(rol, "SELECT public.fijar_modo_prueba_global(false, 'motivo de prueba');")); chk(f"P3 interruptor: {rol} NO lo fija", e and 'Dirección' in e, e)
-    r = como('direccion', "SELECT public.fijar_modo_prueba_global(false, 'ensayo apagar'); SELECT public.modo_prueba_global_activo(); SELECT count(*) FROM public.bitacora_eventos WHERE accion='modo_prueba_global';")
-    chk('P3 interruptor: Dirección lo apaga y queda en bitácora', error_de(r) is None and 'f' in util(r) and '1' in util(r), util(r))
+        e = error_de(como(rol, "SELECT public.fijar_modo_prueba_global(true, 'motivo de prueba');")); chk(f"P3 interruptor: {rol} NO lo fija", e and 'Dirección' in e, e)
+    r = como('direccion', "SELECT public.fijar_modo_prueba_global(true, 'ensayo encender'); SELECT public.modo_prueba_global_activo(); SELECT count(*) FROM public.bitacora_eventos WHERE accion='modo_prueba_global';")
+    chk('P3 interruptor: Dirección lo enciende y queda en bitácora', error_de(r) is None and 't' in util(r) and '1' in util(r), util(r))
     chk('P3 interruptor: sin motivo se rechaza', 'motivo' in (error_de(como('direccion', "SELECT public.fijar_modo_prueba_global(true, 'x');")) or ''))
     # eliminar remisión
     def elim(rol, tipo, etq, folio, motivo='motivo suficientemente largo', pre=''):
@@ -250,8 +258,7 @@ def pruebas_p3():
     prende = "SET LOCAL ROLE postgres; UPDATE public.compras_parametros SET valor = 'true'::jsonb WHERE clave = 'modo_prueba_global'; SET LOCAL ROLE authenticated;"
     prende = "SELECT set_config('kit.permite_modo_prueba_global','1',true) \\g /dev/null\n" + "UPDATE public.compras_parametros SET valor = 'true'::jsonb WHERE clave = 'modo_prueba_global';"
     # con el modo prueba apagado (estado actual) se rechaza
-    off = ("RESET ROLE; SELECT set_config('kit.permite_modo_prueba_global','1',true) \\g /dev/null\nUPDATE public.compras_parametros SET valor = 'false'::jsonb WHERE clave = 'modo_prueba_global';\n"
-           "SET LOCAL ROLE authenticated;\n" + CLAIMS.format(u=uid('direccion')) + f"SELECT public.eliminar_remision('motocarro', '{ids['rm_limpia']}', 'ZZ-RM-LIMPIA', 'motivo suficientemente largo');")
+    off = ("SET LOCAL ROLE authenticated;\n" + CLAIMS.format(u=uid('direccion')) + f"SELECT public.eliminar_remision('motocarro', '{ids['rm_limpia']}', 'ZZ-RM-LIMPIA', 'motivo suficientemente largo');")
     e = error_de(psql("BEGIN;\n" + off + "\nROLLBACK;\n", True)); chk('P3 eliminar: con el modo prueba APAGADO se rechaza', e and 'modo prueba está apagado' in e, e)
     # a partir de aquí, cada caso en su propia transacción con el interruptor encendido (el UPDATE se hace como postgres)
     def elimON(rol, tipo, etq, folio, motivo='motivo suficientemente largo', despues=''):
@@ -260,10 +267,11 @@ def pruebas_p3():
                   "SET LOCAL ROLE authenticated;\n" + CLAIMS.format(u=uid(rol)) +
                   f"SELECT public.eliminar_remision('{tipo}', '{ids[etq]}', '{folio}', '{motivo}')::text;\n{despues}")
         r = psql("BEGIN;\n" + cuerpo + "\nROLLBACK;\n", True); return error_de(r), util(r)
-    casos = [('rm_pago', 'ZZ-RM-PAGO', 'pago registrado'), ('rm_cxc', 'ZZ-RM-CXC', 'cuenta por cobrar'), ('rm_fact', 'ZZ-RM-FACT', 'factura'),
+    casos = [('rm_pago', 'ZZ-RM-PAGO', 'comprobante de pago'), ('rm_firma', 'ZZ-RM-FIRMA', 'solicitud de firma'), ('rm_cxc', 'ZZ-RM-CXC', 'cuenta por cobrar'), ('rm_fact', 'ZZ-RM-FACT', 'factura'),
              ('rm_mov', 'ZZ-RM-MOV', 'movimientos financieros'), ('rm_ent', 'ZZ-RM-ENT', 'entrega confirmada')]
     for etq, folio, frag in casos:
         e, _ = elimON('direccion', 'motocarro', etq, folio); chk(f"P3 eliminar motocarro con {frag}: se rechaza", e and frag in e, e)
+    e, u = elimON('direccion', 'motocarro', 'rm_esp', 'ZZ-RM-ESP'); chk('P3 eliminar: folio con espacios finales coincide al escribirlo sin ellos (H9)', e is None and any('unidades_liberadas' in x for x in u), e or u)
     e, _ = elimON('direccion', 'motocarro', 'rm_limpia', 'OTRO-FOLIO'); chk('P3 eliminar: folio distinto se rechaza', e and 'folio' in e, e)
     e, _ = elimON('direccion', 'motocarro', 'rm_limpia', 'ZZ-RM-LIMPIA', 'corto'); chk('P3 eliminar: motivo corto se rechaza', e and 'motivo' in e, e)
     for rol in ('vend1', 'superv', 'admvo', 'admcom', 'dirop', 'finanzas', 'compras'):
@@ -273,11 +281,13 @@ def pruebas_p3():
                "SELECT 'bitacora_de_la_remision=' || (SELECT count(*) FROM public.remisiones_bitacora WHERE remision_id = '" + ids['rm_limpia'] + "');\n"
                "SELECT 'oportunidad_desligada=' || (SELECT count(*) FROM public.crm_oportunidades WHERE id = '" + ids['op1'] + "' AND remision_id IS NULL);\n"
                "SELECT 'copia=' || (SELECT count(*) FROM public.bitacora_eliminaciones WHERE registro_id = '" + ids['rm_limpia'] + "' AND tabla = 'remisiones' AND jsonb_array_length(datos_eliminados->'unidades') = 2 AND datos_eliminados->'remision'->>'folio_remision' = 'ZZ-RM-LIMPIA');\n"
+               "SELECT 'copia_unidad_completa=' || (SELECT count(*) FROM public.bitacora_eliminaciones WHERE registro_id = '" + ids['rm_limpia'] + "' AND datos_eliminados->'unidades'->0 ? 'ns_chasis' AND datos_eliminados->'unidades'->0 ? 'orden_armado');\n"
+               "SELECT 'copia_avisos=' || (SELECT jsonb_array_length(datos_eliminados->'avisos') FROM public.bitacora_eliminaciones WHERE registro_id = '" + ids['rm_limpia'] + "' AND tabla = 'remisiones');\n"
                "SELECT 'evento=' || (SELECT count(*) FROM public.bitacora_eventos WHERE accion = 'eliminar_remision' AND entidad_id = '" + ids['rm_limpia'] + "');")
     e, u = elimON('direccion', 'motocarro', 'rm_limpia', 'ZZ-RM-LIMPIA', despues=despues)
     res['eliminar_motocarro'] = u
     chk('P3 eliminar motocarro (super admin, limpia): se elimina', e is None and any('"unidades_liberadas": 2' in x for x in u), e or u[:1])
-    for k in ('remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1'):
+    for k in ('remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copia_avisos=1', 'evento=1'):
         chk(f"P3 eliminar motocarro: {k}", k in u, u)
     # refacciones
     for etq, folio, frag in (('rr_pago', 'ZZ-rr_pago', 'pago registrado'), ('rr_ent', 'ZZ-rr_ent', 'entrega confirmada'), ('rr_v1', 'ZZ-rr_v1', 'surtió inventario')):
@@ -292,9 +302,26 @@ def pruebas_p3():
     chk('P3 eliminar refacciones (limpia): se elimina, sin partidas huérfanas y con copia', e is None and 'remision=0' in u and 'partidas=0' in u and 'copia=1' in u, e or u)
     ap_despues = [x.split('=')[1] for x in u if x.startswith('apartado_pr1=')]
     chk('P3 eliminar refacciones: el apartado se libera (baja en 3)', ap_despues and int(ap_despues[0]) == int(antes_ap) - 3, (antes_ap, ap_despues))
+    # carreras (H3, H4): una segunda sesión confirma una entrega / un surtido MIENTRAS la función verifica; la función debe esperar y rechazar
+    import subprocess as sp, time
+    def carrera(sql_a, rol_b, cuerpo_b, demora=1.0):
+        a = sp.Popen(['psql', '-X', '-q', '-d', DB, '-v', 'ON_ERROR_STOP=1'], stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.STDOUT, text=True)
+        a.stdin.write("BEGIN;\n" + sql_a + "\nSELECT pg_sleep(3);\nCOMMIT;\n"); a.stdin.close()
+        time.sleep(demora); t0 = time.time()
+        b = psql("BEGIN;\nRESET ROLE; SELECT set_config('kit.permite_modo_prueba_global','1',true) \\g /dev/null\nUPDATE public.compras_parametros SET valor = 'true'::jsonb WHERE clave = 'modo_prueba_global';\nSET LOCAL ROLE authenticated;\n" + CLAIMS.format(u=uid(rol_b)) + cuerpo_b + "\nROLLBACK;\n", True)
+        espera = time.time() - t0; a.wait(); return error_de(b), espera
+    e, w = carrera(f"UPDATE public.motocarros SET estatus_entrega = 'ENTREGADA' WHERE id = '{ids['mc_c']}';", 'direccion', f"SELECT public.eliminar_remision('motocarro', '{ids['rm_carrera']}', 'ZZ-RM-CARRERA', 'motivo suficientemente largo');")
+    chk('P3 carrera motocarros (H3): la eliminación ESPERA la entrega que se confirma y la rechaza', e and 'entrega confirmada' in e and w > 1.0, (e, round(w, 1)))
+    r = psql(f"SELECT 'unidad=' || estatus_entrega || '/' || coalesce(remision_id::text, 'NULL') FROM public.motocarros WHERE id = '{ids['mc_c']}';", True)
+    chk('P3 carrera motocarros: la entrega confirmada NO se borró', f"unidad=ENTREGADA/{ids['rm_carrera']}" in r, r.strip())
+    e, w = carrera(f"UPDATE public.remision_refaccion_items SET cantidad_surtida = 1, cantidad_bloqueada = 0 WHERE id = '{ids['i_carrera']}';", 'direccion', f"SELECT public.eliminar_remision('refacciones', '{ids['rr_carrera']}', 'ZZ-rr_carrera', 'motivo suficientemente largo');")
+    chk('P3 carrera refacciones (H4): la eliminación ESPERA el surtido que se confirma y lo rechaza', e and 'surtió inventario' in e and w > 1.0, (e, round(w, 1)))
     # DELETE directo cerrado
     e = como('admcom', f"DELETE FROM public.remisiones WHERE id = '{ids['rm_limpia']}';"); chk('P3: el administrador de Comercial ya NO borra directo', 'permission denied' in (error_de(e) or '') or 'DELETE 0' in e, e)
     e = como('direccion', f"DELETE FROM public.remisiones WHERE id = '{ids['rm_limpia']}';"); chk('P3: ni Dirección borra directo', 'permission denied' in (error_de(e) or ''), e)
+    e = como('vend1', f"DELETE FROM public.remisiones_refacciones WHERE id = '{ids['rr_limpia']}';"); chk('P3: authenticated ya no tiene el privilegio DELETE en remisiones_refacciones (H7)', 'permission denied' in (error_de(e) or ''), e)
+    r = psql("SELECT count(*) FROM pg_policies WHERE tablename IN ('motocarros','remision_items') AND cmd = 'DELETE';", True).split()[-1]
+    chk('P3: las políticas DELETE de motocarros y remision_items siguen (la edición las usa; H7 opción A)', r == '4', r)
     # fecha
     def fecha(rol, tipo, etq, nueva, motivo='corrección de captura'):
         r = como(rol, f"SELECT public.cambiar_fecha_remision('{tipo}', '{ids[etq]}', '{nueva}', '{motivo}')::text;"); return error_de(r), util(r)
@@ -346,6 +373,14 @@ def main():
     ahora = preexistentes(); cambiadas = [k for k, v in base['funciones'].items() if ahora.get(k) != v]
     chk('P2+P3 no cambian NINGUNA función que ya existía (Fase 1, Paquete 1, Fase 2 intactas)', not cambiadas, cambiadas)
     out['p2'] = pruebas_p2(); out['p3'] = pruebas_p3()
+    # H2: una base sin `comprobante_pago_url` (construida solo con las migraciones) debe hacer que la migración 2 de P3 ABORTE con mensaje claro
+    psql("DROP DATABASE IF EXISTS p23_guarda;"); psql("CREATE DATABASE p23_guarda TEMPLATE f2_conp1;")
+    g = subprocess.run(['psql', '-X', '-q', '-d', 'p23_guarda', '-v', 'ON_ERROR_STOP=1', '-c', 'ALTER TABLE public.remisiones DROP COLUMN IF EXISTS comprobante_pago_url; ALTER TABLE public.remisiones DROP COLUMN IF EXISTS pagado;'], capture_output=True, text=True)
+    g2 = subprocess.run(['psql', '-X', '-q', '-d', 'p23_guarda', '-v', 'ON_ERROR_STOP=1', '--single-transaction', '-f', mig(P3[1])], capture_output=True, text=True)
+    chk('P3 guarda (H2): en una base sin las columnas la migración de eliminar ABORTA y no crea la función', g2.returncode != 0 and 'necesita columnas' in g2.stderr and 'comprobante_pago_url' in g2.stderr and psql("SELECT count(*) FROM pg_proc WHERE proname='eliminar_remision';", True).split()[-1] is not None, g2.stderr[-200:])
+    n = subprocess.run(['psql', '-X', '-At', '-d', 'p23_guarda', '-c', "SELECT count(*) FROM pg_proc WHERE proname = 'eliminar_remision'"], capture_output=True, text=True).stdout.strip()
+    chk('P3 guarda: tras abortar no quedó la función', n == '0', n)
+    psql("DROP DATABASE IF EXISTS p23_guarda;")
     cat = out['despues']['catalogo']
     for n in P2 + P3: aplicar(mig(n))
     out['reaplicar_idempotente'] = (catalogo() == cat); chk('Reaplicar las 6 migraciones no cambia nada (idempotentes)', out['reaplicar_idempotente'])

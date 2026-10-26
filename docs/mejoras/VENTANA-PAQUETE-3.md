@@ -3,11 +3,11 @@
 **Estado: NADA APLICADO.** Fecha **por fijar** (al final: después de la Fase 2 y del Paquete 2). Frase (la escribe Polo, con fecha): «Autorizo paquete 3 (eliminación y fecha de remisión) en producción, ventana del `<fecha>`». **Esta ventana cubre solo la eliminación y la fecha; el crédito (D-C1) espera a Martin y se hará con su propia frase.** Mecanismo: Code aplica con `execute_sql` por el conector de escritura solo dentro de la ventana; nunca `apply_migration`.
 
 **Qué cambia**
-- **M1** `modo_prueba_global`: una fila en `compras_parametros` (clave `modo_prueba_global`, **arranca encendido**), 2 funciones (`modo_prueba_global_activo`, `fijar_modo_prueba_global`) y un trigger que impide cambiar esa fila de otro modo. Solo Dirección o super admin lo cambian.
-- **M2** `eliminar_remision`: función atómica (solo super admin, modo prueba encendido, folio y motivo; rechaza pago, cuenta por cobrar, movimiento financiero o factura, entrega confirmada e inventario surtido; guarda copia completa; libera unidades; comprueba que no queden filas huérfanas). **Se cierran los dos DELETE directos** de `remisiones` (rol `admin` y administradores de Comercial) y se revoca DELETE a `authenticated`.
+- **M1** `modo_prueba_global`: una fila en `compras_parametros` (clave `modo_prueba_global`, **nace APAGADO**: Dirección o un super admin lo enciende cuando lo necesite), 2 funciones (`modo_prueba_global_activo`, `fijar_modo_prueba_global`) y un trigger que impide cambiar esa fila de otro modo. Solo Dirección o super admin lo cambian.
+- **M2** `eliminar_remision`: función atómica (solo super admin, modo prueba **encendido**, folio escrito —sin espacios de más— y motivo ≥ 10). **Rechaza** si hay comprobante de pago (motocarros; `remisiones.pagado` ya **no** cuenta: vale true en las 93 remisiones por su valor por omisión), pago (refacciones), cuenta por cobrar, movimiento financiero o factura, **solicitud de firma**, entrega confirmada, cobranza, correcciones o inventario surtido (esas se cancelan, no se eliminan). Bloquea unidades y partidas **antes** de verificar (carreras), guarda la copia (remisión, partidas, **fila completa de cada unidad**, bitácora, órdenes, eventos y **avisos**), libera las unidades y comprueba que no queden filas con llave foránea. **Se cierran los dos DELETE directos** de `remisiones` y el privilegio DELETE de `authenticated` en `remisiones` y `remisiones_refacciones`. **No se cierran, a propósito:** las políticas DELETE de `motocarros` y `remision_items` (la edición de remisiones borra partidas con ellas), `service_role` y `reiniciar_datos_prueba_compras` (**excepción documentada**: solo borra filas `es_prueba`). **Si falta una columna que la función usa, la migración ABORTA** con un mensaje claro (en una base construida solo con las migraciones, `remisiones.comprobante_pago_url` viene del script suelto `fix_remisiones_columns.sql`, que irá a una migración propia más adelante).
 - **M3** fecha: tabla `remision_fecha_cambios` (RLS, solo lectura), función `cambiar_fecha_remision` (solo Dirección y administrativos de Comercial, con motivo; no se mueve ningún vencimiento; se avisa a administración) y un trigger que impide cambiar `fecha_remision` por cualquier otra vía (**cambia lo que hoy hace la pantalla de edición de la remisión: el front debe dejar de enviarla**).
 
-**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (114/114 chequeos en verde).
+**Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (125/125 chequeos en verde, con la regla real de producción: `pagado = true` en todas las remisiones, y dos sesiones simultáneas para las carreras).
 
 **Ramas listas, sin mezclar:** front `claude/paquete-3-front` (kit-to-drive, commit `d499851`) y compuerta `claude/paquete-3-compuerta` (kit-to-drive-front). Se mezclan **inmediatamente después de verificar M3** (la compuerta primero, luego el front); cada mezcla despliega en Vercel.
 
@@ -15,7 +15,7 @@
 
 ## 1. Antes de abrir la ventana
 
-☐ Frase con fecha; ventana permitida. ☐ Paquete 2 y Fase 2 limpios (V, A1, A3, D2 el día anterior y al empezar). ☐ **Respaldo** del día o del anterior (fecha y hora escritas). ☐ **El front del Paquete 3 listo para mezclar** (rama sin mezclar), para desplegarlo justo después de verificar M3. ☐ Cuentas: **super admin**, Dirección **sin** ser super admin, administrativo de Comercial, administrador de Comercial, un vendedor, un supervisor. ☐ Datos de prueba creados antes: una remisión de motocarros **sin pagos ni entregas** con 2 unidades asignadas; una con pago; una de refacciones sin surtir; una de refacciones surtida (todas con el prefijo «ZZ PRUEBA P3»). ☐ **Aviso a Dazon:** «durante la ventana la pantalla de remisiones puede pedir recargar; la fecha de la remisión solo la cambia Dirección o un administrativo».
+☐ Frase con fecha; ventana permitida. ☐ Paquete 2 y Fase 2 limpios (V, A1, A3, D2 el día anterior y al empezar). ☐ **Respaldo** del día o del anterior (fecha y hora escritas). ☐ **El front del Paquete 3 listo para mezclar** (rama sin mezclar), para desplegarlo justo después de verificar M3. ☐ **El interruptor nace apagado:** Dirección lo enciende solo durante los recorridos y lo deja **apagado** al terminar. ☐ Cuentas: **super admin**, Dirección **sin** ser super admin, administrativo de Comercial, administrador de Comercial, un vendedor, un supervisor. ☐ Datos de prueba creados antes: una remisión de motocarros **sin pagos ni entregas** con 2 unidades asignadas; una con pago; una de refacciones sin surtir; una de refacciones surtida (todas con el prefijo «ZZ PRUEBA P3»). ☐ **Aviso a Dazon:** «durante la ventana la pantalla de remisiones puede pedir recargar; la fecha de la remisión solo la cambia Dirección o un administrativo».
 
 ## 2. Pasos y tiempos (estimación: 1 h 45 min)
 
@@ -33,7 +33,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/aplicar-P3-M1.log"
 ```
 
-**Esperado:** sin `ERROR`; fila `valor_inicial` = `true`, `trigger_proteccion` = 1, `funciones_definer_con_search_path` = 2, `anon_ejecuta` = false.
+**Esperado:** sin `ERROR`; fila `valor_inicial` = `false`, `trigger_proteccion` = 1, `funciones_definer_con_search_path` = 2, `anon_ejecuta` = false.
 
 ### Paso M2
 ```bash
@@ -43,7 +43,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/aplicar-P3-M2.log"
 ```
 
-**Esperado:** sin `ERROR`; `funcion_definer_con_search_path` = 1, `anon_ejecuta` = false, `politicas_delete_remisiones` = **0**, `authenticated_puede_delete` = false.
+**Esperado:** sin `ERROR`; `funcion_definer_con_search_path` = 1, `anon_ejecuta` = false, `politicas_delete_remisiones` = **0**, `authenticated_puede_delete_remisiones` = false, `authenticated_puede_delete_refacciones` = false.
 
 ### Paso M3
 ```bash
@@ -96,9 +96,9 @@ rollback;
 | Momento | `funciones` | `secdef_authenticated` | `politicas` | `triggers` | `tablas` | `modo_prueba_global` | `funciones_p3` | `politicas_delete_remisiones` | `existe_tabla_fechas` | `triggers_p3` | `registros_migraciones` |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Antes | 278 | 179 | 300 | 247 | 93 | (nulo) | 0 | 2 | false | 0 | R |
-| Tras M1 | 281 | 181 | 300 | 248 | 93 | true | 3 | 2 | false | 1 | R+1 |
-| Tras M2 | 282 | 182 | 298 | 248 | 93 | true | 4 | **0** | false | 1 | R+2 |
-| Tras M3 | 284 | 183 | 299 | 250 | 94 | true | 6 | 0 | true | 3 | R+3 |
+| Tras M1 | 281 | 181 | 300 | 248 | 93 | false | 3 | 2 | false | 1 | R+1 |
+| Tras M2 | 282 | 182 | 298 | 248 | 93 | false | 4 | **0** | false | 1 | R+2 |
+| Tras M3 | 284 | 183 | 299 | 250 | 94 | false | 6 | 0 | true | 3 | R+3 |
 
 Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, `cartera_sigue_invoker` = 2, `authenticated_puede_delete_remisiones` = false desde M2. (Los valores de «Antes» suponen el Paquete 2 aplicado; sin él, restar 4 funciones y 2 SECDEF.) Los recorridos de la §5 se hacen **después** de desplegar el front.
 
@@ -106,9 +106,9 @@ Siempre: `p3_ejecutables_por_anon` = 0, `funciones_de_trigger_ejecutables` = 0, 
 
 | # | Cuenta | Qué hace | Debe pasar |
 |---|---|---|---|
-| T1 | Dirección | Apaga el interruptor y lo vuelve a encender (con motivo) | Cada cambio queda en bitácora; con el modo apagado no aparece «Eliminar» |
+| T1 | Dirección | Con el interruptor **apagado** (como nace) comprueba que no aparece «Eliminar»; lo **enciende** (con motivo) para el resto de los recorridos y, al final, lo **apaga** de nuevo | Cada cambio queda en bitácora; apagado no hay «Eliminar» ni la función elimina |
 | T2 | Vendedor, supervisor, administrativo | Intentan apagar el interruptor | No pueden |
-| T3 | Super admin | Elimina la remisión de motocarros de prueba **sin pagos** (escribe el folio y el motivo) | Se elimina; las 2 unidades quedan libres; hay copia en `bitacora_eliminaciones`; no quedan filas huérfanas |
+| T3 | Super admin | Con el interruptor **encendido**, elimina la remisión de motocarros de prueba **sin comprobante de pago** (escribe el folio y el motivo) | Se elimina; las 2 unidades quedan libres; hay copia en `bitacora_eliminaciones`; no quedan filas huérfanas |
 | T4 | Super admin | Intenta eliminar la de **pago**, una con cuenta por cobrar o entrega confirmada, y una de refacciones surtida | Se rechaza cada una con su motivo («se cancela, no se elimina») |
 | T5 | Administrador de Comercial y Dirección no super admin | Intentan eliminar | No pueden (y el borrado directo ya no existe para nadie) |
 | T6 | Dirección y administrativo de Comercial | Cambian la fecha de una remisión de motocarros y de una de refacciones sin surtir, con motivo | Se cambia; queda el historial; administración recibe el aviso; ningún vencimiento se mueve |
@@ -151,4 +151,4 @@ Falla un recorrido que antes pasaba (sobre todo editar una remisión); alguien q
 
 ## 8. Después de la ventana
 
-V, A1, A3, D2 finales pegados; los datos «ZZ PRUEBA P3» que sobren se **cancelan** (no se borran fuera del flujo); `docs/mejoras/RESULTADO-PAQUETE-3.md`; Dirección decide cuándo apagar el interruptor global (al entrar en operación definitiva).
+V, A1, A3, D2 finales pegados; los datos «ZZ PRUEBA P3» que sobren se **cancelan** (no se borran fuera del flujo); `docs/mejoras/RESULTADO-PAQUETE-3.md`; El interruptor global se deja **apagado** (así nace); Dirección lo enciende solo cuando necesite eliminar remisiones de prueba.

@@ -30,8 +30,8 @@
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: vend1 ve 8/430.00/1",
-   "detalle": "8/430.00/1",
+   "caso": "P2 reporte de ventas: vend1 ve 9/435.00/1",
+   "detalle": "9/435.00/1",
    "ok": true
   },
   {
@@ -40,18 +40,18 @@
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: superv ve 11/650.00/3",
-   "detalle": "11/650.00/3",
+   "caso": "P2 reporte de ventas: superv ve 12/655.00/3",
+   "detalle": "12/655.00/3",
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: admvo ve 11/650.00/3",
-   "detalle": "11/650.00/3",
+   "caso": "P2 reporte de ventas: admvo ve 12/655.00/3",
+   "detalle": "12/655.00/3",
    "ok": true
   },
   {
-   "caso": "P2 reporte de ventas: direccion ve 11/650.00/3",
-   "detalle": "11/650.00/3",
+   "caso": "P2 reporte de ventas: direccion ve 12/655.00/3",
+   "detalle": "12/655.00/3",
    "ok": true
   },
   {
@@ -76,7 +76,7 @@
   },
   {
    "caso": "P2 reporte: filtro almacén A",
-   "detalle": "10/450.00/2",
+   "detalle": "11/455.00/2",
    "ok": true
   },
   {
@@ -105,8 +105,8 @@
    "ok": true
   },
   {
-   "caso": "P2 totales: vend1 cuenta 4 remisión(es) distintas, 8 piezas y 430.00",
-   "detalle": "4/8/430.00",
+   "caso": "P2 totales: vend1 cuenta 5 remisión(es) distintas, 9 piezas y 435.00",
+   "detalle": "5/9/435.00",
    "ok": true
   },
   {
@@ -115,18 +115,18 @@
    "ok": true
   },
   {
-   "caso": "P2 totales: superv cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
-   "detalle": "5/11/650.00",
+   "caso": "P2 totales: superv cuenta 6 remisión(es) distintas, 12 piezas y 655.00",
+   "detalle": "6/12/655.00",
    "ok": true
   },
   {
-   "caso": "P2 totales: admvo cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
-   "detalle": "5/11/650.00",
+   "caso": "P2 totales: admvo cuenta 6 remisión(es) distintas, 12 piezas y 655.00",
+   "detalle": "6/12/655.00",
    "ok": true
   },
   {
-   "caso": "P2 totales: direccion cuenta 5 remisión(es) distintas, 11 piezas y 650.00",
-   "detalle": "5/11/650.00",
+   "caso": "P2 totales: direccion cuenta 6 remisión(es) distintas, 12 piezas y 655.00",
+   "detalle": "6/12/655.00",
    "ok": true
   },
   {
@@ -246,7 +246,7 @@
   },
   {
    "caso": "P2 rotación filtrada: almacén A (pr1 vendió 2; pr2 0)",
-   "detalle": "['ecda12af-00fc-4763-883f-9502f62b39d1|2', 'ea318b18-06fd-4431-bd4d-13a7c807427f|0']",
+   "detalle": "['deb47442-6e2c-42c0-8b43-f94626bba855|2', '65d646b9-18e4-49cc-ae29-34ddf9fd3cb2|0']",
    "ok": true
   },
   {
@@ -270,7 +270,7 @@
    "ok": true
   },
   {
-   "caso": "P3 modo prueba global: arranca encendido",
+   "caso": "P3 modo prueba global: nace APAGADO (decisión H8)",
    "detalle": "",
    "ok": true
   },
@@ -315,8 +315,8 @@
    "ok": true
   },
   {
-   "caso": "P3 interruptor: Dirección lo apaga y queda en bitácora",
-   "detalle": "['f', 'f', '1']",
+   "caso": "P3 interruptor: Dirección lo enciende y queda en bitácora",
+   "detalle": "['t', 't', '1']",
    "ok": true
   },
   {
@@ -330,8 +330,13 @@
    "ok": true
   },
   {
-   "caso": "P3 eliminar motocarro con pago registrado: se rechaza",
-   "detalle": "Tiene un pago registrado: se cancela, no se elimina",
+   "caso": "P3 eliminar motocarro con comprobante de pago: se rechaza",
+   "detalle": "Tiene un comprobante de pago: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro con solicitud de firma: se rechaza",
+   "detalle": "Tiene una solicitud de firma (documento firmado o en trámite): se cancela, no se elimina",
    "ok": true
   },
   {
@@ -352,6 +357,11 @@
   {
    "caso": "P3 eliminar motocarro con entrega confirmada: se rechaza",
    "detalle": "Tiene una entrega confirmada: se cancela, no se elimina",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar: folio con espacios finales coincide al escribirlo sin ellos (H9)",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-ESP \", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}']",
    "ok": true
   },
   {
@@ -406,32 +416,42 @@
   },
   {
    "caso": "P3 eliminar motocarro: remision=0",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
    "caso": "P3 eliminar motocarro: unidades_liberadas=2",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
    "caso": "P3 eliminar motocarro: bitacora_de_la_remision=0",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
    "caso": "P3 eliminar motocarro: oportunidad_desligada=1",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
    "caso": "P3 eliminar motocarro: copia=1",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: copia_unidad_completa=1",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
+   "ok": true
+  },
+  {
+   "caso": "P3 eliminar motocarro: copia_avisos=1",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
    "caso": "P3 eliminar motocarro: evento=1",
-   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'evento=1']",
+   "detalle": "['{\"tipo\": \"motocarro\", \"folio\": \"ZZ-RM-LIMPIA\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 2}', 'remision=0', 'unidades_liberadas=2', 'bitacora_de_la_remision=0', 'oportunidad_desligada=1', 'copia=1', 'copia_unidad_completa=1', 'copi",
    "ok": true
   },
   {
@@ -451,12 +471,27 @@
   },
   {
    "caso": "P3 eliminar refacciones (limpia): se elimina, sin partidas huérfanas y con copia",
-   "detalle": "['{\"tipo\": \"refacciones\", \"folio\": \"ZZ-rr_limpia\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}', 'remision=0', 'partidas=0', 'apartado_pr1=2', 'copia=1']",
+   "detalle": "['{\"tipo\": \"refacciones\", \"folio\": \"ZZ-rr_limpia\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}', 'remision=0', 'partidas=0', 'apartado_pr1=3', 'copia=1']",
    "ok": true
   },
   {
    "caso": "P3 eliminar refacciones: el apartado se libera (baja en 3)",
-   "detalle": "('5', ['2'])",
+   "detalle": "('6', ['3'])",
+   "ok": true
+  },
+  {
+   "caso": "P3 carrera motocarros (H3): la eliminación ESPERA la entrega que se confirma y la rechaza",
+   "detalle": "('Tiene una entrega confirmada: se cancela, no se elimina', 2.1)",
+   "ok": true
+  },
+  {
+   "caso": "P3 carrera motocarros: la entrega confirmada NO se borró",
+   "detalle": "unidad=ENTREGADA/8e2fcc4a-a0cb-4f2c-8e3e-f465413fd574",
+   "ok": true
+  },
+  {
+   "caso": "P3 carrera refacciones (H4): la eliminación ESPERA el surtido que se confirma y lo rechaza",
+   "detalle": "('Ya surtió inventario (hay movimientos de kárdex): se cancela, no se elimina', 2.1)",
    "ok": true
   },
   {
@@ -467,6 +502,16 @@
   {
    "caso": "P3: ni Dirección borra directo",
    "detalle": "ERROR:  permission denied for table remisiones\n",
+   "ok": true
+  },
+  {
+   "caso": "P3: authenticated ya no tiene el privilegio DELETE en remisiones_refacciones (H7)",
+   "detalle": "ERROR:  permission denied for table remisiones_refacciones\n",
+   "ok": true
+  },
+  {
+   "caso": "P3: las políticas DELETE de motocarros y remision_items siguen (la edición las usa; H7 opción A)",
+   "detalle": "4",
    "ok": true
   },
   {
@@ -565,6 +610,16 @@
    "ok": true
   },
   {
+   "caso": "P3 guarda (H2): en una base sin las columnas la migración de eliminar ABORTA y no crea la función",
+   "detalle": "ración necesita columnas que no existen en esta base: remisiones.comprobante_pago_url, crm_oportunidades.remision_id. No se aplica nada.\nCONTEXT:  PL/pgSQL function inline_code_block line 16 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "P3 guarda: tras abortar no quedó la función",
+   "detalle": "0",
+   "ok": true
+  },
+  {
    "caso": "Reaplicar las 6 migraciones no cambia nada (idempotentes)",
    "detalle": "",
    "ok": true
@@ -596,7 +651,7 @@
    "triggers": 250
   }
  },
- "filas_sinteticas": 38,
+ "filas_sinteticas": 44,
  "migraciones": {
   "20261108000001_paquete2_reporte_ventas_refacciones": {
    "aplica_ok": true,
@@ -636,7 +691,7 @@
  },
  "p2": {
   "filtros": {
-   "almacén A": "10/450.00/2",
+   "almacén A": "11/455.00/2",
    "almacén B": "1/200.00/1",
    "artículo 2": "1/200.00/1",
    "vendedor 2": "3/220.00/2"
@@ -657,16 +712,16 @@
   },
   "prueba_con_incluir": "1/10.00/1",
   "reporte_por_rol": {
-   "admcom": "11/650.00/3",
-   "admvo": "11/650.00/3",
-   "almacen": "11/650.00/3",
-   "compras": "11/650.00/3",
-   "direccion": "11/650.00/3",
-   "dirop": "11/650.00/3",
+   "admcom": "12/655.00/3",
+   "admvo": "12/655.00/3",
+   "almacen": "12/655.00/3",
+   "compras": "12/655.00/3",
+   "direccion": "12/655.00/3",
+   "dirop": "12/655.00/3",
    "fabrica": "0/0/0",
-   "finanzas": "11/650.00/3",
-   "superv": "11/650.00/3",
-   "vend1": "8/430.00/1",
+   "finanzas": "12/655.00/3",
+   "superv": "12/655.00/3",
+   "vend1": "9/435.00/1",
    "vend2": "3/220.00/2",
    "vprueba": "0/0/0"
   },
@@ -685,16 +740,16 @@
    "vprueba": "Sin acceso a rotación"
   },
   "totales_por_rol": {
-   "admcom": "5/11/650.00",
-   "admvo": "5/11/650.00",
-   "almacen": "5/11/650.00",
-   "compras": "5/11/650.00",
-   "direccion": "5/11/650.00",
-   "dirop": "5/11/650.00",
+   "admcom": "6/12/655.00",
+   "admvo": "6/12/655.00",
+   "almacen": "6/12/655.00",
+   "compras": "6/12/655.00",
+   "direccion": "6/12/655.00",
+   "dirop": "6/12/655.00",
    "fabrica": "0/0/0",
-   "finanzas": "5/11/650.00",
-   "superv": "5/11/650.00",
-   "vend1": "4/8/430.00",
+   "finanzas": "6/12/655.00",
+   "superv": "6/12/655.00",
+   "vend1": "5/9/435.00",
    "vend2": "1/3/220.00",
    "vprueba": "0/0/0"
   }
@@ -707,15 +762,17 @@
    "bitacora_de_la_remision=0",
    "oportunidad_desligada=1",
    "copia=1",
+   "copia_unidad_completa=1",
+   "copia_avisos=1",
    "evento=1"
   ],
   "eliminar_refacciones": [
-   "5",
+   "6",
    [
     "{\"tipo\": \"refacciones\", \"folio\": \"ZZ-rr_limpia\", \"copia_en_bitacora\": true, \"unidades_liberadas\": 0}",
     "remision=0",
     "partidas=0",
-    "apartado_pr1=2",
+    "apartado_pr1=3",
     "copia=1"
    ]
   ]
