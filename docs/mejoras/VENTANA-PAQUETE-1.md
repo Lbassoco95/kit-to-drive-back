@@ -45,6 +45,10 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
 
 **Esperado en pantalla:** sin `ERROR`, y una fila `funciones_nuevas` = `3`, `triggers_nuevos` = `2`, `ejecutables_por_anon_o_authenticated` = `0`.
 
+### Momento exacto: mezclar el PR #8 de la compuerta (después de verificar M1 y M2, antes de las pruebas)
+
+**Mezclar el PR #8 de `kit-to-drive-front` (base `main`) despliega en producción en Vercel.** No se mezcla antes de la ventana. Se hace **una vez verificados M1 y M2 (bloque de la §3 igual a la §4) y antes de que la persona de pruebas haga R1–R8**. Después de mezclar: esperar a que Vercel marque el despliegue como *Ready* y anotar el commit; si la compuerta falla, se revierte el commit de la mezcla en `main` (el front cae solo a la ficha, no se pierde nada). El M3 se aplica después, con R9–R11.
+
 ### Paso M3
 
 ```bash
