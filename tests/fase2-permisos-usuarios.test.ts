@@ -251,6 +251,7 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
     "fase2-desactivar-cuentas-demo-inactivas.sql",
     "fase2-forzar-cambio-password-demo-activas.sql",
     "fase2-migrar-correo-real-lee-marco.sql",
+    "fase2-cerrar-sesiones-lee.sql",
   ];
 
   it("seed-demo-users: la contraseña la genera el servidor, nunca viene del cuerpo y no se devuelve", () => {
@@ -272,7 +273,7 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
       expect(sql, f).toMatch(/Autorizo/);
       expect(sql, f).toMatch(/Verificaci[oó]n/);
       expect(sql, f).toMatch(/RAISE EXCEPTION/);
-      expect(limpio, f).not.toMatch(/\bDELETE\s+FROM\b|\bDROP\s|\bTRUNCATE\b/i);
+      expect(limpio.replace(/ON COMMIT DROP/gi, ""), f).not.toMatch(/\bDELETE\s+FROM\b|\bDROP\s|\bTRUNCATE\b/i);
       expect(existsSync(join(RAIZ, "supabase", "migrations", f)), `${f} no debe estar en migrations`).toBe(false);
     }
   });

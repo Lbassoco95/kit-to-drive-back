@@ -1,6 +1,8 @@
-# Runbook consolidado de las ventanas (Fase 1 y Fase 2) — A6
+# Runbook consolidado de las ventanas (Fase 1 y Fase 2) — mecanismo A
 
-**Estado: NADA APLICADO.** Reemplaza el orden de `VENTANA-FASE-1.md` y de `RUNBOOK-VENTANA-FASE-2.md` donde se contradigan (cambios: orden de la Fase 1, mecanismo de aplicación, integridad de la información en cada paso, scripts de correo y de contraseña). Los otros dos documentos siguen valiendo para el detalle de cada migración y de cada recorrido.
+**Estado: NADA APLICADO.** Este guion reemplaza el orden y el mecanismo de `VENTANA-FASE-1.md` y de `RUNBOOK-VENTANA-FASE-2.md`. Esos dos siguen valiendo para el detalle de cada migración y de cada recorrido.
+
+**Decisiones de Polo (26 oct):** cada archivo se aplica **tal cual** con `psql`, **en una transacción**, **desde la terminal de Polo**, y se registra en `migraciones_aplicadas`. No se usa `supabase db push` ni `apply_migration`. **Polo escribe la contraseña de la base; Claude no la ve.** Claude **mide solo con el MCP de solo lectura** limitado a producción; el conector de claude.ai con escritura y el token de cuenta se desactivan.
 
 ## 0. Frases de autorización (las escribe Polo, en la sesión, con fecha)
 
@@ -11,122 +13,168 @@
 | «Autorizo bloquear cuentas inactivas, ventana del `<fecha>`» | El bloque 1 del script de bloqueo (5 cuentas). `edgar`, solo con confirmación expresa |
 | «Autorizo migrar a correo real a lee y marco, correos: `<correos>`, ventana del `<fecha>`» | El script de correo, con **esos** correos |
 | «Autorizo cambio de contraseña obligatorio a lee, ventana del `<fecha>`» | El script de cambio obligatorio, solo `lee` |
+| (sin frase aún) cerrar las sesiones de `lee` | Ver `PROPUESTA-LEE-CIERRE-DE-SESIONES.md`: necesita su propia frase |
 
-**Orden:** Fase 1 → verificación completa → **una semana de observación** → Fase 2 (otra ventana). Los scripts de cuentas demo van **al final de la ventana de la Fase 2 o en otra**, cada uno con su frase. Cada frase vale **solo** lo que nombra. Si falta algo, no se hace.
+Orden: Fase 1 → verificación completa → **una semana de observación** → Fase 2 (otra ventana) → **bloqueo de cuentas, al final y separado** (su propia frase, su propia ventana o el cierre de la de la Fase 2). Cada frase vale solo lo que nombra.
+**Ventana permitida:** sábados y domingos, o entre semana **después de las 19:00 (CDMX)**. Nunca durante el uso normal de Dazon.
 
 ## 1. Quién y con qué
 
-| Quién | Qué hace | Disponibilidad |
-|---|---|---|
-| **Polo** | Autoriza; **corre** los comandos de aplicación en su terminal (mecanismo A, §2); escribe la fecha del respaldo | Toda la ventana |
-| **Una persona de pruebas por rol** (la designa Polo) | Hace los recorridos de pantalla antes y después de cada paso, con **una cuenta por cada rol**: sin área, vendedor (dueño de un cliente), otro vendedor, administrativo, admin de área, admin de otra área, administrador global, super admin | **Toda la ventana, sin interrupciones.** Si no hay quien pruebe, **no se empieza** |
-| **Claude** | Mide con el MCP de **solo lectura** (conteos, huellas, catálogo, registros), compara con lo previsto y dice «sigue» o «detente». **No aplica.** | Toda la ventana |
-| Administradores (incluido el de China) | Se les avisa al empezar y al terminar | — |
+| Quién | Qué hace |
+|---|---|
+| **Polo** | Autoriza. **Corre** los scripts de `scripts/ventana/` en su terminal. Escribe la contraseña de la base (una vez, sin eco). Escribe la fecha del respaldo. Pasa a Claude los resultados de pantalla |
+| **Persona de pruebas** (la designa Polo) | Ejecuta `HOJA-DE-PRUEBAS-POR-ROL.md` antes y después de cada paso. **No necesita saber de programación**; necesita una cuenta por cada rol y estar **toda la ventana**. Si no hay quién pruebe, no se empieza |
+| **Claude** | Mide con el **MCP de solo lectura**: catálogo, huellas, registros. Compara con lo previsto y dice «sigue» o «detente». **No aplica nada** |
+| Administradores (incluido el de China) | Se les avisa al empezar y al terminar |
 
-## 2. Cómo se aplica (mecanismo A, decisión de Polo en `PARTE-A-CONEXION-Y-VENTANA.md` §4.4)
-
-Cada archivo **tal como está en el repo**, en **una sola transacción**, desde la terminal de Polo (la contraseña de la base la escribe él; nadie más la ve):
+## 2. Preparar la terminal de Polo (una vez por ventana)
 
 ```bash
-psql "<cadena de conexión del panel (Connect)>" -v ON_ERROR_STOP=1 --single-transaction \
-     -f supabase/migrations/<archivo>.sql
+cd kit-to-drive-back                       # el repo, en la rama ya mezclada y revisada por una persona
+# Copia los valores del botón Connect del proyecto kit-to-drive (Session pooler). NO escribas la contraseña aquí:
+export PGHOST=<host del pooler>  PGPORT=5432  PGUSER=postgres.dmhzhyeivvuliumcgsmm  PGDATABASE=postgres  PGSSLMODE=require
+source scripts/ventana/conectar.sh         # pide la contraseña SIN eco, comprueba que es producción y no QA
 ```
-Después, el registro (una sola línea por archivo, como en las 88 anteriores):
-```sql
-INSERT INTO public.migraciones_aplicadas (script, estado, notas) VALUES ('<archivo sin .sql>', 'aplicado', 'Fase <n>, ventana del <fecha>');
-```
-**No** se usa `supabase db push` (historial desalineado, H3) ni `apply_migration` del conector (prohibido). La reversa de cada paso es el archivo de `supabase/reversas/`, con el mismo comando.
-Al terminar la ventana, Polo cierra la sesión (`unlink`/`exit`).
+`conectar.sh` se **detiene** si ni `PGUSER` ni `PGHOST` contienen `dmhzhyeivvuliumcgsmm`, o si aparece la referencia de QA, y muestra `zz_lista_oct` y `super_admins`: en producción debe ser **`zz_lista_oct=2219` y `super_admins=2`** (a la fecha del 26 oct; si cambió por actividad, explicarlo).
+Al terminar la ventana: `unset PGPASSWORD PGHOST PGUSER` y cerrar la terminal. **La contraseña no queda en archivos ni en el historial** (se lee con `read -s`).
 
 ## 3. Antes de empezar (cada ventana) — todo en verde
 
-1. ☐ **Frase de autorización con fecha** y la hora real **dentro de la ventana permitida** (sáb/dom, o entre semana después de las 19:00 CDMX).
-2. ☐ **Respaldo confirmado** del día o del anterior, con fecha y hora escritas por Polo (`PARTE-A` §5). **Sin esto, no empieza.**
-3. ☐ **Conexión de solo lectura** verificada: `get_project_url` = `dmhzhyeivvuliumcgsmm` y `show transaction_read_only;` = `on` (el conector con escritura de claude.ai, desactivado).
-4. ☐ **Foto fresca de integridad** (`consultas/05` y `06`) y **comparada con `INTEGRIDAD-ANTES.md`**. Si algo cambió desde el 25 oct, **se explica antes de seguir** (actividad normal con fechas, o se detiene).
-5. ☐ **Catálogo** igual que la línea base (`consultas/02-conteos-linea-base.sql`); para la ventana 2, igual que el resultado de la Fase 1.
-6. ☐ **Recorridos de pantalla hechos una vez antes** y anotados (los de la Fase 0; en la ventana 2, además U1–U14).
-7. ☐ **Los dos super admins activos**, uno con sesión durante la ventana. **No se modifican.**
-8. ☐ **Línea base de errores:** `401/403/5xx` de las últimas 24 h en los registros de la API y de Postgres (hoy: **0** en la API; **0** de aplicación en Postgres).
+1. ☐ **Frase de autorización con fecha** y hora **dentro de la ventana permitida**.
+2. ☐ **Respaldo:** Polo le escribe a Claude «Respaldo del `<fecha y hora>`» (Database → Backups): **del mismo día o del anterior**. Opcional recomendado: copia lógica en su terminal (`PARTE-A-CONEXION-Y-VENTANA.md` §5). **Sin esto, no empieza.**
+3. ☐ **Canal de solo lectura de Claude**, comprobado (Polo avisa que lo configuró): `get_project_url` = `dmhzhyeivvuliumcgsmm`; **`show transaction_read_only;` = `on`**; y un `CREATE TABLE` de prueba dentro de `begin read only` **es rechazado** (`25006`) y no deja nada (`rollback`). El conector con escritura, **desactivado**.
+4. ☐ **Foto fresca de integridad comparada con la de referencia:** `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` (y Claude lo repite por su canal). Cero diferencias, o diferencias **explicadas** con fecha y hora de cada fila nueva. Si no se pueden explicar: **no se empieza.**
+5. ☐ **Catálogo igual que la línea base:** `scripts/ventana/catalogo.sh` (y la ventana 2, igual que el cierre de la Fase 1).
+6. ☐ **Recorridos de pantalla hechos una vez antes** (hoja de pruebas, columna «Antes»).
+7. ☐ **Dos super admins activos** y uno con sesión durante la ventana. No se modifican.
+8. ☐ **Línea base de errores** 401/403/5xx de las últimas 24 h (API y Postgres), anotada.
 9. ☐ Administradores avisados.
 
-## 4. Ventana 1 — Fase 1 (solo permisos; ninguna fila debe cambiar)
+## 4. Ventana 1 — Fase 1 (solo permisos: **ninguna fila debe cambiar**)
 
-**Orden: 1, 2, 4, 5, 6 y la de `search_path` (la 3) al final y sola.** Cada paso con la misma rutina (§4.1).
+**Orden: 1, 2, 4, 5, 6 y por último la 3 (`search_path`), sola.** Cada paso con la misma rutina (§4.1). Estimaciones, **no medidas**: la aplicación tarda segundos; el tiempo lo ponen la persona de pruebas (15–25 min por vuelta) y la verificación.
 
-| Paso | Archivo | Qué cambia (previsto) | Verificación propia | Duración estimada\* |
+| Paso | Archivo (`<N>` = nombre sin `.sql`) | Qué cambia (previsto) | Verificación que imprime el script | Estimado |
 |---|---|---|---|---|
-| 1 | `20261031000001_fase1_quitar_truncate_trigger_references` | TRUNCATE (82 tablas), TRIGGER y REFERENCES (103 relaciones) | `0, 0, 0, 0` | 30–40 min |
-| 2 | `20261031000002_fase1_cerrar_funciones_de_trigger` | EXECUTE de 53 funciones de trigger (SECDEF ejecutables 208 → 178; `anon` 2 → 0) | `0, 0, true, true`; «Funciones de trigger cerradas: 53» | 30–40 min (incluye **alta de usuario**) |
-| 3 | `20261031000004_fase1_quitar_lectura_anon_de_vistas` | `anon` sin lectura de 16 vistas | «Vistas cerradas a anon: 16»; `0, 18` | 25–30 min |
-| 4 | `20261031000005_fase1_quitar_escritura_anon_de_tablas` | `anon` sin INSERT/UPDATE/DELETE (81 tablas) | `0` | 25–30 min |
-| 5 | `20261031000006_fase1_lo_nuevo_nace_cerrado` | Permisos por defecto de lo nuevo | `true, true, true` | 25–30 min |
-| 6 | `20261031000003_fase1_fijar_search_path` **(al final y sola)** | `search_path` de 14 funciones | «Funciones con search_path fijado: 14»; `0` | 30–40 min (recorrido **completo**) |
+| 1 | `20261031000001_fase1_quitar_truncate_trigger_references` | TRUNCATE (82 tablas), TRIGGER y REFERENCES (103 relaciones) → 0 | `0, 0, 0, 0` | 35 min |
+| 2 | `20261031000002_fase1_cerrar_funciones_de_trigger` | 53 funciones de trigger cerradas (SECDEF ejecutables 208 → 178; `anon` 2 → 0) | `0, 0, true, true`; «Funciones de trigger cerradas: 53» | 35 min (incluye **alta de usuario**) |
+| 3 | `20261031000004_fase1_quitar_lectura_anon_de_vistas` | `anon` sin lectura de 16 vistas | «Vistas cerradas a anon: 16»; `0, 18` | 30 min |
+| 4 | `20261031000005_fase1_quitar_escritura_anon_de_tablas` | `anon` sin INSERT/UPDATE/DELETE (81 tablas) | `0` | 30 min |
+| 5 | `20261031000006_fase1_lo_nuevo_nace_cerrado` | Permisos por defecto de lo nuevo | `true, true, true` | 30 min |
+| 6 | `20261031000003_fase1_fijar_search_path` **(al final y sola)** | `search_path` de 14 funciones | «Funciones con search_path fijado: 14»; `0` | 40 min (recorrido **completo**) |
 
-\* Estimaciones, no medidas: la aplicación tarda segundos; el tiempo lo ponen la persona de pruebas (15–25 min por vuelta) y la comparación de integridad (1–2 min).
-**Total previsto:** ~45 min de preparación + ~3 h de pasos + ~45 min de cierre = **≈ 4,5 h**, dentro de 10:00–18:00.
+**Total previsto:** 45 min de preparación + 3 h 20 min de pasos + 45 min de cierre ≈ **4 h 50 min**, dentro de 10:00–18:00.
 
-### 4.1 Rutina de cada paso (B1–B4)
+### 4.1 Rutina de cada paso
 
-1. **Aplicar** el archivo (§2) y leer su verificación: debe coincidir con la tabla.
-2. **B1, permisos:** repetir `consultas/02-conteos-linea-base.sql`: debe cambiar **solo** lo previsto (tabla de `PARTE-A` §4.5).
-3. **B2, recorridos por rol:** la persona de pruebas repite los recorridos (**1, 2, 3, 5 y 6 obligatorios** tras los pasos 1 y 2). Resultado igual que antes.
-4. **B3, integridad:** Claude corre la consulta de comparación (`generar-comparacion.py` + `06`) y compara con `INTEGRIDAD-ANTES.md`.
-   - **Una migración de solo permisos debe dejar CERO diferencias** en filas y huellas de las 93 tablas, en `auth.users` y en Storage.
-   - Si aparece una diferencia: **se detiene**. Solo se acepta si se **demuestra**, con la fecha y hora de creación de cada fila nueva, que la causó una operación normal de un usuario (y no el cambio). La explicación va por escrito en `INTEGRIDAD-RESULTADO-FASE-1.md`; **la diferencia no se da por buena sin esa evidencia.**
-5. **B4, errores:** `401/403/5xx` y errores de Postgres comparados con la línea base (API y Postgres).
-6. **Registrar** (§2) y recién entonces, el siguiente paso.
+1. **Aplicar** (Polo):
+   ```bash
+   scripts/ventana/aplicar.sh <N> 1 <AAAA-MM-DD>
+   ```
+   Pide que escribas la referencia del proyecto (`dmhzhyeivvuliumcgsmm`). Por dentro, **exactamente esto**, una sola transacción (si algo falla, no queda ni el registro):
+   ```bash
+   psql -X -v ON_ERROR_STOP=1 --single-transaction -f supabase/migrations/<N>.sql \
+     -c "INSERT INTO public.migraciones_aplicadas (script, estado, notas) VALUES ('<N>', 'aplicado', 'Fase 1, ventana del <fecha>') ON CONFLICT (script) DO UPDATE SET estado='aplicado', aplicada_at=now(), notas=EXCLUDED.notas"
+   ```
+   Leer la verificación que imprime y compararla con la tabla. Queda copia en `ventana-logs/`.
+2. **B1, permisos:** `scripts/ventana/catalogo.sh` (Polo) y Claude lo repite con el canal de solo lectura: debe cambiar **solo** lo previsto (`PARTE-A-CONEXION-Y-VENTANA.md` §4.5).
+3. **B2, recorridos:** la persona de pruebas ejecuta la hoja (**1, 2, 3, 5 y 6 obligatorios tras los pasos 1 y 2**) y anota en «Después».
+4. **B3, integridad:** `scripts/ventana/comparar-integridad.sh docs/seguridad/integridad/antes-tablas.txt` (Polo) y la misma consulta por el canal de Claude.
+   - Una migración de solo permisos debe dar **«CERO diferencias»**. Cualquier otra salida **detiene**.
+   - Una diferencia solo se acepta si se **demuestra**, con fecha y hora de creación de cada fila nueva, que la causó una operación normal de un usuario. La explicación va por escrito en `INTEGRIDAD-RESULTADO-FASE-1.md`. **No se da por buena sin esa evidencia.**
+5. **B4, errores:** 401/403/5xx y errores de Postgres contra la línea base (los hace Claude con el canal de solo lectura).
+6. **Registrar** ya lo hizo el paso 1. **Decisión «sigue / detente»** la dice Claude por escrito; la ejecuta Polo.
+
+### 4.2 Reversa de cada paso (misma forma, una transacción)
+
+**Si un paso falla o los criterios de §7 se cumplen, se revierte ESE paso y los anteriores, en orden inverso al aplicado.**
+Orden inverso de la Fase 1: **3 → 6 → 5 → 4 → 2 → 1** (es decir, `search_path`, defaults, escritura de `anon`, vistas, funciones de trigger y TRUNCATE).
+
+```bash
+scripts/ventana/revertir.sh <N> 1 <AAAA-MM-DD>
+```
+Por dentro:
+```bash
+psql -X -v ON_ERROR_STOP=1 --single-transaction -f supabase/reversas/<N>_reversa.sql \
+  -c "UPDATE public.migraciones_aplicadas SET estado='superado', notas='REVERTIDA en la ventana del <fecha> (Fase 1)' WHERE script='<N>'"
+```
+(No se borra el renglón del registro: queda como `superado` con la nota. Si se vuelve a aplicar, `aplicar.sh` lo vuelve a poner en `aplicado`.)
+Después de cada reversa: `catalogo.sh` debe volver a la línea base **y** `comparar-integridad.sh` debe dar cero diferencias. Cada reversa se **ensayó** en la réplica (catálogo idéntico al de antes).
+
+| Reversa | Archivo `supabase/reversas/<N>_reversa.sql` |
+|---|---|
+| 1.º en revertir | `20261031000003_fase1_fijar_search_path` |
+| 2.º | `20261031000006_fase1_lo_nuevo_nace_cerrado` |
+| 3.º | `20261031000005_fase1_quitar_escritura_anon_de_tablas` |
+| 4.º | `20261031000004_fase1_quitar_lectura_anon_de_vistas` |
+| 5.º | `20261031000002_fase1_cerrar_funciones_de_trigger` |
+| 6.º | `20261031000001_fase1_quitar_truncate_trigger_references` |
+
+### 4.3 Tiempos: qué se hace si un paso se pasa
+
+| Situación | Qué se hace |
+|---|---|
+| Un paso lleva **más de 1,5×** su estimado sin conclusión (p. ej. 55 min en uno de 35) | **Pausa.** Claude resume qué falta (qué recorrido, qué cifra). Polo decide: terminar la prueba, o revertir el paso |
+| La aplicación de un archivo **no termina** (más de 2 min) o la conexión se corta | psql revierte la transacción sola. **Antes de repetir:** `catalogo.sh` y consultar el registro (`select script, estado from migraciones_aplicadas where script like '202610310%'`) para ver **en qué estado quedó**; repetir solo si no quedó aplicado |
+| Es **más de las 16:00** | **No se empieza ningún paso nuevo.** Cada paso aplicado es un estado estable: se cierra con la verificación completa de lo ya aplicado y **lo que falta pasa a otra ventana** (la 3 de `search_path` siempre es la última) |
+| Es **más de las 17:30** con un paso a medias | Se **revierte** ese paso y se cierra con integridad y catálogo. **Nunca se deja un paso sin verificar** |
+| Falta la persona de pruebas | **Se detiene.** No se avanza sin recorridos |
 
 ## 5. Una semana de observación
 
-Sin cambios. Revisar cada día los registros; si alguien reporta algo, se revisa **antes** de la ventana 2. Al cabo de la semana, repetir la foto de integridad: las diferencias contra el cierre de la ventana 1 deben ser solo actividad normal, explicada.
+Sin cambios. Cada día se revisan los registros; si alguien reporta algo, se revisa **antes** de la ventana 2. Al cabo de la semana, repetir la foto de integridad: las diferencias contra el cierre de la ventana 1 deben ser **solo actividad normal, explicada**.
 
-## 6. Ventana 2 — Fase 2 (+ scripts de datos)
+## 6. Ventana 2 — Fase 2 (y, al final y aparte, los scripts de cuentas)
 
-Prerrequisito: **Fase 1 aplicada, observada una semana y `INTEGRIDAD-RESULTADO-FASE-1.md` con veredicto «sí se mantuvo».**
+Prerrequisito: **Fase 1 aplicada, observada una semana, y `INTEGRIDAD-RESULTADO-FASE-1.md` con veredicto «la información se mantuvo: sí».**
 
-### 6.1 Migraciones y funciones (frase «Autorizo Fase 2…»)
+### 6.1 Migraciones (frase «Autorizo Fase 2…») — orden 1, 2, 3, 4, 5
 
-| Paso | Qué | Previsto | Pruebas obligatorias |
-|---|---|---|---|
-| 1 | `20261107000001…` (perfiles) | `1, true`; funciones 268 → 269 | U1, U2, U9, U10 |
-| 2 | `20261107000002…` (roles) | `1, true, true` | U3–U8 |
-| 3 | `20261107000003…` (política `profiles_update_admin`) | `0`; políticas 301 → 300 | U1–U5 |
-| 4 | `20261107000004…` (cartera) | `false, false`; SECDEF ejecutables 178 → 176 | **U12, U13** |
-| 5 | `20261107000005…` (rastro super admins) | `1, true`; funciones 269 → 270 | — |
-| 6 | Edge Functions, **una a una** (`admin-update-user`, `admin-create-user`, `admin-reset-user-password`) con el flujo manual `deploy-edge-functions.yml` | Un renglón nuevo en `bridge_bitacora` tras la primera edición | U1, U3–U8, U10, U11, U14 |
+Misma rutina (§4.1) con `scripts/ventana/aplicar.sh <N> 2 <fecha>`. **Reversa en orden inverso: 5 → 4 → 3 → 2 → 1** con `revertir.sh <N> 2 <fecha>`.
 
-**Integridad en la ventana 2:** las cinco migraciones son de permisos/estructura: **cero diferencias** en filas y huellas. **Las Edge Functions sí escriben**: cada prueba de pantalla que edite un usuario cambia `profiles` y deja un renglón en `bridge_bitacora` (**esos son los únicos cambios aceptados**, se listan con fecha y hora). Para no mezclar, las pruebas que editan datos se hacen **con cuentas de prueba o con ediciones que se revierten por la misma pantalla**, y se anotan.
+| Paso | Archivo | Previsto | Pruebas obligatorias | Estimado |
+|---|---|---|---|---|
+| 1 | `20261107000001_fase2_perfiles_campos_protegidos` | `1, true`; funciones 268 → 269 | U1, U2, U9, U10 | 35 min |
+| 2 | `20261107000002_fase2_roles_rango_y_super_admins` | `1, true, true` | U3–U8 | 35 min |
+| 3 | `20261107000003_fase2_profiles_politica_por_area` | `0`; políticas 301 → 300 | U1–U5 | 25 min |
+| 4 | `20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente` | `false, false`; SECDEF ejecutables 178 → 176 | **U12, U13** | 25 min |
+| 5 | `20261107000005_fase2_super_admins_rastro` | `1, true`; funciones 269 → 270 | — | 15 min |
 
-### 6.2 Scripts de datos (cada uno con su frase; el resto de las tablas debe quedar idéntico)
+**Integridad:** las cinco son de permisos/estructura: **cero diferencias** en filas y huellas. Mismo criterio de detención.
 
-Antes de correr cada uno, Claude **lista las filas y campos que deben cambiar**; cualquier diferencia fuera de la lista **detiene**.
+### 6.2 Edge Functions (después de las migraciones)
+
+Flujo manual `deploy-edge-functions.yml` (GitHub → Actions → *Run workflow*), **una función a la vez**: `admin-update-user` → `admin-create-user` → `admin-reset-user-password`. (El flujo usa un secreto del repo, `SUPABASE_ACCESS_TOKEN`: **es distinto del token del entorno que Polo revoca**; revisar con qué alcance está.) Tras la primera edición exitosa debe haber **un renglón nuevo en `bridge_bitacora`** (`usuario.editar`). Sin renglón o con 503: se detiene y se vuelve a desplegar la versión anterior.
+**Las Edge Functions sí escriben:** cada prueba de pantalla que edite un usuario cambia `profiles` y agrega un renglón en `bridge_bitacora`: esos son **los únicos cambios aceptados** en la integridad, con fecha y hora; las pruebas que editan datos se hacen con **cuentas de prueba o con ediciones que se revierten por la misma pantalla**, y se anotan. Estimado: 20 min por función.
+
+### 6.3 Scripts de datos (cada uno, con su frase; al final y aparte)
+
+Se corren con `psql -X -v ON_ERROR_STOP=1 -f supabase/operaciones/<script>.sql` (traen su propio `BEGIN/COMMIT` y sus guardas). Antes de correr cada uno, Claude **lista las filas y campos que deben cambiar**; cualquier diferencia fuera de la lista **detiene**. Después: `comparar-integridad.sh` y la comparación de Auth (`consultas/06`).
 
 | Script | Frase | Cambios previstos (**y solo estos**) | Cifras previstas |
 |---|---|---|---|
-| `fase2-desactivar-cuentas-demo-inactivas.sql`, bloque 1 | «Autorizo bloquear cuentas inactivas…» | `auth.users.banned_until`: `NULL` → `infinity` en **5 filas**: `admin@`, `coordinador@`, `fabrica@`, `logistica@`, `ventas@dazon.demo` | `auth.users` bloqueados **0 → 5**, no bloqueados **26 → 21**; `huella_sin_contrasena` de `auth.users` **cambia**; `huella_contrasenas`, `auth.identities`, `profiles` y las 93 tablas: **sin diferencias**; sesiones y tokens: mismo conteo (Auth ya no los renueva) |
-| `fase2-migrar-correo-real-lee-marco.sql` | «Autorizo migrar a correo real a lee y marco, correos: …» | **2 usuarios:** `auth.users.email` (+ `raw_user_meta_data.email` si existe) y `updated_at`; **2 identidades:** `identity_data.email`; **2 perfiles:** `profiles.email` | `auth.users` total y bloqueados iguales; `profiles` huella cambia (2 filas, campo `email` y `updated_at`); **ninguna otra tabla** |
-| `fase2-forzar-cambio-password-demo-activas.sql` (solo `lee`) | «Autorizo cambio de contraseña obligatorio a lee…» | `lee` ya tiene `debe_cambiar_password = true` y `must_change_password = true`: **ningún valor cambia**; solo `profiles.updated_at` de **1 fila** | `profiles` huella cambia por esa fila |
+| `fase2-desactivar-cuentas-demo-inactivas.sql` (bloque 1) | «Autorizo bloquear cuentas inactivas…» | `auth.users.banned_until`: `NULL` → `infinity` en **5 filas**: `admin@`, `coordinador@`, `fabrica@`, `logistica@`, `ventas@dazon.demo` (**`edgar@`: solo con confirmación; sería la fila 6**) | `auth.users`: bloqueados **0 → 5** (6 con edgar), no bloqueados **26 → 21** (20); la huella de `auth.users` sin contraseñas **cambia**; contraseñas, identidades, **profiles y las 93 tablas: sin diferencias**; sesiones y tokens: mismo conteo |
+| `fase2-migrar-correo-real-lee-marco.sql` | «Autorizo migrar a correo real a lee y marco, correos: …» (**pendiente: Polo da los correos**) | **2** `auth.users` (`email`, `updated_at`, y `raw_user_meta_data.email` si existe); **2** `auth.identities` (`identity_data.email`); **2** `profiles` (`email`, `updated_at`) | `auth.users`: totales iguales; `profiles` cambia en 2 filas; ninguna otra tabla |
+| `fase2-forzar-cambio-password-demo-activas.sql` (solo `lee`) | «Autorizo cambio de contraseña obligatorio a lee…» | **Ningún valor cambia** (ya está activado); solo `profiles.updated_at` de 1 fila. **No se corre** según la decisión de Polo del 26 oct | `profiles` cambia en 1 fila (`updated_at`) |
+| `fase2-cerrar-sesiones-lee.sql` (propuesta) | (sin frase aún) | Ver `PROPUESTA-LEE-CIERRE-DE-SESIONES.md` | Hoy **0** sesiones de `lee`: no habría efecto |
 
-Cada script devuelve su verificación y se comprueba; **y** se repite la comparación de integridad: solo las filas listadas pueden diferir.
-**El bloqueo de cuentas se prueba después con `finanzas`, `lee` y `marco`:** siguen iniciando sesión (el script no los toca).
+Después del bloqueo se comprueba que **`finanzas`, `lee` y `marco` siguen entrando** (el script no los toca).
 
 ## 7. Cuándo detenerse y revertir (todas las ventanas)
 
-Se **detiene** y se aplica la **reversa de esa pieza** (y de las anteriores, en orden inverso, si hace falta) si, tras cualquier paso:
+Se **detiene** y se aplica la **reversa de esa pieza** (y de las anteriores, en orden inverso) si, tras cualquier paso:
 - falla un recorrido por rol que antes pasaba;
 - un usuario legítimo pierde una acción que tenía;
 - aumentan los `401/403/5xx` contra la línea base;
 - **algún conteo o huella cambia sin explicación demostrada**;
-- la medición posterior no coincide con la prevista (§4 y §6);
-- el alta de usuarios falla, una remisión a cliente moroso deja de bloquearse (U12) o un vendedor no puede crear una remisión normal (U13);
+- la medición posterior no coincide con la prevista;
+- el alta de usuarios falla (recorrido 3), una remisión a cliente moroso deja de bloquearse (U12) o un vendedor no puede crear una remisión normal (U13);
 - el rastro de `bridge_bitacora` no aparece tras desplegar las funciones.
-`REVOKE`/`DROP` que falle por dependencia: **no** `CASCADE`; se detiene y se reporta.
-Se reporta qué pasó, qué se revirtió y el estado final.
+Un `REVOKE`/`DROP` que falle por dependencia: **no** `CASCADE`; se detiene y se reporta. Se reporta qué pasó, qué se revirtió y el estado final.
 
 ## 8. Al terminar cada fase
 
 1. `INTEGRIDAD-RESULTADO-FASE-<n>.md`: tabla por tabla antes y después, veredicto **«la información se mantuvo: sí/no (y en qué tablas no)»**, diferencias explicadas, estado final de permisos frente al objetivo.
-2. Repetir la línea base completa y guardarla (`REPORTE-FASE-<n>.md`).
+2. Repetir la línea base completa (`REPORTE-FASE-<n>.md`).
 3. `RESUMEN-PARA-CUADERNO.md` (una página, lenguaje simple, cifras de antes y después).
 4. Avisar a los administradores; una semana de observación.
