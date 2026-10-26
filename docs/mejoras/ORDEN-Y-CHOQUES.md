@@ -31,16 +31,16 @@
 
 `ensayar-fase-2.py` sobre la réplica con Fase 1 + Paquete 1 (y, para comparar, sin Paquete 1). Las cinco migraciones se aplican y se revierten exactas; reaplicar no cambia nada; la reversa total restaura todo.
 
-| Momento | Funciones (sin P1 → **con P1**) | SECDEF ejecutables por `authenticated` | Políticas |
+| Momento | Funciones (sin P1 → **con P1**) | SECDEF ejecutables por `authenticated` (sin P1 → **con P1**) | Políticas |
 |---|---|---|---|
-| Antes de la Fase 2 | 268 → **272** | 178 → 178 | 301 → 301 |
-| Tras la 1.ª (perfiles) | 269 → **273** | 178 → 178 | 301 → 301 |
-| Tras la 2.ª (roles) | 269 → **273** | 178 → 178 | 301 → 301 |
-| Tras la 3.ª (política de profiles) | 269 → **273** | 178 → 178 | **300** → **300** |
-| Tras la 4.ª (cartera INVOKER) | 269 → **273** | **176** → **176** | 300 → 300 |
-| Tras la 5.ª (rastro) | 270 → **274** | 176 → 176 | 300 → 300 |
+| Antes de la Fase 2 | 268 → **272** | 178 → **179** | 301 → 301 |
+| Tras la 1.ª (perfiles) | 269 → **273** | 178 → **179** | 301 → 301 |
+| Tras la 2.ª (roles) | 269 → **273** | 178 → **179** | 301 → 301 |
+| Tras la 3.ª (política de profiles) | 269 → **273** | 178 → **179** | **300** → **300** |
+| Tras la 4.ª (cartera INVOKER) | 269 → **273** | **176** → **177** | 300 → 300 |
+| Tras la 5.ª (rastro) | 270 → **274** | 176 → **177** | 300 → 300 |
 
-**Tabla de valores esperados de la Fase 2 si va después del Paquete 1:** funciones **272 → 273 → 274** (en lugar de 268 → 269 → 270), SECDEF ejecutables por `authenticated` **178 → 176** y políticas **301 → 300** (sin cambio). Las funciones SECURITY DEFINER totales también suben en 3 (240 → 243 antes de la Fase 2).
+**Valores esperados de la Fase 2 si va después del Paquete 1 (rehecho con el Paquete 1 final):** funciones **272 → 273 → 274** (en lugar de 268 → 269 → 270), SECDEF ejecutables por `authenticated` **179 → 177** (en lugar de 178 → 176; la diferencia es `catalogo_clientes_basico`) y políticas **301 → 300**. Las funciones SECURITY DEFINER totales son 243 antes de la Fase 2 (240 sin P1). Resultado del ensayo: las cinco migraciones aplican y revierten exactas, reaplicar no cambia nada, y la reversa total restaura todo (`reversa_total_restaura_exacto = true`).
 
 ## 4. Qué choca con el Paquete 2 y el Paquete 3
 
