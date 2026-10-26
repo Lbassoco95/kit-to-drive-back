@@ -9,6 +9,8 @@
 
 **Decisiones de Polo aplicadas:** D-A1 A, D-A2 A, D-B1 A, D-B2 A, D-B3 A, y la regla «una remisión de refacciones que ya surtió inventario se cancela, no se elimina» (acordada). **Pendiente de Polo:** D-A3 (qué dato es «factura»: el paquete rechaza `movimientos_financieros.tiene_factura/factura_uuid/factura_folio` **y además cualquier movimiento financiero** ligado, así que no depende de la confirmación) y D-C1 (crédito, espera a Martin). Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
 
+**Ramas listas, sin mezclar:** front `claude/paquete-3-front` (kit-to-drive, commit `d499851`) y compuerta `claude/paquete-3-compuerta` (kit-to-drive-front). Se mezclan **inmediatamente después de verificar M3** (la compuerta primero, luego el front); cada mezcla despliega en Vercel.
+
 **Depende de:** Fase 2 (cartera vencida INVOKER; este paquete no la toca) y del **front del Paquete 3** (botón «Eliminar» solo para super admin con modo prueba, «Cambiar fecha» con motivo, interruptor para Dirección), que **todavía no está escrito**. La compuerta necesita `eliminar_remision`, `cambiar_fecha_remision`, `modo_prueba_global_activo`, `fijar_modo_prueba_global` en `RPCS` y `remision_fecha_cambios` en `TABLAS`.
 
 ## 1. Antes de abrir la ventana

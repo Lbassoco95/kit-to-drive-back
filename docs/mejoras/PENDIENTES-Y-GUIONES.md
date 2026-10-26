@@ -56,7 +56,7 @@ Decisiones 4.1 a 4.4: **todas A, tomadas** (`PAQUETE-2-REPORTES-Y-BUSCADORES.md`
 
 | # | Qué | Quién |
 |---|---|---|
-| 4.5 | **Dar el «sí» para escribir el front del Paquete 2** (pantalla de ventas, kárdex y rotación con buscador, filtros de Entregas, fecha programada) y su alta en la compuerta; sin él la ventana no tiene recorridos | Polo |
+| 4.5 | **Front del Paquete 2 escrito, sin mezclar:** rama `claude/paquete-2-front` del front (commit `8b52a21`; 566 pruebas) y `claude/paquete-2-compuerta` de la compuerta. Se mezclan dentro de la ventana del Paquete 2, después de verificar M1 a M3 | Code (hecho) / Polo (mezclar en la ventana) |
 | 4.6 | Fecha de la ventana, respaldo, persona de pruebas, y la frase «Autorizo paquete 2 (reportes y buscadores) en producción, ventana del `<fecha>`» | Polo |
 
 ### Bloque 5 — Paquete 3 (eliminar remisión y fecha de remisión). Depende de la Fase 2 y del Paquete 2
@@ -67,7 +67,7 @@ Decisiones 5.1, 5.2, 5.4, 5.5 y 5.6: **A, tomadas.** **Migraciones, reversas y g
 |---|---|---|
 | 5.3 | Confirmar qué dato es «factura» (hoy: `movimientos_financieros.tiene_factura`/`factura_uuid`/`factura_folio`; el paquete además rechaza **cualquier** movimiento financiero ligado, así que no bloquea la ventana) | Polo |
 | 5.7 | Las respuestas de Martin sobre crédito (¿«cabe» = límite − saldo abierto?, ¿se bloquea con cartera vencida?, ¿vencimiento = fecha + días de crédito con tope de 60?, ¿también refacciones?). Nota: «crédito» **ya existe** en `remisiones.tipo_pago` y en `remisiones_refacciones.forma_pago` | Martin |
-| 5.8 | **Dar el «sí» para escribir el front del Paquete 3** (botón «Eliminar», «Cambiar fecha», interruptor de modo prueba; quitar `fecha_remision` de la edición normal) y su alta en la compuerta | Polo |
+| 5.8 | **Front del Paquete 3 escrito, sin mezclar:** rama `claude/paquete-3-front` (commit `d499851`; 527 pruebas) y `claude/paquete-3-compuerta`. Se mezclan **inmediatamente después de verificar M3** | Code (hecho) / Polo (mezclar en la ventana) |
 | 5.9 | **Acordada:** una remisión de refacciones que ya surtió inventario se cancela, no se elimina | — |
 | 5.10 | Fecha de la ventana, respaldo, cuentas (super admin, Dirección sin ser super admin, admin y administrativo de Comercial) y la frase **«Autorizo paquete 3 (eliminación y fecha de remisión) en producción, ventana del `<fecha>`»** (acordada; el crédito tendrá su propia frase) | Polo |
 

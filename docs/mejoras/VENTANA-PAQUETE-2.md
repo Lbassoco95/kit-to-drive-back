@@ -4,6 +4,8 @@
 
 **Qué cambia:** 3 funciones nuevas, todas de **solo lectura** (STABLE, sin INSERT/UPDATE/DELETE): `reporte_ventas_refacciones` (SECURITY INVOKER: el vendedor solo ve sus ventas por la RLS del Paquete 1), `kardex_refacciones_multi` y `resumen_rotacion_refacciones_filtrado` (DEFINER con la misma puerta que las originales; el vendedor **no** entra). Ninguna tabla, política ni trigger. Las funciones originales (`kardex_refaccion`, `resumen_rotacion_refacciones`) **no se tocan**. Ensayo: `docs/mejoras/ensayo/resultado-paquetes-2-3.json` (103/103 chequeos en verde).
 
+**Ramas listas, sin mezclar:** front `claude/paquete-2-front` (kit-to-drive, commit `8b52a21`) y compuerta `claude/paquete-2-compuerta` (kit-to-drive-front). Se mezclan dentro de la ventana, después de verificar M1 a M3 (la compuerta primero, luego el front); cada mezcla despliega en Vercel.
+
 **Depende de:** Paquete 1 (la visibilidad del vendedor en remisiones de refacciones) y de la Fase 2. **El front de este paquete (pantalla de ventas, kárdex y rotación con buscador, filtros de Entregas, fecha programada) todavía no está escrito**; los recorridos de la §5 lo necesitan. Las funciones solas no cambian nada que el usuario vea hasta que el front las llame.
 
 ## 1. Antes de abrir la ventana
