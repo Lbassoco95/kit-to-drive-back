@@ -58,10 +58,18 @@ describe('Paquete 1 — permisos del vendedor (catálogo básico)', () => {
     const sql = sinComentarios(leer(MIG[1]));
     expect(sql).toMatch(/BEFORE INSERT ON public\.clientes/);
     expect(sql).not.toMatch(/crm_oportunidades|crm_actividades|crm_ruta_paradas/);
-    for (const f of ['es_vendedor_comercial\\(uuid\\)', 'clientes_asignar_vendedor_al_crear\\(\\)'])
+    for (const f of ['es_vendedor_comercial\\(uuid\\)', 'clientes_asignar_vendedor_al_crear\\(\\)', 'remisiones_validar_cliente_visible\\(\\)'])
       expect(sql).toMatch(new RegExp(`REVOKE ALL ON FUNCTION public\\.${f} FROM PUBLIC, anon, authenticated`));
     expect(sql).not.toMatch(/GRANT EXECUTE[^;]*TO[^;]*\b(anon|authenticated|PUBLIC)\b/i);
     for (const bloque of sql.split(/CREATE OR REPLACE FUNCTION /).slice(1)) expect(bloque.split('$$')[0]).toContain('SET search_path = public');
+  });
+
+  it('la remisión solo se captura a un cliente que el vendedor ya ve: INVOKER (aplica la política de clientes) y solo para vendedores', () => {
+    const sql = sinComentarios(leer(MIG[1]));
+    expect(sql).toMatch(/remisiones_validar_cliente_visible\(\)\s+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER/);
+    expect(sql).toMatch(/BEFORE INSERT OR UPDATE OF cliente_id ON public\.remisiones/);
+    expect(sql).toContain("rol_comercial(auth.uid()) <> 'operador'");
+    expect(sql).toContain('es_administrativo_comercial(auth.uid())');
   });
 
   it('no toca profiles, user_roles, super_admins, impedir_escalada_rol ni las funciones de cuentas por cobrar (lo que cambia la Fase 2)', () => {

@@ -12,10 +12,10 @@ select
  coalesce((select has_function_privilege('authenticated', p.oid, 'EXECUTE') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'catalogo_clientes_basico'), false) as catalogo_authenticated_ejecuta,
  coalesce((select has_function_privilege('anon', p.oid, 'EXECUTE') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'catalogo_clientes_basico'), false) as catalogo_anon_ejecuta,
  (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-   where n.nspname = 'public' and p.proname in ('es_vendedor_comercial', 'clientes_asignar_vendedor_al_crear')) as funciones_alta_cliente,
- (select count(*) from pg_trigger where not tgisinternal and tgname = 'trg_clientes_asignar_vendedor') as trigger_alta_cliente,
+   where n.nspname = 'public' and p.proname in ('es_vendedor_comercial', 'clientes_asignar_vendedor_al_crear', 'remisiones_validar_cliente_visible')) as funciones_alta_cliente,
+ (select count(*) from pg_trigger where not tgisinternal and tgname in ('trg_clientes_asignar_vendedor', 'trg_remisiones_validar_cliente')) as triggers_alta_cliente,
  (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-   where n.nspname = 'public' and p.proname in ('es_vendedor_comercial', 'clientes_asignar_vendedor_al_crear')
+   where n.nspname = 'public' and p.proname in ('es_vendedor_comercial', 'clientes_asignar_vendedor_al_crear', 'remisiones_validar_cliente_visible')
      and (has_function_privilege('anon', p.oid, 'EXECUTE') or has_function_privilege('authenticated', p.oid, 'EXECUTE'))) as alta_cliente_ejecutables,
  pg_get_functiondef('public.puede_leer_remision_refaccion(uuid,uuid)'::regprocedure) ilike '%es_administrativo_comercial%' as refacciones_con_administrativo,
  pg_get_functiondef('public.puede_leer_remision_refaccion(uuid,uuid)'::regprocedure) !~ $q$'almacen_logistica', 'comercial'$q$ as refacciones_sin_comercial,

@@ -204,6 +204,11 @@ def pruebas_escritura(ids):
         ruta = insertar('crm_rutas', [('vendedor_id', f"'{v1}'"), ('fecha_ruta', 'current_date'), ('fecha', 'current_date')])
         par = insertar('crm_ruta_paradas', [('ruta_id', ":'rid'"), ('cliente_id', f"'{ids[c]}'"), ('orden', '1')])
         caso(f"ruta+parada: vend1 usa {c}", 'vend1', f"{ruta} RETURNING id AS rid \\gset\n{par}; RESET ROLE; " + dueno(c))
+    # --- captura de remisión: el vendedor solo a clientes que ya ve (cierra la puerta que abre el catálogo)
+    for rol, vend, c in (('vend1', v1, 'c_v1'), ('vend1', v1, 'c_v2'), ('vend1', v1, 'c_sin'), ('superv', sp, 'c_sin'), ('admvo', ad, 'c_v2')):
+        caso(f"remisión: {rol} captura a {c}", rol,
+             f"INSERT INTO public.remisiones (folio_remision, vendedor_id, cliente_id) VALUES ('ZZ-ENSAYO-{rol}-{c}', '{vend}', '{ids[c]}'); "
+             f"SELECT 'remision_creada; ficha_del_cliente_que_ve_quien_captura=' || (SELECT count(*) FROM public.clientes WHERE id = '{ids[c]}');")
     # tras usar un cliente ajeno, el vendedor NO ve su ficha, ni su cartera
     ins = insertar('crm_oportunidades', [('titulo', "'t'"), ('cliente_id', f"'{ids['c_v2']}'"), ('vendedor_id', f"'{v1}'")])
     caso('tras usar el cliente de vend2, vend1 ve su ficha?', 'vend1',

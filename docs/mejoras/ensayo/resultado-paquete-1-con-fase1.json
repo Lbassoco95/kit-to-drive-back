@@ -15,6 +15,11 @@
    "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "crm_oportunidades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "remisión: admvo captura a c_v2": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: superv captura a c_sin": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: vend1 captura a c_sin": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: vend1 captura a c_v1": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: vend1 captura a c_v2": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
    "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=NULL",
    "ruta+parada: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
    "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",
@@ -357,10 +362,10 @@
    }
   },
   "conteos": {
-   "funciones": 271,
+   "funciones": 272,
    "politicas": 301,
    "secdef_ejecutables_authenticated": 179,
-   "triggers": 244
+   "triggers": 245
   },
   "escritura": {
    "administrativo crea cliente sin vendedor": "vendedor_del_cliente=NULL",
@@ -370,6 +375,11 @@
    "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "crm_oportunidades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "remisión: admvo captura a c_v2": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: superv captura a c_sin": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: vend1 captura a c_sin": "ERROR: No puedes capturar una remisión a un cliente que no ves: pide que te lo asignen",
+   "remisión: vend1 captura a c_v1": "remision_creada; ficha_del_cliente_que_ve_quien_captura=1",
+   "remisión: vend1 captura a c_v2": "ERROR: No puedes capturar una remisión a un cliente que no ves: pide que te lo asignen",
    "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=NULL",
    "ruta+parada: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
    "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",

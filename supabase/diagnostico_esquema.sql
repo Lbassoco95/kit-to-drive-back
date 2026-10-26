@@ -558,6 +558,8 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|clientes_asignar_vendedor_al_crear()'),
   ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'trigger|clientes.trg_clientes_asignar_vendedor'),
   ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'sin_privilegio|clientes_asignar_vendedor_al_crear()|authenticated'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|remisiones_validar_cliente_visible()'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'trigger|remisiones.trg_remisiones_validar_cliente'),
   ('20261103000003_paquete1_remisiones_refacciones_solo_del_vendedor', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y

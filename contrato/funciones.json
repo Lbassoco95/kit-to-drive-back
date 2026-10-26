@@ -216,6 +216,7 @@
     "reintentar_asignar_remision",
     "reject_public_signups",
     "remision_refaccion_marca_prueba",
+    "remisiones_validar_cliente_visible",
     "reportar_faltante_refaccion",
     "reportar_incidencia_chasis",
     "resolver_incidencia_chasis",
