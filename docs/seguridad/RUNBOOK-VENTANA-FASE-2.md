@@ -120,13 +120,25 @@ La referencia del proyecto va **en la URL**: el conector no puede ver ningún ot
 | Nombre | URL | Cuándo está habilitado |
 |---|---|---|
 | `supabase-prod-lectura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging` | Siempre (solo lectura) |
-| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development` | **Solo dentro de la ventana**, de que Polo escribe la frase a que cierra la ventana |
+| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development` | **Solo dentro de la ventana**: se agrega después de la frase y se quita al terminar el último paso |
 
 `features` limita los grupos de herramientas (verificado por Polo en la documentación de Supabase): `database` trae `execute_sql` y **también `apply_migration`** (ambas están en el mismo grupo y **no se pueden separar por URL**); `development` trae `get_project_url`; `debugging` (solo en lectura) trae `query_logs`. Si el cliente no reconoce las comas en `features`, se usa `%2C` (`features=database%2Cdevelopment`). La URL **debe llevar `project_ref=dmhzhyeivvuliumcgsmm`**: fija el proyecto y no existe argumento para cambiarlo.
 
 **`apply_migration` queda prohibida por regla, no por URL.** Polo la rechaza siempre: si aparece una solicitud de `apply_migration`, se rechaza. **Antes de cada llamada Code dice qué herramienta va a usar** (siempre `execute_sql` para aplicar y revertir; `get_project_url` y, en lectura, `query_logs`).
 
-**Agregar y quitar (Claude Code en terminal)**
+**Vía principal: conector personalizado en claude.ai (no requiere el CLI `claude`)**
+
+Polo no tiene instalado el CLI `claude`; su vía es **claude.ai → Configuración → Conectores → Agregar conector personalizado**. Se agrega uno por cada fila de la tabla de arriba:
+
+1. **Nombre:** `supabase-prod-lectura` (o `supabase-prod-escritura`).
+2. **URL del servidor MCP remoto:** la de la tabla, completa y sin espacios.
+3. No hay campos de secretos que llenar. Al agregarlo, claude.ai pide iniciar sesión en Supabase en el navegador (OAuth); **Polo elige la organización dueña de `kit-to-drive`** y autoriza.
+4. En los permisos de herramientas del conector, dejar **«Pedir aprobación»** en todas (en el de escritura, `execute_sql` siempre con aprobación manual). `apply_migration` se rechaza siempre.
+5. Para **quitarlo**: Configuración → Conectores → el conector → **Desconectar / Eliminar**. Confirmar que ya no aparece en la lista.
+
+> ⚠️ **Un conector agregado en claude.ai queda disponible en TODA la cuenta de Polo (todas sus sesiones), no solo en esta.** Por eso: el conector de **lectura** se agrega antes y puede quedarse (solo lee y está fijado a producción); el de **escritura se agrega SOLO dentro de la ventana, después de la frase, y se quita en cuanto termina el último paso** (y los bloques finales se pegaron), **no al día siguiente**. Mientras exista, cualquier sesión de Polo podría proponer una escritura en producción; la aprobación manual de cada llamada es la última barrera, no la primera. Si la ventana se interrumpe, se quita y se vuelve a agregar al retomar.
+
+**Alternativa: CLI `claude` en terminal** (solo si Polo lo instala; no es la vía prevista). **No se usa `--scope project`**: guardaría la configuración del conector en el repo (`.mcp.json`); se usa el alcance **local**.
 
 ```bash
 claude mcp add --transport http --scope local supabase-prod-lectura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging"
@@ -135,9 +147,11 @@ claude mcp remove supabase-prod-escritura --scope local
 claude mcp list
 ```
 
-**No se usa `--scope project`**: guardaría la configuración del conector en el repo (`.mcp.json`). Se usa el alcance **local** (`--scope local`, el predeterminado), que queda solo en la máquina de Polo y no se sube a git.
+**Esperado:** `list` muestra el de lectura siempre y el de escritura solo durante la ventana.
 
-**Esperado:** `list` muestra `supabase-prod-lectura` siempre y `supabase-prod-escritura` solo durante la ventana. En una sesión en la nube, el mismo par de URL se agrega como conector personalizado en claude.ai (**Configuración → Conectores → Agregar conector personalizado**) y se quita con **Desconectar**; Polo elige la ruta que corresponda a la sesión.
+### Cuando Polo avise que agregó el conector de lectura
+
+Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1) **confirma que no puede escribir** (la prueba es una consulta de solo lectura permitida y un intento de escritura inofensivo que debe ser rechazado por el modo solo lectura; si la escritura se acepta, se avisa a Polo de inmediato y se quita el conector); (2) **prueba `query_logs`** para el bloque D2 y dice si funciona.
 
 ### Condiciones de cada llamada
 
@@ -155,13 +169,13 @@ claude mcp list
 | # | Quién | Qué | Cuándo |
 |---|---|---|---|
 | 1 | Polo | Escribe la frase con fecha | Al abrir la ventana, ya con respaldo y persona de pruebas |
-| 2 | Polo | **Habilita** `supabase-prod-escritura` (y verifica que el general de claude.ai esté desconectado) | Justo después de la frase |
+| 2 | Polo | **Agrega** `supabase-prod-escritura` en claude.ai (y verifica que el general esté desconectado) | Justo después de la frase |
 | 3 | Code | `get_project_url`, bloque 0 y V, A1 y A3 «antes» por lectura | Antes de la primera escritura |
 | 4 | Code | Aplica un paso, pega V, A1 y A3 | Cada paso; espera «sigue» |
-| 5 | Polo | **Deshabilita** (quita) `supabase-prod-escritura` | En cuanto se aplica el último paso y se pegan los bloques finales, **o** a la hora de cierre de la ventana, lo que ocurra primero |
+| 5 | Polo | **Quita** (Desconectar/Eliminar) `supabase-prod-escritura` | En cuanto se aplica el último paso y se pegan los bloques finales, **o** a la hora de cierre de la ventana, lo que ocurra primero |
 | 6 | Code | Confirma por lectura que ya no puede escribir | Después de quitarlo |
 
-Si la ventana se interrumpe (algo falla y se pausa), Polo quita el conector de escritura hasta que se retome.
+Si la ventana se interrumpe (algo falla y se pausa), Polo quita el conector de escritura y lo vuelve a agregar al retomar.
 
 ### Qué hacer con el conector general de claude.ai en la sesión
 
