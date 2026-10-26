@@ -20,5 +20,15 @@ Trabajo del 25 de octubre de 2026 con base en la guía de principios de datos de
 | `CUENTAS-DEMO.md` | Las 9 cuentas `@dazon.demo`, la contraseña fija del historial y qué se propone |
 | `SUPER-ADMINS-Y-ADMIN-DIRECCION.md` | Los 2 super admins y los 6 administradores de Dirección, con responsable |
 | `REVISION-PERFILES-HISTORICOS.md` | Perfiles que no coinciden con el flujo normal de alta (solo lectura) |
+| `INTEGRIDAD-ANTES.md` | Foto de la información antes de cualquier cambio: 93 tablas (filas y huellas), Auth, Storage y catálogo; coincide con la referencia de Polo |
+| `PARTE-A-CONEXION-Y-VENTANA.md` | Qué conexión hay hoy (con escritura: hallazgo), historial de migraciones desalineado, respaldo y ensayo en seco |
+| `RUNBOOK-CONSOLIDADO-VENTANAS.md` | Las dos ventanas en orden (mecanismo `psql`), con reversas, tiempos, integridad en cada paso, frases y criterios de detención |
+| `HOJA-DE-PRUEBAS-POR-ROL.md` | Para la persona de pruebas (sin conocimientos técnicos): qué hacer, qué debe pasar y dónde anotar |
+| `HOJA-DE-INTEGRIDAD.md` | Comandos y comparador para comprobar, después de cada paso, que la información se mantuvo |
+| `HISTORIAL-MIGRACIONES-HALLAZGO.md` | Migraciones de otro proyecto (Patio) y las 21 sin equivalente en el repo; cruce con las 17 políticas «solo producción»; propuesta de alineación |
+| `PROPUESTA-LEE-CIERRE-DE-SESIONES.md` | Qué haría cerrar las sesiones de `lee` (hoy: nada, tiene 0) |
+| `RUNBOOK-FINAL-FASE-1.md` | **El guion de la ventana de la Fase 1**, para seguirlo sin conocimiento técnico: lista previa, comandos de `psql`, verificación y valores esperados por paso, reversas, tiempos y criterios de detención |
+| `SQL-PARA-POLO.md` | **Todo el SQL de solo lectura que corre Polo** (foto de integridad, historial, Patio, catálogo, errores), en orden, con instrucciones |
+| `COMPROBACION-CANAL-SOLO-LECTURA.md` | **Sin uso:** el 26 oct se decidió que no habrá canal de solo lectura para Claude |
 
-Carpetas: `respaldo/` (permisos, políticas y huellas, sin datos), `consultas/` (consultas de solo lectura), `ensayo/` (scripts de la réplica y del ensayo, y su resultado). Las migraciones están en `supabase/migrations/20261031…` (Fase 1) y `20261107…` (Fase 2) y sus reversas en `supabase/reversas/`. Las operaciones de datos de una sola vez (cuentas demo) están en `supabase/operaciones/`, **fuera** de las migraciones a propósito.
+Carpetas: `integridad/` (foto de integridad, comparador), `../../scripts/ventana/` (scripts que corre Polo en la ventana), `respaldo/` (permisos, políticas y huellas, sin datos), `consultas/` (consultas de solo lectura), `ensayo/` (scripts de la réplica y del ensayo, y su resultado). Las migraciones están en `supabase/migrations/20261031…` (Fase 1) y `20261107…` (Fase 2) y sus reversas en `supabase/reversas/`. Las operaciones de datos de una sola vez (cuentas demo) están en `supabase/operaciones/`, **fuera** de las migraciones a propósito.

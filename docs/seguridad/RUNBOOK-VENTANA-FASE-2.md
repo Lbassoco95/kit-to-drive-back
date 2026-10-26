@@ -1,5 +1,7 @@
 # Ventana de la Fase 2 en producción — guion
 
+> **Mecanismo, orden de la Fase 1 e integridad de la información: ver `RUNBOOK-CONSOLIDADO-VENTANAS.md`.** Allí también están los scripts de correo y de contraseña con sus frases. Se aplica con `psql` en una transacción por archivo, no con `supabase db push` ni con `apply_migration`.
+
 **Estado: NADA SE HA APLICADO EN PRODUCCIÓN.** Este guion se usa **solo cuando Polo escriba en la sesión de trabajo con Claude, con fecha:**
 
 | Frase | Autoriza |

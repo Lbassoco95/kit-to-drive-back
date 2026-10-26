@@ -1,5 +1,7 @@
 # Ventana de la Fase 1 en producción — guion
 
+> **Orden y mecanismo vigentes: ver `RUNBOOK-CONSOLIDADO-VENTANAS.md`.** La migración 3 (`search_path`) se aplica **al final y sola** (orden 1, 2, 4, 5, 6, 3), y se aplica con `psql` en una transacción por archivo (no con `supabase db push`: el historial de la CLI no coincide con el repo). Cada paso incluye la comparación de integridad de la información.
+
 **Estado: NADA SE HA APLICADO EN PRODUCCIÓN.** Este guion está listo para usarse **solo cuando Polo escriba, en la misma sesión de trabajo con Claude: «Autorizo Fase 1 en producción, ventana del `<fecha>`».** Sin esa frase exacta, con fecha, no se aplica nada. Si la ventana que indique Polo no coincide con el momento de la ejecución, tampoco.
 
 ## 1. Ventana

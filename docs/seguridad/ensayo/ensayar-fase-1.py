@@ -11,7 +11,10 @@ Por cada migración, en orden:
 Al final aplica las seis, corre los recorridos, aplica las reversas en orden
 inverso y comprueba que se recupera la línea base completa.
 
-Uso: PGHOST=/var/run/postgresql PGUSER=root PGOPTIONS='-c role=postgres' ensayar-fase-1.py <base> <salida.json>
+Orden: por defecto el numérico (1 a 6). Con ORDEN_FASE1=1,2,4,5,6,3 se aplica en el orden de la ventana
+(la de search_path, la 3, al final y sola). Las seis son independientes entre sí; el ensayo lo comprueba.
+
+Uso: PGHOST=/var/run/postgresql PGUSER=root PGOPTIONS='-c role=postgres' [ORDEN_FASE1=1,2,4,5,6,3] ensayar-fase-1.py <base> <salida.json>
 """
 import hashlib, json, os, subprocess, sys
 
@@ -25,6 +28,8 @@ MIG = [
     '20261031000005_fase1_quitar_escritura_anon_de_tablas',
     '20261031000006_fase1_lo_nuevo_nace_cerrado',
 ]
+if os.environ.get('ORDEN_FASE1'):
+    MIG = [MIG[int(i) - 1] for i in os.environ['ORDEN_FASE1'].split(',')]
 CANON = """
 select 'rel|' || c.relname || '|' || c.relkind::text || '|' || (select coalesce(string_agg(x, ',' order by x), '') from unnest(coalesce(c.relacl::text[], '{}')) x) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p','v','S')
 union all
