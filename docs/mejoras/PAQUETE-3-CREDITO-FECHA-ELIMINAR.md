@@ -15,7 +15,7 @@
 **Diseño:** una función atómica `eliminar_remision(_remision_id, _folio_confirmacion, _motivo)`, `SECURITY DEFINER`, que en **una transacción**:
 1. exige **super admin** (`es_super_admin`) y que el folio escrito coincida con el de la remisión;
 2. exige que el **modo prueba** esté activo (ver D-A1);
-3. **rechaza** si la remisión tiene: pago (`pagado`, `comprobante_pago_url`), cobranza (`cuentas_por_cobrar` o `movimientos_financieros` con `remision_id`; para refacciones, `cobranza_pagos`/`cobranza_aplicaciones`), **entrega confirmada** (`motocarros.estatus_entrega = 'ENTREGADA'`, o `remisiones_refacciones.entregada_at`), o **factura** (`movimientos_financieros.tiene_factura`/`factura_url`); esas solo se **cancelan**;
+3. **rechaza** si la remisión tiene: pago (`pagado`, `comprobante_pago_url`), cobranza (`cuentas_por_cobrar` o `movimientos_financieros` con `remision_id`; para refacciones, `cobranza_aplicaciones` con `remision_id`), **entrega confirmada** (`motocarros.estatus_entrega = 'ENTREGADA'`, o `remisiones_refacciones.entregada_at`), o **factura** (`movimientos_financieros.tiene_factura`/`factura_url`); esas solo se **cancelan**;
 4. guarda en `bitacora_eliminaciones` la copia completa: la remisión, sus partidas, sus unidades y su bitácora (`jsonb`), con quién, cuándo y el motivo (obligatorio);
 5. **libera** cada unidad igual que `desasignar_motocarro_de_remision` (`remision_id = NULL`, `estatus_entrega = 'NO_APLICA'`) y devuelve el inventario (refacciones: movimientos inversos con `_mover_inventario_refaccion` o liberación de lo bloqueado);
 6. borra la remisión y comprueba que **no quedó ninguna fila que la referencie** (consulta de huérfanos contra todas las llaves foráneas; si hay una, aborta).
