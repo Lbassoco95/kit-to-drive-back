@@ -552,16 +552,12 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261107000005_fase2_super_admins_rastro', 'funcion|rastro_lista_super_admins()'),
   ('20261107000005_fase2_super_admins_rastro', 'trigger|super_admins.trg_rastro_lista_super_admins'),
   -- Paquete 1 (permisos del vendedor; se aplica ANTES de la Fase 2, versiones 20261103…)
-  ('20261103000001_paquete1_clientes_sin_asignar_visibles', 'politica|clientes.leer clientes|vendedor_id IS NULL'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'funcion|es_vendedor_comercial(uuid)'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'funcion|clientes_asignar_vendedor_al_crear()'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'funcion|crm_validar_cliente_visible()'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'funcion|crm_asignar_cliente_al_usar()'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'trigger|clientes.trg_clientes_asignar_vendedor'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'trigger|crm_oportunidades.trg_crm_a_validar_cliente'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'trigger|crm_actividades.trg_crm_b_asignar_cliente'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'trigger|crm_ruta_paradas.trg_crm_a_validar_cliente'),
-  ('20261103000002_paquete1_crm_cliente_visible_y_asignacion', 'sin_privilegio|crm_asignar_cliente_al_usar()|authenticated'),
+  ('20261103000001_paquete1_catalogo_basico_clientes', 'funcion|catalogo_clientes_basico()'),
+  ('20261103000001_paquete1_catalogo_basico_clientes', 'sin_privilegio|catalogo_clientes_basico()|anon'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|es_vendedor_comercial(uuid)'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|clientes_asignar_vendedor_al_crear()'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'trigger|clientes.trg_clientes_asignar_vendedor'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'sin_privilegio|clientes_asignar_vendedor_al_crear()|authenticated'),
   ('20261103000003_paquete1_remisiones_refacciones_solo_del_vendedor', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y

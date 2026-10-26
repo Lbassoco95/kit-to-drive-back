@@ -9,23 +9,17 @@
   },
   "escritura": {
    "administrativo crea cliente sin vendedor": "vendedor_del_cliente=NULL",
-   "crm_actividades: admvo usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_actividades: superv usa c_sin": "vendedor_del_cliente=NULL",
    "crm_actividades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_actividades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "crm_actividades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
-   "crm_oportunidades: admvo usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_oportunidades: superv usa c_sin": "vendedor_del_cliente=NULL",
    "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "crm_oportunidades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
-   "ruta+parada: superv usa c_sin2": "vendedor_del_cliente=NULL",
    "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=NULL",
-   "ruta+parada: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "ruta+parada: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
    "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",
-   "tras usarlo vend1, vend2 ve el cliente sin asignar?": "vend2_lo_ve=false",
-   "vend1 cambia su oportunidad a un cliente ajeno": "filas=1",
+   "tras usar el cliente de vend2, vend1 ve su ficha?": "ficha=0 cartera=0",
+   "vend1 lee la ficha completa de un cliente sin asignar": "filas=0",
    "vendedor crea cliente a nombre de OTRO vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
    "vendedor crea cliente sin indicar vendedor": "vendedor_del_cliente=NULL"
   },
@@ -33,6 +27,7 @@
    "admvo": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -56,6 +51,7 @@
    "almacen": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -79,6 +75,7 @@
    "compras": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -102,6 +99,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -128,9 +126,34 @@
      "ruta_v2"
     ]
    },
+   "dirop": {
+    "actividades": [],
+    "clientes": [
+     "c_prueba",
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
    "fabrica": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -151,6 +174,7 @@
    "finanzas": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -177,6 +201,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -250,36 +275,106 @@
     "rutas": [
      "ruta_v2"
     ]
+   },
+   "vprueba": {
+    "actividades": [],
+    "clientes": [],
+    "cuentas_por_cobrar": [],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [],
+    "rutas": []
    }
   }
  },
  "despues": {
   "catalogo": "                              ^",
+  "catalogo_basico": {
+   "columnas": [
+    "activo",
+    "codigo_erp",
+    "folio_interno",
+    "id",
+    "nombre_comercial",
+    "telefono"
+   ],
+   "por_rol": {
+    "admvo": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "almacen": "ERROR 42501",
+    "compras": "ERROR 42501",
+    "direccion": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "dirop": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "fabrica": "ERROR 42501",
+    "finanzas": "ERROR 42501",
+    "superv": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "vend1": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "vend2": [
+     "c_prueba",
+     "c_sin",
+     "c_sin2",
+     "c_sin3",
+     "c_v1",
+     "c_v2"
+    ],
+    "vprueba": [
+     "c_prueba"
+    ]
+   }
+  },
   "conteos": {
-   "funciones": 272,
+   "funciones": 271,
    "politicas": 301,
-   "secdef_ejecutables_authenticated": 178,
-   "triggers": 250
+   "secdef_ejecutables_authenticated": 179,
+   "triggers": 244
   },
   "escritura": {
    "administrativo crea cliente sin vendedor": "vendedor_del_cliente=NULL",
-   "crm_actividades: admvo usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_actividades: superv usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_actividades: vend1 usa c_sin": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_actividades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_actividades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
-   "crm_actividades: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
-   "crm_oportunidades: admvo usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_oportunidades: superv usa c_sin": "vendedor_del_cliente=NULL",
-   "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
+   "crm_actividades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "crm_oportunidades: vend1 usa c_sin": "vendedor_del_cliente=NULL",
    "crm_oportunidades: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
-   "crm_oportunidades: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
-   "ruta+parada: superv usa c_sin2": "vendedor_del_cliente=NULL",
-   "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
-   "ruta+parada: vend1 usa c_v1": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
-   "ruta+parada: vend1 usa c_v2": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "crm_oportunidades: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
+   "ruta+parada: vend1 usa c_sin2": "vendedor_del_cliente=NULL",
+   "ruta+parada: vend1 usa c_v2": "vendedor_del_cliente=00000000-0000-4000-8000-000010294700",
    "supervisor crea cliente sin vendedor": "vendedor_del_cliente=NULL",
-   "tras usarlo vend1, vend2 ve el cliente sin asignar?": "vend2_lo_ve=false",
-   "vend1 cambia su oportunidad a un cliente ajeno": "ERROR: No puedes usar ese cliente: no está entre los que ves",
+   "tras usar el cliente de vend2, vend1 ve su ficha?": "ficha=0 cartera=0",
+   "vend1 lee la ficha completa de un cliente sin asignar": "filas=0",
    "vendedor crea cliente a nombre de OTRO vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105",
    "vendedor crea cliente sin indicar vendedor": "vendedor_del_cliente=00000000-0000-4000-8000-000010255105"
   },
@@ -287,6 +382,7 @@
    "admvo": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -310,6 +406,7 @@
    "almacen": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -333,6 +430,7 @@
    "compras": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -356,6 +454,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -382,9 +481,34 @@
      "ruta_v2"
     ]
    },
+   "dirop": {
+    "actividades": [],
+    "clientes": [
+     "c_prueba",
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
    "fabrica": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -405,6 +529,7 @@
    "finanzas": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -431,6 +556,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -462,11 +588,9 @@
      "act_v1"
     ],
     "clientes": [
-     "c_sin",
      "c_v1"
     ],
     "cuentas_por_cobrar": [
-     "cxc_sin",
      "cxc_v1"
     ],
     "oportunidades": [
@@ -487,11 +611,9 @@
      "act_v2"
     ],
     "clientes": [
-     "c_sin",
      "c_v2"
     ],
     "cuentas_por_cobrar": [
-     "cxc_sin",
      "cxc_v2"
     ],
     "oportunidades": [
@@ -506,17 +628,26 @@
     "rutas": [
      "ruta_v2"
     ]
+   },
+   "vprueba": {
+    "actividades": [],
+    "clientes": [],
+    "cuentas_por_cobrar": [],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [],
+    "rutas": []
    }
   }
  },
- "ids_sinteticos": 18,
+ "ids_sinteticos": 19,
  "migraciones": {
-  "20261103000001_paquete1_clientes_sin_asignar_visibles": {
+  "20261103000001_paquete1_catalogo_basico_clientes": {
    "aplica_ok": true,
    "error": "",
    "reversa_ok": true
   },
-  "20261103000002_paquete1_crm_cliente_visible_y_asignacion": {
+  "20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor": {
    "aplica_ok": true,
    "error": "",
    "reversa_ok": true
@@ -541,6 +672,7 @@
    "admvo": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -564,6 +696,7 @@
    "almacen": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -587,6 +720,7 @@
    "compras": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -610,6 +744,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -636,9 +771,34 @@
      "ruta_v2"
     ]
    },
+   "dirop": {
+    "actividades": [],
+    "clientes": [
+     "c_prueba",
+     "c_sin",
+     "c_v1",
+     "c_v2"
+    ],
+    "cuentas_por_cobrar": [
+     "cxc_sin",
+     "cxc_v1",
+     "cxc_v2"
+    ],
+    "oportunidades": [],
+    "remisiones": [
+     "r_v1",
+     "r_v2"
+    ],
+    "remisiones_refacciones": [
+     "rr_v1",
+     "rr_v2"
+    ],
+    "rutas": []
+   },
    "fabrica": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -659,6 +819,7 @@
    "finanzas": {
     "actividades": [],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -685,6 +846,7 @@
      "act_v2"
     ],
     "clientes": [
+     "c_prueba",
      "c_sin",
      "c_v1",
      "c_v2"
@@ -758,6 +920,15 @@
     "rutas": [
      "ruta_v2"
     ]
+   },
+   "vprueba": {
+    "actividades": [],
+    "clientes": [],
+    "cuentas_por_cobrar": [],
+    "oportunidades": [],
+    "remisiones": [],
+    "remisiones_refacciones": [],
+    "rutas": []
    }
   }
  }
