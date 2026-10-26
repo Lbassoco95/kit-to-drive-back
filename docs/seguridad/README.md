@@ -20,5 +20,8 @@ Trabajo del 25 de octubre de 2026 con base en la guía de principios de datos de
 | `CUENTAS-DEMO.md` | Las 9 cuentas `@dazon.demo`, la contraseña fija del historial y qué se propone |
 | `SUPER-ADMINS-Y-ADMIN-DIRECCION.md` | Los 2 super admins y los 6 administradores de Dirección, con responsable |
 | `REVISION-PERFILES-HISTORICOS.md` | Perfiles que no coinciden con el flujo normal de alta (solo lectura) |
+| `INTEGRIDAD-ANTES.md` | Foto de la información antes de cualquier cambio: 93 tablas (filas y huellas), Auth, Storage y catálogo; coincide con la referencia de Polo |
+| `PARTE-A-CONEXION-Y-VENTANA.md` | Qué conexión hay hoy (con escritura: hallazgo), historial de migraciones desalineado, respaldo y ensayo en seco |
+| `RUNBOOK-CONSOLIDADO-VENTANAS.md` | Las dos ventanas en orden, con integridad de la información en cada paso, frases y criterios de reversa |
 
-Carpetas: `respaldo/` (permisos, políticas y huellas, sin datos), `consultas/` (consultas de solo lectura), `ensayo/` (scripts de la réplica y del ensayo, y su resultado). Las migraciones están en `supabase/migrations/20261031…` (Fase 1) y `20261107…` (Fase 2) y sus reversas en `supabase/reversas/`. Las operaciones de datos de una sola vez (cuentas demo) están en `supabase/operaciones/`, **fuera** de las migraciones a propósito.
+Carpetas: `integridad/` (foto de integridad, comparador), `respaldo/` (permisos, políticas y huellas, sin datos), `consultas/` (consultas de solo lectura), `ensayo/` (scripts de la réplica y del ensayo, y su resultado). Las migraciones están en `supabase/migrations/20261031…` (Fase 1) y `20261107…` (Fase 2) y sus reversas en `supabase/reversas/`. Las operaciones de datos de una sola vez (cuentas demo) están en `supabase/operaciones/`, **fuera** de las migraciones a propósito.

@@ -250,6 +250,7 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
   const SCRIPTS = [
     "fase2-desactivar-cuentas-demo-inactivas.sql",
     "fase2-forzar-cambio-password-demo-activas.sql",
+    "fase2-migrar-correo-real-lee-marco.sql",
   ];
 
   it("seed-demo-users: la contraseña la genera el servidor, nunca viene del cuerpo y no se devuelve", () => {
@@ -280,6 +281,13 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
     expect(sql).toContain("banned_until = 'infinity'");
     expect(sql).toContain("p.activo IS NOT FALSE");
     expect(sql).not.toMatch(/edgar@dazon\.demo'\)\s*;/); // edgar queda comentado hasta que Polo confirme
+  });
+  it("el script de correo no lleva correos reales: los recibe como variables de psql", () => {
+    const sql = ops("fase2-migrar-correo-real-lee-marco.sql");
+    expect(sql).toContain(":'correo_lee'");
+    expect(sql).toContain(":'correo_marco'");
+    expect((sinComentarios(sql).match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi) ?? []).filter(c => !/@dazon\.demo$/.test(c))).toEqual([]);
+    expect(sinComentarios(sql)).toMatch(/NOT LIKE|LIKE '%@dazon\.demo'/);
   });
   it("ningún script lleva contraseñas, JWT ni llaves", () => {
     for (const f of [...SCRIPTS, ...SCRIPTS.map(s => s.replace(".sql", "_reversa.sql")), "README.md"]) {

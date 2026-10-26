@@ -1,0 +1,11 @@
+# Corte: 2026-10-26 ~04:36 UTC (22:36 CDMX del 25 oct 2026). Producción dmhzhyeivvuliumcgsmm. Solo conteos y huellas.
+auth.users|total=26|no_bloqueados=26|bloqueados=0|confirmados=26|huella_sin_contrasena=1ac193c5a1b9f064be23237bb92b2655|huella_contrasenas=b5ce83d1086476881dad58060314343d
+auth.identities|total=28|huella=b7e8b61f2ad763b4fc375d11aab86cdf
+auth.sessions|total=21|vigentes=21
+auth.refresh_tokens|total=116|no_revocados=21
+auth.mfa_factors|total=0
+storage.buckets|total=9|huella=002c2d12ded32208a5eb9121f6e622e3
+storage.objects total|total=72|bytes=107052615|huella=e47ebdcc66e1c4e9a707bc51dbf4e280
+storage.objects [evidencias-compras]|total=7|bytes=872280|huella=eed343bc90be6eb5b8f956f774edbec7
+storage.objects [remisiones-docs]|total=65|bytes=106180335|huella=36d593c67e5722aef264d665e66377b6
+# Buckets sin objetos: actividades-evidencia, clientes-docs, comentarios-fotos, facturas, finanzas-docs, firmas, refacciones-fotos
