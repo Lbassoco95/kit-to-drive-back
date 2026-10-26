@@ -25,23 +25,23 @@
 | Pegar los resultados | Polo | Esta sesión |
 | Comparar con los valores esperados y decir «sigue» o «detente» | Claude | Esta sesión |
 | Ejecutar los recorridos de la hoja de pruebas y anotar «Después» | Persona de pruebas | Su hoja impresa (`HOJA-DE-PRUEBAS-POR-ROL.md`) |
-| Aplicar o revertir **algo** en producción | **Solo Polo.** Claude no aplica nada | — |
+| Aplicar o revertir **algo** en producción | **Code, por el conector de escritura, solo dentro de la ventana y con la frase con fecha** (ver «Cómo aplica Code por el conector»); Polo habilita y quita el conector. Fuera de ventana nada se aplica | — |
 
-## 2. Horario propuesto: sábado 31 de octubre de 2026, 10:00 a 15:00 (CDMX)
+## 2. Horario propuesto: martes 27 de octubre de 2026, 19:00 a 00:00 (CDMX)
 
-La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho el viernes) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
+La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho durante el día, antes de las 19:00) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
 
 | Hora | Qué |
 |---|---|
-| 10:00–10:30 | Preparación y verificación previa (§3, §4) |
-| 10:30–11:05 | Paso 1 (M1) |
-| 11:05–11:40 | Paso 2 (M2) |
-| 11:40–12:10 | Paso 3 (M4) |
-| 12:10–12:40 | Paso 4 (M5) |
-| 12:40–12:55 | Paso 5 (M6) |
-| 12:55–13:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 13:15** |
-| 13:35–14:20 | Cierre: bloques finales, registro de resultado |
-| 14:20–15:00 | Colchón |
+| 19:00–19:30 | Preparación y verificación previa (§3, §4) |
+| 19:30–20:05 | Paso 1 (M1) |
+| 20:05–20:40 | Paso 2 (M2) |
+| 20:40–21:10 | Paso 3 (M4) |
+| 21:10–21:40 | Paso 4 (M5) |
+| 21:40–21:55 | Paso 5 (M6) |
+| 21:55–22:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 22:15** |
+| 22:35–23:20 | Cierre: bloques finales, registro de resultado |
+| 23:20–00:00 | Colchón |
 
 *Son estimaciones, no mediciones: la aplicación de cada archivo tarda segundos; el tiempo lo ponen la persona de pruebas y las verificaciones.* **Qué se recorta si no cabe** (en este orden): 1) los recorridos de los pasos 3, 4 y 5 se reducen a los obligatorios de la hoja (1 y 6; 7 y 8 solo en los pasos que los piden); 2) el paso 6 (M3) **pasa a otra ventana**: ya está diseñado para ir al final y solo, y es seguro dejar la Fase 1 en el paso 5.
 
@@ -50,7 +50,7 @@ La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparac
 ☐ Frase «Autorizo Fase 1 en producción, ventana del `<fecha>`» escrita en la sesión, con fecha, y la hora de inicio dentro de la ventana permitida.
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
-☐ **Aviso al equipo de Dazon** (el día anterior y al empezar): «Sábado 31 de octubre, de 10:00 a 15:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
+☐ **Aviso al equipo de Dazon** (el lunes 26 y al empezar): «Martes 27 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
 ☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
@@ -533,3 +533,57 @@ group by 1 order by 1
 - el alta de usuarios falla (recorrido 3) o `auth_conserva_alta` / `auth_conserva_candado` dejan de ser `true`.
 
 Un `REVOKE` que falle por dependencia: **no uses `CASCADE`**; detente y reporta. Se reporta qué pasó, qué se revirtió y en qué estado quedó.
+
+## Cómo aplica Code por el conector
+
+**Regla vigente (26 oct, Polo):** Code aplica por el conector de Supabase **solo dentro de una ventana y solo con la frase de autorización con fecha** escrita por Polo en la sesión. Fuera de ventana, el conector es **solo lectura** (conteos, huellas y catálogo; nunca filas con datos personales). Esto sustituye la prohibición anterior de usar el conector, **solo para este caso**. Seguido valen: no tocar QA, no borrar usuarios ni datos, no iniciar sesión en cuentas, ningún secreto en chat, archivos ni reportes.
+
+### Los dos conectores (solo producción, sin secretos en la URL)
+
+La referencia del proyecto va **en la URL**: el conector no puede ver ningún otro proyecto, QA incluido. La autenticación es el inicio de sesión de Polo en el navegador (OAuth); no hay contraseña ni token en la URL.
+
+| Nombre | URL | Cuándo está habilitado |
+|---|---|---|
+| `supabase-prod-lectura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database` | Siempre (solo lectura) |
+| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database` | **Solo dentro de la ventana**, de que Polo escribe la frase a que cierra la ventana |
+
+`features=database` deja solo las herramientas de base de datos (entre ellas `execute_sql`); no se publican las de proyectos, ramas ni funciones. **Verifica estos parámetros contra la documentación vigente de Supabase antes de la primera ventana** (no pude consultarla desde mi entorno al escribir esto); lo que no cambia es la regla: la URL **debe llevar `project_ref=dmhzhyeivvuliumcgsmm`**.
+
+**Agregar y quitar (Claude Code en terminal)**
+
+```bash
+claude mcp add --transport http supabase-prod-lectura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database"
+claude mcp add --transport http supabase-prod-escritura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database"
+claude mcp remove supabase-prod-escritura
+claude mcp list
+```
+
+**Esperado:** `list` muestra `supabase-prod-lectura` siempre y `supabase-prod-escritura` solo durante la ventana. En una sesión en la nube, el mismo par de URL se agrega como conector personalizado en claude.ai (**Configuración → Conectores → Agregar conector personalizado**) y se quita con **Desconectar**; Polo elige la ruta que corresponda a la sesión.
+
+### Condiciones de cada llamada
+
+- **Aprobación manual de cada llamada** (permiso «preguntar» para `execute_sql` en el conector de escritura). Nada se aprueba por adelantado.
+- **Antes de cada escritura**, Code llama a `get_project_url` y pega el resultado. Debe decir `https://dmhzhyeivvuliumcgsmm.supabase.co`. Si dice `qszllskpizvpnzcytqpj` (QA) o cualquier otra cosa: **detenerse**.
+- Se aplica con **`execute_sql`, un archivo por llamada, dentro de `begin; … commit;`**, con el `INSERT` en `migraciones_aplicadas` **en la misma llamada**. **No se usa `apply_migration`.**
+- Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
+- **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
+- **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
+
+### Momento exacto, durante la ventana
+
+| # | Quién | Qué | Cuándo |
+|---|---|---|---|
+| 1 | Polo | Escribe la frase con fecha | Al abrir la ventana, ya con respaldo y persona de pruebas |
+| 2 | Polo | **Habilita** `supabase-prod-escritura` (y verifica que el general de claude.ai esté desconectado) | Justo después de la frase |
+| 3 | Code | `get_project_url` + V, A1 y A3 «antes» por lectura | Antes de la primera escritura |
+| 4 | Code | Aplica un paso, pega V, A1 y A3 | Cada paso; espera «sigue» |
+| 5 | Polo | **Deshabilita** (quita) `supabase-prod-escritura` | En cuanto se aplica el último paso y se pegan los bloques finales, **o** a la hora de cierre de la ventana, lo que ocurra primero |
+| 6 | Code | Confirma por lectura que ya no puede escribir | Después de quitarlo |
+
+Si la ventana se interrumpe (algo falla y se pausa), Polo quita el conector de escritura hasta que se retome.
+
+### Qué hacer con el conector general de claude.ai en la sesión
+
+**Recomendación: desconectarlo** (claude.ai → Configuración → Conectores → Supabase → Desconectar) antes de la primera ventana, y trabajar solo con los dos conectores de arriba. El general ve **todos** los proyectos y organizaciones de la cuenta, QA entre ellos, y expone herramientas que no hacen falta y que son riesgosas (crear/pausar/restaurar proyectos, ramas, desplegar funciones). Además, con el general la comprobación `get_project_url` no protege: ahí el proyecto se le pasa a la herramienta como argumento, y un error de identificador llegaría a otro proyecto. Con el conector acotado por URL no existe ese argumento. Si no se puede desconectar, dejar **en «Nunca»** todas sus herramientas de escritura y de administración, y **no usarlo** para nada.
+

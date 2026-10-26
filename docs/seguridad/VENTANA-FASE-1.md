@@ -6,9 +6,9 @@
 
 ## 1. Ventana
 
-- **Propuesta:** sábado **31 de octubre de 2026**, de 10:00 a 18:00 (hora de la Ciudad de México). Si el ensayo no queda limpio antes: sábado **7 de noviembre**. La fecha final la confirma Polo.
-- Es fuera del uso de Dazon (fin de semana). Los administradores (uno de ellos en China) pueden entrar a cualquier hora: **avisarles** al empezar y al terminar.
-- **Una fase por sábado**, con **una semana de observación** antes de la Fase 2. Esta ventana es solo la Fase 1.
+- **Propuesta:** **martes 27 de octubre de 2026**, de 19:00 a 00:00 (hora de la Ciudad de México). Calendario fijado por Polo: Fase 1 el martes 27 de octubre; Paquete 1 el jueves 29 de octubre (19:00–22:00); Fase 2 el sábado 31 de octubre (10:00–15:00). Si el ensayo no queda limpio: la nueva fecha la fija Polo.
+- Es fuera del uso de Dazon (después de las 19:00). Los administradores (uno de ellos en China) pueden entrar a cualquier hora: **avisarles** al empezar y al terminar.
+- **Una fase o paquete por ventana.** Entre la Fase 1 y la Fase 2 quedan el Paquete 1 (jueves 29) y solo unos días de observación (calendario de Polo; antes se proponía una semana). Esta ventana es solo la Fase 1.
 
 ## 2. Antes de empezar (todo debe estar en verde)
 
@@ -55,7 +55,7 @@ Después de **cada una**:
 
 1. Repetir la **línea base completa** (conteos, asesores, consultas costosas, errores, despliegues y pruebas) y guardarla como `REPORTE-FASE-1.md`, con por cada migración: qué cambió, conteos antes y después, resultado de los recorridos por rol, reversa probada y lo que falló o se pospuso.
 2. Avisar a los administradores.
-3. **Una semana de observación** antes de planear la Fase 2.
+3. Observación hasta el Paquete 1 (jueves 29) y la Fase 2 (sábado 31), según el calendario de Polo.
 4. Si el equipo de QA o el de Dazon despliega funciones nuevas: recordar la regla nueva: toda función que el front llame o que usen las políticas necesita su `GRANT EXECUTE … TO authenticated` explícito (ver `docs/guia-del-equipo.md`). **El proyecto de QA no recibe el cambio de permisos por defecto**, así que allí una función sin GRANT sí funcionaría y en producción no.
 
 ## 6. Fuera de la Fase 1 (no se toca en esta ventana)

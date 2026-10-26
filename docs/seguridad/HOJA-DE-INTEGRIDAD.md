@@ -13,7 +13,7 @@ Referencia (la foto de antes): `docs/seguridad/integridad/antes-tablas.txt` (93 
 | 3 | **Catálogo** (permisos, políticas, funciones) | `scripts/ventana/catalogo.sh` | Cambia **solo** lo previsto en el runbook para ese paso |
 | 4 | **Foto nueva** (opcional, para el informe) | `scripts/ventana/foto-integridad.sh ventana-logs/despues-paso-<n>.txt` | `tablas=93 filas=20610 …` |
 
-**Claude no tiene canal a producción** (no usa el conector de Supabase de claude.ai, ni para leer): Polo corre 1, 2 y 3 (`SQL-PARA-POLO.md`) y **pega el resultado**; Claude lo compara y dice «sigue» o «detente».
+**Fuera de ventana Claude solo lee, y solo por el conector de lectura acotado a producción** (ver `COMO-APLICA-CODE-POR-EL-CONECTOR.md`; no usa el conector general de claude.ai): Polo corre 1, 2 y 3 (`SQL-PARA-POLO.md`) y **pega el resultado**; Claude lo compara y dice «sigue» o «detente».
 
 ## 2. Si hay una diferencia
 

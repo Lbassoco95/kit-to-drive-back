@@ -2,12 +2,12 @@
 
 ## 1. ¿El orden es correcto?
 
-**Sí.** Fase 1 (sáb 31 oct) → **Paquete 1** (mar 3 nov, después de las 19:00) → Fase 2 (sáb 7 nov) → Paquete 2 → Paquete 3, cada uno en su ventana y **ninguno el mismo día que otra fase o paquete**.
+**Sí.** Fase 1 (mar 27 oct, 19:00–00:00) → **Paquete 1** (jue 29 oct, 19:00–22:00) → Fase 2 (sáb 31 oct, 10:00–15:00) → Paquete 2 → Paquete 3, cada uno en su ventana y **ninguno el mismo día que otra fase o paquete**.
 
 | Paso | Por qué va ahí | Condición |
 |---|---|---|
 | Fase 1 | Cierra permisos amplios (TRUNCATE, `anon`, defaults). Todo lo nuevo nace cerrado | — |
-| **Paquete 1** | Es independiente de la Fase 2 (ver §2) y corrige el síntoma de los vendedores cuanto antes | Fase 1 limpia: V, A1 y A3 el domingo y el lunes sin diferencias inexplicadas; se prueba contra la réplica **con la Fase 1 ya aplicada** (hecho) |
+| **Paquete 1** | Es independiente de la Fase 2 (ver §2) y corrige el síntoma de los vendedores cuanto antes | Fase 1 limpia: V, A1 y A3 el miércoles 28 y el jueves 29 antes de empezar, sin diferencias inexplicadas; se prueba contra la réplica **con la Fase 1 ya aplicada** (hecho) |
 | Fase 2 | Cambia perfiles, roles, super admins y las funciones de cartera | Se **rehízo su ensayo con el Paquete 1 aplicado** (§3) |
 | Paquete 2 | Solo lectura; lee con las reglas de visibilidad ya corregidas (P1) y los perfiles protegidos (Fase 2) | Después de la Fase 2 |
 | **Paquete 3** | Usa `cliente_tiene_cxc_vencidas` y `cxc_vencidas_resumen`, que la Fase 2 pasa a `SECURITY INVOKER`: con INVOKER un vendedor **solo ve la cartera de los clientes que ve** | **Al final**, probado contra la versión de la Fase 2, y **sin volver a crear esas funciones como `SECURITY DEFINER`** |

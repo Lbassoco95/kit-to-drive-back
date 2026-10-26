@@ -1,6 +1,6 @@
 # Paquete 1 — Permisos del vendedor (rehecho el 26 oct 2026)
 
-**Estado: preparado, NADA APLICADO.** Va en su propia ventana (propuesta: martes 3 de noviembre de 2026, después de las 19:00 CDMX), solo si la Fase 1 salió limpia, y **antes** de la Fase 2. Frase de autorización (la escribe Polo, con fecha): «Autorizo paquete 1 (permisos de vendedor) en producción, ventana del `<fecha>`». Diagnóstico: `DIAGNOSTICO-VENDEDOR.md`. Columnas, mecanismo y pantallas: `CATALOGO-BASICO-Y-PANTALLAS.md`. Guion de la ventana: `VENTANA-PAQUETE-1.md`. Matriz: `MATRIZ-ROL-POR-PANTALLA.md`.
+**Estado: preparado, NADA APLICADO.** Va en su propia ventana (propuesta: jueves 29 de octubre de 2026, de 19:00 a 22:00 CDMX), solo si la Fase 1 salió limpia, y **antes** de la Fase 2. Frase de autorización (la escribe Polo, con fecha): «Autorizo paquete 1 (permisos de vendedor) en producción, ventana del `<fecha>`». Diagnóstico: `DIAGNOSTICO-VENDEDOR.md`. Columnas, mecanismo y pantallas: `CATALOGO-BASICO-Y-PANTALLAS.md`. Guion de la ventana: `VENTANA-PAQUETE-1.md`. Matriz: `MATRIZ-ROL-POR-PANTALLA.md`.
 
 **Qué cambió respecto a la primera versión.** Con **0 de 1,786 clientes asignados** (diagnóstico de Polo), «el vendedor ve los clientes sin asignar» le abría a todo vendedor el crédito, el saldo y los documentos de **todos** los clientes, y contradecía la Fase 2. Se **retiró** (la política «leer clientes» queda **sin cambio**) y se cambió por un catálogo básico. Tampoco se asigna ya un cliente sin asignar al usarlo.
 

@@ -109,23 +109,23 @@ doc = f"""# Runbook final de la Fase 1 (solo permisos) — ventana del **`<fecha
 | Pegar los resultados | Polo | Esta sesión |
 | Comparar con los valores esperados y decir «sigue» o «detente» | Claude | Esta sesión |
 | Ejecutar los recorridos de la hoja de pruebas y anotar «Después» | Persona de pruebas | Su hoja impresa (`HOJA-DE-PRUEBAS-POR-ROL.md`) |
-| Aplicar o revertir **algo** en producción | **Solo Polo.** Claude no aplica nada | — |
+| Aplicar o revertir **algo** en producción | **Code, por el conector de escritura, solo dentro de la ventana y con la frase con fecha** (ver «Cómo aplica Code por el conector»); Polo habilita y quita el conector. Fuera de ventana nada se aplica | — |
 
-## 2. Horario propuesto: sábado 31 de octubre de 2026, 10:00 a 15:00 (CDMX)
+## 2. Horario propuesto: martes 27 de octubre de 2026, 19:00 a 00:00 (CDMX)
 
-La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho el viernes) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
+La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho durante el día, antes de las 19:00) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
 
 | Hora | Qué |
 |---|---|
-| 10:00–10:30 | Preparación y verificación previa (§3, §4) |
-| 10:30–11:05 | Paso 1 (M1) |
-| 11:05–11:40 | Paso 2 (M2) |
-| 11:40–12:10 | Paso 3 (M4) |
-| 12:10–12:40 | Paso 4 (M5) |
-| 12:40–12:55 | Paso 5 (M6) |
-| 12:55–13:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 13:15** |
-| 13:35–14:20 | Cierre: bloques finales, registro de resultado |
-| 14:20–15:00 | Colchón |
+| 19:00–19:30 | Preparación y verificación previa (§3, §4) |
+| 19:30–20:05 | Paso 1 (M1) |
+| 20:05–20:40 | Paso 2 (M2) |
+| 20:40–21:10 | Paso 3 (M4) |
+| 21:10–21:40 | Paso 4 (M5) |
+| 21:40–21:55 | Paso 5 (M6) |
+| 21:55–22:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 22:15** |
+| 22:35–23:20 | Cierre: bloques finales, registro de resultado |
+| 23:20–00:00 | Colchón |
 
 *Son estimaciones, no mediciones: la aplicación de cada archivo tarda segundos; el tiempo lo ponen la persona de pruebas y las verificaciones.* **Qué se recorta si no cabe** (en este orden): 1) los recorridos de los pasos 3, 4 y 5 se reducen a los obligatorios de la hoja (1 y 6; 7 y 8 solo en los pasos que los piden); 2) el paso 6 (M3) **pasa a otra ventana**: ya está diseñado para ir al final y solo, y es seguro dejar la Fase 1 en el paso 5.
 
@@ -134,7 +134,7 @@ La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparac
 ☐ Frase «Autorizo Fase 1 en producción, ventana del `<fecha>`» escrita en la sesión, con fecha, y la hora de inicio dentro de la ventana permitida.
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
-☐ **Aviso al equipo de Dazon** (el día anterior y al empezar): «Sábado 31 de octubre, de 10:00 a 15:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
+☐ **Aviso al equipo de Dazon** (el lunes 26 y al empezar): «Martes 27 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
 ☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
@@ -267,5 +267,6 @@ group by 1 order by 1
 
 Un `REVOKE` que falle por dependencia: **no uses `CASCADE`**; detente y reporta. Se reporta qué pasó, qué se revirtió y en qué estado quedó.
 """
+doc = doc.rstrip('\n') + '\n\n' + (RAIZ / 'docs/seguridad/COMO-APLICA-CODE-POR-EL-CONECTOR.md').read_text(encoding='utf-8').split('\n\n',1)[1]
 (RAIZ / 'docs/seguridad/RUNBOOK-FINAL-FASE-1.md').write_text(doc, encoding='utf-8')
 print('RUNBOOK-FINAL-FASE-1.md generado:', len(doc), 'caracteres')
