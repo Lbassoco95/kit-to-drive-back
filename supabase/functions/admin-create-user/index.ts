@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { autorizarAlta, enviarAcceso, generarPassword, MENSAJE_CORREO } from "../_shared/acceso.ts";
+import { cargarActor } from "../_shared/contexto.ts";
+import { puedeCrearUsuario } from "../_shared/permisos.ts";
+import { correlacionDe, dejarRastro } from "../_shared/rastro.ts";
 
 const ALLOWED_ORIGINS = [
   "https://kit-to-drive.vercel.app",
@@ -13,7 +16,7 @@ function corsHeaders(req: Request) {
   const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allow,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-request-id",
     "Vary": "Origin",
   };
 }
@@ -41,17 +44,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data: roleRow } = await supabaseAdmin
-      .from("user_roles")
-      .select("role, nivel, area")
-      .eq("user_id", caller.id)
-      .single();
-
-    const callerNivel = roleRow?.nivel ?? (roleRow?.role === "admin" ? "admin" : null);
-    const callerArea = roleRow?.area ?? (roleRow?.role === "admin" ? "direccion" : null);
-    const esAdminGlobal = callerNivel === "admin" && callerArea === "direccion";
-
-    if (callerNivel !== "admin") {
+    // Quién llama: se identifica y se comprueba su permiso ANTES de seguir (reglas en _shared/permisos.ts).
+    const actor = await cargarActor(supabaseAdmin, caller.id);
+    const correlacion = correlacionDe(req);
+    if (actor.nivel !== "admin" || !actor.activo) {
       return new Response(JSON.stringify({ error: "Forbidden: solo un administrador puede crear usuarios" }), {
         status: 403, headers: { ...CORS, "Content-Type": "application/json" }
       });
@@ -70,9 +66,6 @@ serve(async (req) => {
     }
 
     const mustChangePassword = true;
-
-    const AREAS = ["comercial", "fabrica", "almacen_logistica", "administracion", "compras", "direccion"];
-    const NIVELES = ["operador", "supervisor", "admin"];
 
     const desdeRolLegacy = (role: string) => {
       switch (role) {
@@ -104,20 +97,10 @@ serve(async (req) => {
       nivel = nivel ?? equivalente.nivel;
     }
 
-    if (!AREAS.includes(area)) {
-      return new Response(JSON.stringify({ error: "Área inválida" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" }
-      });
-    }
-    if (!NIVELES.includes(nivel)) {
-      return new Response(JSON.stringify({ error: "Tipo de usuario inválido" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" }
-      });
-    }
-
-    if (!esAdminGlobal && area !== callerArea) {
-      return new Response(JSON.stringify({ error: "Solo puedes crear usuarios de tu propia área" }), {
-        status: 403, headers: { ...CORS, "Content-Type": "application/json" }
+    const permiso = puedeCrearUsuario(actor, area, nivel);
+    if (!permiso.ok) {
+      return new Response(JSON.stringify({ error: permiso.error }), {
+        status: permiso.status, headers: { ...CORS, "Content-Type": "application/json" }
       });
     }
 
@@ -155,12 +138,33 @@ serve(async (req) => {
         .select("user_id")
         .eq("user_id", existente.id)
         .maybeSingle();
+      // Una cuenta que es super admin no se reutiliza por un alta (solo otro super admin la toca).
+      const { data: esSuperExistente } = await supabaseAdmin.from("super_admins").select("user_id").eq("user_id", existente.id).maybeSingle();
+      if (esSuperExistente && !actor.esSuperAdmin) {
+        return new Response(JSON.stringify({ error: "Solo un super admin puede modificar a otro super admin" }), {
+          status: 403, headers: { ...CORS, "Content-Type": "application/json" }
+        });
+      }
       if (rolExistente) {
         return new Response(JSON.stringify({
           error: "Ese correo ya tiene usuario. Para cambiar su área o tipo de usuario, edítalo en Usuarios.",
           code: "USUARIO_EXISTE",
         }), { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
       }
+    }
+
+    // Rastro ANTES de cambiar nada: si no se puede dejar, no se crea la cuenta.
+    const rastroOk = await dejarRastro(supabaseAdmin, {
+      accion: "usuario.crear",
+      objetivo: String(email).toLowerCase().trim(),
+      actor: { id: caller.id, email: caller.email },
+      correlacion,
+      detalle: { area, nivel, reutiliza_cuenta: !!existente },
+    });
+    if (!rastroOk) {
+      return new Response(JSON.stringify({ error: "No se pudo registrar el alta; no se creó nada. Intenta de nuevo." }), {
+        status: 503, headers: { ...CORS, "Content-Type": "application/json", "x-request-id": correlacion }
+      });
     }
 
     // El correo va PRIMERO: si no sale, no se crea ni se cambia nada.

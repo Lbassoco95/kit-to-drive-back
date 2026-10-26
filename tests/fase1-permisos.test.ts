@@ -37,7 +37,7 @@ describe("Fase 1: una migración por punto, cada una con su reversa", () => {
     const sobrantes = readdirSync(join(RAIZ, "supabase", "reversas"))
       .filter(f => f.endsWith(".sql"))
       .map(f => f.replace(/_reversa\.sql$/, ""))
-      .filter(n => !MIGRACIONES.includes(n));
+      .filter(n => n.startsWith("20261031") && !MIGRACIONES.includes(n));  // la Fase 2 (20261107…) tiene su propia prueba
     expect(sobrantes).toEqual([]);
   });
 

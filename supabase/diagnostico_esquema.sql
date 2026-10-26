@@ -40,6 +40,8 @@
 --   sin_permiso_tablas|PERMISO|rol     · ninguna TABLA de public concede ese permiso a ese rol
 --   sin_permiso_vistas|PERMISO|rol     · ninguna VISTA de public concede ese permiso a ese rol
 --   sin_ejecucion_triggers|todas|rol   · ninguna función de trigger de public la ejecuta ese rol
+--   sin_politica|tabla.política        · esa política NO debe existir (Fase 2: se quitó la que dejaba editar a cualquier admin)
+--   sin_definer|funcion(tipos)         · la función ya NO es SECURITY DEFINER (Fase 2: cartera vencida)
 --   todas_con_search_path|public       · toda función propia de public tiene search_path fijo
 --   default_acl|tablas|rol             · lo que `postgres` cree en public (tablas) no nace con permisos para ese rol
 --   default_acl|funciones|public       · las funciones nuevas de `postgres` no nacen con EXECUTE para PUBLIC
@@ -538,7 +540,17 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261031000005_fase1_quitar_escritura_anon_de_tablas', 'sin_permiso_tablas|DELETE|anon'),
   ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|tablas|anon'),
   ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|funciones|public'),
-  ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|funciones|authenticated')
+  ('20261031000006_fase1_lo_nuevo_nace_cerrado', 'default_acl|funciones|authenticated'),
+  -- Fase 2 (perfiles, roles, super admins y cartera vencida). Dependen de la Fase 1.
+  ('20261107000001_fase2_perfiles_campos_protegidos', 'funcion|proteger_perfil_fase2()'),
+  ('20261107000001_fase2_perfiles_campos_protegidos', 'trigger|profiles.trg_proteger_perfil_fase2'),
+  ('20261107000002_fase2_roles_rango_y_super_admins', 'funcion|impedir_escalada_rol()|Solo un super admin puede cambiar el rol de otro super admin'),
+  ('20261107000002_fase2_roles_rango_y_super_admins', 'trigger|user_roles.trg_impedir_escalada_rol'),
+  ('20261107000003_fase2_profiles_politica_por_area', 'sin_politica|profiles.profiles_update_admin'),
+  ('20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente', 'sin_definer|cliente_tiene_cxc_vencidas(uuid)'),
+  ('20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente', 'sin_definer|cxc_vencidas_resumen(uuid)'),
+  ('20261107000005_fase2_super_admins_rastro', 'funcion|rastro_lista_super_admins()'),
+  ('20261107000005_fase2_super_admins_rastro', 'trigger|super_admins.trg_rastro_lista_super_admins')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
@@ -661,6 +673,16 @@ WITH esperado(script, objeto) AS (VALUES
                    AND p.policyname = split_part(regexp_replace(r.nombre, '^storage\.', ''), '.', 2)
                    AND (r.detalle IS NULL
                         OR COALESCE(p.qual,'') || ' ' || COALESCE(p.with_check,'') LIKE '%' || r.detalle || '%'))
+      WHEN 'sin_politica' THEN
+        -- Al revés: el script se reconoce por la política que QUITÓ (la tabla debe existir).
+        to_regclass('public.' || quote_ident(split_part(r.nombre, '.', 1))) IS NOT NULL
+        AND NOT EXISTS (SELECT 1 FROM pg_policies p
+                         WHERE p.schemaname = 'public'
+                           AND p.tablename  = split_part(r.nombre, '.', 1)
+                           AND p.policyname = split_part(r.nombre, '.', 2))
+      WHEN 'sin_definer' THEN
+        to_regprocedure('public.' || r.nombre) IS NOT NULL
+        AND NOT (SELECT p.prosecdef FROM pg_proc p WHERE p.oid = to_regprocedure('public.' || r.nombre))
       WHEN 'secuencia' THEN
         to_regclass('public.' || quote_ident(r.nombre)) IS NOT NULL
     END AS existe

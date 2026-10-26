@@ -69,7 +69,7 @@ serve(async (req) => {
       });
     }
     if (/dazon/i.test(password) || password.includes("1234")) {
-      return new Response(JSON.stringify({ error: "Elige una contraseña más segura" }), {
+      return new Response(JSON.stringify({ error: "Elige una contraseña más segura", codigo: "contrasena_debil" }), {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
@@ -93,7 +93,15 @@ serve(async (req) => {
       },
     });
     if (updErr) {
-      return new Response(JSON.stringify({ error: updErr.message }), {
+      // Contraseña en la lista de filtradas (protección que Polo activa en el panel de Supabase):
+      // Supabase contesta `weak_password` con un texto en inglés. Se devuelve un código estable y un
+      // mensaje en español; el front lo traduce (src/lib/errorContrasena.ts). Sigue siendo un 400.
+      const filtrada = (updErr as { code?: string }).code === "weak_password";
+      return new Response(JSON.stringify(
+        filtrada
+          ? { error: "Esa contraseña aparece en listas de contraseñas filtradas. Elige otra.", codigo: "contrasena_filtrada" }
+          : { error: updErr.message },
+      ), {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }

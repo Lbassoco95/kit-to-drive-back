@@ -1,0 +1,1665 @@
+{
+ "conteos_final": {
+  "funciones_ejecutables_anon": 0,
+  "funciones_secdef": 240,
+  "funciones_sin_search_path": 0,
+  "funciones_total": 270,
+  "nombres_ejecutables_anon": "-",
+  "politicas_public_total": 300,
+  "politicas_storage_rol_public": 4,
+  "politicas_tablas_rol_public": 34,
+  "realtime": "-",
+  "relaciones_con_references_anon_o_auth": 0,
+  "relaciones_con_trigger_anon_o_auth": 0,
+  "secdef_ejecutables_authenticated": 176,
+  "tablas_anon_insert_update_delete": 0,
+  "tablas_anon_truncate": 0,
+  "tablas_authenticated_truncate": 0,
+  "tablas_bkp": 0,
+  "tablas_con_rls": 93,
+  "tablas_public": 93,
+  "vistas": 18,
+  "vistas_anon_select": 0,
+  "vistas_security_invoker": 18,
+  "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+ },
+ "conteos_iguales_tras_reversa": true,
+ "conteos_inicial": {
+  "funciones_ejecutables_anon": 0,
+  "funciones_secdef": 240,
+  "funciones_sin_search_path": 0,
+  "funciones_total": 268,
+  "nombres_ejecutables_anon": "-",
+  "politicas_public_total": 301,
+  "politicas_storage_rol_public": 4,
+  "politicas_tablas_rol_public": 34,
+  "realtime": "-",
+  "relaciones_con_references_anon_o_auth": 0,
+  "relaciones_con_trigger_anon_o_auth": 0,
+  "secdef_ejecutables_authenticated": 178,
+  "tablas_anon_insert_update_delete": 0,
+  "tablas_anon_truncate": 0,
+  "tablas_authenticated_truncate": 0,
+  "tablas_bkp": 0,
+  "tablas_con_rls": 93,
+  "tablas_public": 93,
+  "vistas": 18,
+  "vistas_anon_select": 0,
+  "vistas_security_invoker": 18,
+  "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+ },
+ "conteos_tras_reversa_total": {
+  "funciones_ejecutables_anon": 0,
+  "funciones_secdef": 240,
+  "funciones_sin_search_path": 0,
+  "funciones_total": 268,
+  "nombres_ejecutables_anon": "-",
+  "politicas_public_total": 301,
+  "politicas_storage_rol_public": 4,
+  "politicas_tablas_rol_public": 34,
+  "realtime": "-",
+  "relaciones_con_references_anon_o_auth": 0,
+  "relaciones_con_trigger_anon_o_auth": 0,
+  "secdef_ejecutables_authenticated": 178,
+  "tablas_anon_insert_update_delete": 0,
+  "tablas_anon_truncate": 0,
+  "tablas_authenticated_truncate": 0,
+  "tablas_bkp": 0,
+  "tablas_con_rls": 93,
+  "tablas_public": 93,
+  "vistas": 18,
+  "vistas_anon_select": 0,
+  "vistas_security_invoker": 18,
+  "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+ },
+ "fase1_aplicada": true,
+ "foto_final": "30e8b7bf924d472040ed2cf55146533d",
+ "foto_inicial": "cf570b4ff3676416d076f32d14d52895",
+ "pasos": [
+  {
+   "aplicar_ok": true,
+   "aplicar_salida": [
+    "psql:/tmp/tmpo9gcvgr_.sql:126: NOTICE:  trigger \"trg_proteger_perfil_fase2\" for relation \"public.profiles\" does not exist, skipping",
+    "DROP TRIGGER",
+    "CREATE TRIGGER",
+    "1|t"
+   ],
+   "conteos_antes": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 240,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 268,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 301,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "conteos_despues": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 301,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "foto_cambio": true,
+   "migracion": "20261107000001_fase2_perfiles_campos_protegidos",
+   "reaplicar_dos_veces_igual": true,
+   "reaplicar_idempotente": true,
+   "recorridos_fase2": {
+    "cartera_por_rol": {
+     "admin_de_area": "ok 1",
+     "admin_global": "ok 1",
+     "admin_otra_area": "ok 1",
+     "admin_par": "ok 1",
+     "administrativo": "ok 1",
+     "finanzas": "ok 1",
+     "operador_fabrica": "ok 1",
+     "sin_area": "ok 1",
+     "super_admin": "ok 1",
+     "super_admin_2": "ok 1",
+     "vendedor": "ok 1",
+     "vendedor_2": "ok 1"
+    },
+    "detalle": [
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     },
+     {
+      "accion": "C2 subir de nivel a un operador de su área",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "admin_de_area"
+     },
+     {
+      "accion": "C2 subir de nivel a un operador de su área",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "admin_par"
+     },
+     {
+      "accion": "C3 super admin: quitarle el rol",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "admin_global"
+     },
+     {
+      "accion": "C3 super admin: bajarle el nivel",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "admin_global"
+     }
+    ],
+    "diferencias": 8
+   },
+   "reversa_ok": true,
+   "reversa_restaura_exacto": true
+  },
+  {
+   "aplicar_ok": true,
+   "aplicar_salida": [
+    "CREATE FUNCTION",
+    "DO",
+    "1|t|t"
+   ],
+   "conteos_antes": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 301,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "conteos_despues": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 301,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "foto_cambio": true,
+   "migracion": "20261107000002_fase2_roles_rango_y_super_admins",
+   "reaplicar_dos_veces_igual": true,
+   "reaplicar_idempotente": true,
+   "recorridos_fase2": {
+    "cartera_por_rol": {
+     "admin_de_area": "ok 1",
+     "admin_global": "ok 1",
+     "admin_otra_area": "ok 1",
+     "admin_par": "ok 1",
+     "administrativo": "ok 1",
+     "finanzas": "ok 1",
+     "operador_fabrica": "ok 1",
+     "sin_area": "ok 1",
+     "super_admin": "ok 1",
+     "super_admin_2": "ok 1",
+     "vendedor": "ok 1",
+     "vendedor_2": "ok 1"
+    },
+    "detalle": [
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     }
+    ],
+    "diferencias": 4
+   },
+   "reversa_ok": true,
+   "reversa_restaura_exacto": true
+  },
+  {
+   "aplicar_ok": true,
+   "aplicar_salida": [
+    "DROP POLICY",
+    "0|admin de area actualiza profiles, profiles_update_propio"
+   ],
+   "conteos_antes": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 301,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "conteos_despues": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 300,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "foto_cambio": true,
+   "migracion": "20261107000003_fase2_profiles_politica_por_area",
+   "reaplicar_dos_veces_igual": true,
+   "reaplicar_idempotente": true,
+   "recorridos_fase2": {
+    "cartera_por_rol": {
+     "admin_de_area": "ok 1",
+     "admin_global": "ok 1",
+     "admin_otra_area": "ok 1",
+     "admin_par": "ok 1",
+     "administrativo": "ok 1",
+     "finanzas": "ok 1",
+     "operador_fabrica": "ok 1",
+     "sin_area": "ok 1",
+     "super_admin": "ok 1",
+     "super_admin_2": "ok 1",
+     "vendedor": "ok 1",
+     "vendedor_2": "ok 1"
+    },
+    "detalle": [
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "sin_area"
+     },
+     {
+      "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     },
+     {
+      "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+      "esperado": "bloqueado",
+      "real": "ok 1",
+      "rol": "vendedor_2"
+     }
+    ],
+    "diferencias": 4
+   },
+   "reversa_ok": true,
+   "reversa_restaura_exacto": true
+  },
+  {
+   "aplicar_ok": true,
+   "aplicar_salida": [
+    "ALTER FUNCTION",
+    "ALTER FUNCTION",
+    "f|f"
+   ],
+   "conteos_antes": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 241,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 300,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 178,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "conteos_despues": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 239,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 300,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 176,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "foto_cambio": true,
+   "migracion": "20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente",
+   "reaplicar_dos_veces_igual": true,
+   "reaplicar_idempotente": true,
+   "recorridos_fase2": {
+    "cartera_por_rol": {
+     "admin_de_area": "ok 1",
+     "admin_global": "ok 1",
+     "admin_otra_area": "ok 1",
+     "admin_par": "ok 1",
+     "administrativo": "ok 1",
+     "finanzas": "ok 1",
+     "operador_fabrica": "ok 1",
+     "sin_area": "ok 0",
+     "super_admin": "ok 1",
+     "super_admin_2": "ok 1",
+     "vendedor": "ok 1",
+     "vendedor_2": "ok 0"
+    },
+    "detalle": [],
+    "diferencias": 0
+   },
+   "reversa_ok": true,
+   "reversa_restaura_exacto": true
+  },
+  {
+   "aplicar_ok": true,
+   "aplicar_salida": [
+    "psql:/tmp/tmp7itwmzji.sql:37: NOTICE:  trigger \"trg_rastro_lista_super_admins\" for relation \"public.super_admins\" does not exist, skipping",
+    "DROP TRIGGER",
+    "CREATE TRIGGER",
+    "1|t"
+   ],
+   "conteos_antes": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 239,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 269,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 300,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 176,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "conteos_despues": {
+    "funciones_ejecutables_anon": 0,
+    "funciones_secdef": 240,
+    "funciones_sin_search_path": 0,
+    "funciones_total": 270,
+    "nombres_ejecutables_anon": "-",
+    "politicas_public_total": 300,
+    "politicas_storage_rol_public": 4,
+    "politicas_tablas_rol_public": 34,
+    "realtime": "-",
+    "relaciones_con_references_anon_o_auth": 0,
+    "relaciones_con_trigger_anon_o_auth": 0,
+    "secdef_ejecutables_authenticated": 176,
+    "tablas_anon_insert_update_delete": 0,
+    "tablas_anon_truncate": 0,
+    "tablas_authenticated_truncate": 0,
+    "tablas_bkp": 0,
+    "tablas_con_rls": 93,
+    "tablas_public": 93,
+    "vistas": 18,
+    "vistas_anon_select": 0,
+    "vistas_security_invoker": 18,
+    "vistas_sin_anon": "v_almacen_refacciones, v_almacen_refacciones_movimientos, v_carga_ya_armados, v_clientes_credito, v_cobranza_pagos, v_cobranza_remisiones, v_cobranza_saldos_favor, v_compra_refacciones_contenedor, v_estado_cuenta_cliente, v_flujo_dinero, v_movimientos_financieros, v_remision_refaccion_ordenes, v_reporte_pagos, v_reporte_pipeline, v_reporte_produccion, v_reporte_remisiones, v_saldos_cuentas, v_stock_modelo_color"
+   },
+   "foto_cambio": true,
+   "migracion": "20261107000005_fase2_super_admins_rastro",
+   "reaplicar_dos_veces_igual": true,
+   "reaplicar_idempotente": true,
+   "recorridos_fase2": {
+    "cartera_por_rol": {
+     "admin_de_area": "ok 1",
+     "admin_global": "ok 1",
+     "admin_otra_area": "ok 1",
+     "admin_par": "ok 1",
+     "administrativo": "ok 1",
+     "finanzas": "ok 1",
+     "operador_fabrica": "ok 1",
+     "sin_area": "ok 0",
+     "super_admin": "ok 1",
+     "super_admin_2": "ok 1",
+     "vendedor": "ok 1",
+     "vendedor_2": "ok 0"
+    },
+    "detalle": [],
+    "diferencias": 0
+   },
+   "reversa_ok": true,
+   "reversa_restaura_exacto": true
+  }
+ ],
+ "r1_alta_igual": true,
+ "r1_final_cambios_vs_inicial": [
+  {
+   "accion": "cambiar el correo del SUPER ADMIN",
+   "antes": "ok 1",
+   "despues": "ok 0",
+   "rol": "admin_de_area"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "admin_de_area"
+  },
+  {
+   "accion": "editar el nombre de OTRA ÁREA (finanzas)",
+   "antes": "ok 1",
+   "despues": "ok 0",
+   "rol": "admin_de_area"
+  },
+  {
+   "accion": "editar el nombre del SUPER ADMIN",
+   "antes": "ok 1",
+   "despues": "ok 0",
+   "rol": "admin_de_area"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "almacen"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "compras"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "finanzas"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "logistica"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "operador"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "ok 1",
+   "despues": "err 42501",
+   "rol": "super_admin"
+  },
+  {
+   "accion": "desactivarse a sí mismo",
+   "antes": "err P0001",
+   "despues": "err 42501",
+   "rol": "ventas"
+  }
+ ],
+ "r1_generico_igual": false,
+ "r1_inicial": {
+  "alta_de_usuario": {
+   "alta autorizada": "ok 1",
+   "alta sin autorización": "err 23514",
+   "perfil creado por handle_new_user": "ok 1"
+  },
+  "errores_al_crear_usuarios": [],
+  "generico": {
+   "anon: DELETE sin filtro por tabla": {
+    "err 42501": 93
+   },
+   "anon: INSERT por tabla": {
+    "err 42501": 93
+   },
+   "anon: TRUNCATE por tabla": {
+    "err 42501": 93
+   },
+   "anon: leer vistas (18 vistas)": {
+    "err 42501": 18
+   },
+   "anon: llamar funciones de trigger por RPC": {
+    "err 42501": 53
+   },
+   "authenticated: TRUNCATE por tabla (93 tablas)": {
+    "err 42501": 93
+   },
+   "authenticated: leer vistas": {
+    "ok": 18
+   },
+   "authenticated: llamar funciones de trigger por RPC (53)": {
+    "err 42501": 53
+   }
+  },
+  "roles": {
+   "admin_de_area": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 1",
+    "cambiar el correo del SUPER ADMIN": "ok 1",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 1",
+    "editar el nombre de otra persona": "ok 1",
+    "editar el nombre del SUPER ADMIN": "ok 1",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "err P0001",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "almacen": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "compras": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 0",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "finanzas": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 1",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "logistica": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "operador": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 0",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "super_admin": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 1",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "ok 1",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 1",
+    "editar el nombre de otra persona": "ok 1",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 1",
+    "leer movimientos financieros": "ok 1",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 1",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 1",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 1",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   },
+   "ventas": {
+    "asignarse el rol admin": "err P0001",
+    "cambiar el correo de otra persona": "ok 0",
+    "cambiar el correo del SUPER ADMIN": "ok 0",
+    "desactivarse a sí mismo": "err P0001",
+    "editar el nombre de OTRA ÁREA (finanzas)": "ok 0",
+    "editar el nombre de otra persona": "ok 0",
+    "editar el nombre del SUPER ADMIN": "ok 0",
+    "editar su nombre (dispara triggers)": "ok 1",
+    "leer clientes": "ok 0",
+    "leer movimientos financieros": "ok 0",
+    "leer refacciones": "ok 1",
+    "leer remisiones": "ok 0",
+    "leer su propio rol": "ok 1",
+    "leer vista de cobranza": "ok 0",
+    "preguntar si es super admin (RPC)": "ok 0",
+    "quitarle el rol al SUPER ADMIN": "ok 0",
+    "registrar su conexión (RPC)": "ok 1",
+    "subirse a administrador": "ok 0",
+    "vaciar la bitácora de eventos": "err 42501",
+    "ver la tabla de super admins": "err 42501"
+   }
+  }
+ },
+ "r1_tras_reversa_cambios": [],
+ "r2_final": {
+  "cartera_por_rol": {
+   "admin_de_area": "ok 1",
+   "admin_global": "ok 1",
+   "admin_otra_area": "ok 1",
+   "admin_par": "ok 1",
+   "administrativo": "ok 1",
+   "finanzas": "ok 1",
+   "operador_fabrica": "ok 1",
+   "sin_area": "ok 0",
+   "super_admin": "ok 1",
+   "super_admin_2": "ok 1",
+   "vendedor": "ok 1",
+   "vendedor_2": "ok 0"
+  },
+  "detalle": [],
+  "diferencias": 0
+ },
+ "r2_inicial": {
+  "cartera_por_rol": {
+   "admin_de_area": "ok 1",
+   "admin_global": "ok 1",
+   "admin_otra_area": "ok 1",
+   "admin_par": "ok 1",
+   "administrativo": "ok 1",
+   "finanzas": "ok 1",
+   "operador_fabrica": "ok 1",
+   "sin_area": "ok 1",
+   "super_admin": "ok 1",
+   "super_admin_2": "ok 1",
+   "vendedor": "ok 1",
+   "vendedor_2": "ok 1"
+  },
+  "detalle": [
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "administrativo"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 otro administrador de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 subir de nivel a un operador de su área",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 subir de nivel a un operador de su área",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro administrador de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: desactivarlo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: quitarle el rol",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: bajarle el nivel",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "operador_fabrica"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "operador_fabrica"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "finanzas"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "finanzas"
+   }
+  ],
+  "diferencias": 62
+ },
+ "r2_tras_reversa": {
+  "cartera_por_rol": {
+   "admin_de_area": "ok 1",
+   "admin_global": "ok 1",
+   "admin_otra_area": "ok 1",
+   "admin_par": "ok 1",
+   "administrativo": "ok 1",
+   "finanzas": "ok 1",
+   "operador_fabrica": "ok 1",
+   "sin_area": "ok 1",
+   "super_admin": "ok 1",
+   "super_admin_2": "ok 1",
+   "vendedor": "ok 1",
+   "vendedor_2": "ok 1"
+  },
+  "detalle": [
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "sin_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C5 cartera vencida: ¿tiene? (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C5 cartera vencida: resumen (cliente de vendedor)",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "vendedor_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "administrativo"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 otro administrador de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C2 subir de nivel a un operador de su área",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_de_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 usuario de OTRA área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C2 subir de nivel a un operador de su área",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_par"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro usuario de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C2 otro administrador de su área: cambiar nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_otra_area"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: cambiar su nombre",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: desactivarlo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: quitarle el rol",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C3 super admin: bajarle el nivel",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "admin_global"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: desactivarse",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: cambiar su código de vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: cambiar su correo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "super_admin_2"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "operador_fabrica"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "operador_fabrica"
+   },
+   {
+    "accion": "C1 propio: ponerse es_vendedor",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "finanzas"
+   },
+   {
+    "accion": "C1 propio: ponerse es_administrativo",
+    "esperado": "bloqueado",
+    "real": "ok 1",
+    "rol": "finanzas"
+   }
+  ],
+  "diferencias": 62
+ },
+ "reaplicar_todas_igual": true,
+ "reversa_total_restaura_exacto": true
+}
