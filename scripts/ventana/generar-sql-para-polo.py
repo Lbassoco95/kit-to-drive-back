@@ -48,7 +48,7 @@ doc = f"""# SQL de solo lectura para Polo — todo en un solo documento
 1. Abre el proyecto **`kit-to-drive`** (ref `dmhzhyeivvuliumcgsmm`) — **no** `kit-to-drive-db-qa`. El primer bloque (0) lo comprueba: debe decir `zz_lista_oct = 2219` y `super_admins = 2` (a la fecha del 26 oct; si cambiaron por actividad, dilo).
 2. SQL Editor → *New query* → pega **un solo bloque** completo (de `begin read only;` a `rollback;`) → *Run*.
 3. Copia el resultado (botón *Copy as Markdown* o *Copy as CSV* de la cuadrícula) y pégalo en la sesión, **con el nombre del bloque** (por ejemplo «A2»).
-4. **Si el editor solo muestra «Success. No rows returned»** (puede mostrar únicamente la última instrucción, que es `rollback;`): borra la última línea `rollback;` y vuelve a correr. Sigue siendo de solo lectura (la transacción está marcada `read only`, así que no puede escribir) y se cierra sola al terminar la sesión del editor. Dímelo y reescribo los bloques como una sola instrucción. *No he podido probar el editor de Supabase desde aquí; los bloques sí los probé en una réplica local de PostgreSQL 16 con la misma estructura.*
+4. **Si el editor solo muestra «Success. No rows returned»** (puede mostrar únicamente la última instrucción, que es `rollback;`): borra **las dos líneas de los extremos**, `begin read only;` y `rollback;`, y corre solo el `select`. Es una sola lectura: no escribe. **No borres solo el `rollback;`**: dejaría una transacción abierta que podría estorbar a la ventana. Dímelo y reescribo los bloques. *No he podido probar el editor de Supabase desde aquí; los bloques sí los probé en una réplica local de PostgreSQL 16.*
 
 ## Orden
 
