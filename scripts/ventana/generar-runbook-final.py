@@ -255,6 +255,26 @@ where p.error_severity in ('ERROR', 'FATAL', 'PANIC')
 group by 1 order by 1
 ```
 
+### D2 por `query_logs` (probado el 26 oct con el conector de lectura)
+
+`query_logs` usa **ClickHouse** sobre la tabla `logs` (no la sintaxis de Logs Explorer de arriba). **Funciona**: se corre por Code, sin que Polo pegue nada. Ventana: las últimas 24 h por omisión. Fuentes disponibles: `edge_logs`, `postgrest_logs`, `postgres_logs`, `auth_logs`, `auth_audit_logs`, `storage_logs`, `realtime_logs`, `function_edge_logs`, `function_logs`, entre otras. Solo se piden conteos.
+
+```sql
+select log_attributes['response.status_code'] as codigo, count() as total
+from logs
+where source = 'edge_logs' and toUInt32OrZero(log_attributes['response.status_code']) >= 400
+group by codigo order by codigo
+```
+
+```sql
+select log_attributes['parsed.error_severity'] as severidad, count() as total
+from logs
+where source = 'postgres_logs' and log_attributes['parsed.error_severity'] in ('ERROR', 'FATAL', 'PANIC')
+group by severidad order by severidad
+```
+
+**Línea base del 26 oct (últimas 24 h):** API `400` = 2 y `401` = 4 (sin 403 ni 5xx); Postgres `ERROR` = 6. **Esperado en la ventana:** no suben los 401, 403 ni 5xx ni los errores de Postgres respecto a lo medido al empezar. La ventana de `query_logs` es de 24 h como máximo: se corre al empezar y al terminar.
+
 ## 11. Cuándo detenerse y revertir
 
 **Detente** (y revierte ese paso y los anteriores, en orden inverso) si, tras cualquier paso:

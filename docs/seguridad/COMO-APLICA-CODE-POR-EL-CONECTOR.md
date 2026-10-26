@@ -72,3 +72,31 @@ Si la ventana se interrumpe (algo falla y se pausa), Polo quita el conector de e
 
 **Recomendación: desconectarlo** (claude.ai → Configuración → Conectores → Supabase → Desconectar) antes de la primera ventana, y trabajar solo con los dos conectores de arriba. El general ve **todos** los proyectos y organizaciones de la cuenta, QA entre ellos, y expone herramientas que no hacen falta y que son riesgosas (crear/pausar/restaurar proyectos, ramas, desplegar funciones). Además, con el general la comprobación `get_project_url` no protege: ahí el proyecto se le pasa a la herramienta como argumento, y un error de identificador llegaría a otro proyecto. Con el conector acotado por URL no existe ese argumento. Si no se puede desconectar, dejar **en «Nunca»** todas sus herramientas de escritura y de administración, y **no usarlo** para nada.
 
+### Verificación del conector de lectura (26 oct, hecha por Code)
+
+| Prueba | Resultado |
+|---|---|
+| `get_project_url` | `https://dmhzhyeivvuliumcgsmm.supabase.co` (producción) |
+| Bloque 0 por lectura | `zz_lista_oct = 2219`, `super_admins = 2`, registro = 90, `transaction_read_only = on` |
+| Escritura inocua (`UPDATE … WHERE false`, ninguna fila) | **Rechazada**: `25006: cannot execute UPDATE in a read-only transaction` |
+| `query_logs` | **Funciona** (ver abajo) |
+
+### D2 por `query_logs` (probado el 26 oct: funciona)
+
+`query_logs` usa **ClickHouse** sobre la tabla `logs`. Code corre D2 por ahí, sin que Polo pegue nada, al empezar y al terminar cada ventana (la ventana máxima es de 24 h). Solo se piden conteos.
+
+```sql
+select log_attributes['response.status_code'] as codigo, count() as total
+from logs
+where source = 'edge_logs' and toUInt32OrZero(log_attributes['response.status_code']) >= 400
+group by codigo order by codigo
+```
+
+```sql
+select log_attributes['parsed.error_severity'] as severidad, count() as total
+from logs
+where source = 'postgres_logs' and log_attributes['parsed.error_severity'] in ('ERROR', 'FATAL', 'PANIC')
+group by severidad order by severidad
+```
+
+**Línea base del 26 oct (últimas 24 h):** API `400` = 2 y `401` = 4 (sin 403 ni 5xx); Postgres `ERROR` = 6. **Esperado:** no suben los 401, 403 ni 5xx ni los errores de Postgres. Si en una ventana falla o no coincide con el Logs Explorer, Polo corre D2 como alternativa (`RUNBOOK-FINAL-FASE-1.md` §10).
