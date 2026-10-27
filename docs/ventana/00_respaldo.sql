@@ -10,7 +10,7 @@ CREATE TABLE respaldo_20261027.flujo_dinero            AS SELECT * FROM public.f
 REVOKE ALL ON SCHEMA respaldo_20261027 FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON ALL TABLES IN SCHEMA respaldo_20261027 FROM PUBLIC, anon, authenticated;
 
--- Verificación: cada par de conteos debe ser igual (hoy: 3 · 3 · 6 · 1 · 9).
+-- Verificación: cada par de conteos debe ser igual (al día de hoy: 4 · 3 · 6 · 1 · 9).
 SELECT 'movimientos_financieros' t, (SELECT count(*) FROM public.movimientos_financieros) vivo, (SELECT count(*) FROM respaldo_20261027.movimientos_financieros) respaldo
 UNION ALL SELECT 'cuentas_financieras', (SELECT count(*) FROM public.cuentas_financieras), (SELECT count(*) FROM respaldo_20261027.cuentas_financieras)
 UNION ALL SELECT 'cobranza_pagos', (SELECT count(*) FROM public.cobranza_pagos), (SELECT count(*) FROM respaldo_20261027.cobranza_pagos)

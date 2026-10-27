@@ -16,3 +16,10 @@ SELECT policyname FROM pg_policies WHERE schemaname = 'storage' AND policyname L
 -- V4 · tras asignar empresas a las 3 cuentas (desde la pestaña «Cuentas bancarias»)
 SELECT c.nombre, e.nombre AS empresa, c.tipo, c.banco, c.ultimos4, s.saldo_actual FROM cuentas_financieras c LEFT JOIN empresas_grupo e ON e.id = c.empresa_id JOIN v_saldos_cuentas s ON s.id = c.id ORDER BY c.orden;
 SELECT entidad, accion, count(*) FROM catalogo_bancos_bitacora GROUP BY 1, 2;
+-- V5 · tras la migración 20261101000001 (gastos, categorías, es_prueba, monedas)
+SELECT nombre, ambito, activo FROM categorias_financieras WHERE NOT es_prueba AND tipo = 'EGRESO' AND (ambito = 'INTERNACIONAL' OR nombre LIKE 'Mantenimiento%') ORDER BY nombre;
+SELECT (SELECT count(*) FROM cuentas_financieras WHERE es_prueba) AS cuentas_prueba, (SELECT count(*) FROM empresas_grupo WHERE es_prueba) AS empresas_prueba, (SELECT valor FROM compras_parametros WHERE clave = 'monedas_permitidas') AS monedas;
+SELECT has_table_privilege('authenticated', 'public.categorias_financieras', 'INSERT') AS categorias_escribe;   -- false
+-- V6 · tras P3, P4 y P5
+SELECT folio, estatus, origen, afecta_totales FROM movimientos_financieros ORDER BY created_at;
+SELECT nombre, saldo_actual FROM v_saldos_cuentas ORDER BY orden;
