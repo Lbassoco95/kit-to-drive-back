@@ -29,8 +29,8 @@ Un detalle más: la función obliga a cambiar la contraseña al primer ingreso. 
 
 | Archivo | Para qué | sha256 (16) |
 |---|---|---|
-| `supabase/operaciones/cuentas-demo/crear-cuentas-demo.mjs` | Alta de las 4 cuentas. Ensayo por defecto; escribe solo con `--ejecutar` y `CONFIRMO_VENTANA=2026-10-26`. | ver `sha256sum` al correrlo |
-| `…/ensayo-con-servidor-falso.mjs` | Prueba del script contra un servidor falso local: 12 de 12. | |
+| `supabase/operaciones/cuentas-demo/crear-cuentas-demo.mjs` | Alta de las 4 cuentas. Ensayo por defecto; escribe solo con `--ejecutar` y `CONFIRMO_VENTANA=2026-10-26`. | `3b48bb5cc16ed87b` |
+| `…/ensayo-con-servidor-falso.mjs` | Prueba del script contra un servidor falso local: 12 de 12. | `8e5cc3e040ee48fe` |
 | `…/bloquear-cuentas-demo.sql` | Bloquea las 4 a la vez (Auth `banned_until = infinity` y perfil inactivo). **No ejecutar.** | `08bf893f3b97560d` |
 | `…/bloquear-cuentas-demo_reversa.sql` | Reabre las 4. | `949100f3f7963491` |
 
