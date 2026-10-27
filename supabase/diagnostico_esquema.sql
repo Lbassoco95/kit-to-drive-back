@@ -516,7 +516,15 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
 
   -- Flujo de dinero: regla de cuenta por método de pago (propuesta, 2026-10-28).
-  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco')
+  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco'),
+
+  -- Carga de remisiones históricas de refacciones (propuesta, 2026-10-29).
+  ('20261029000001_remisiones_refacciones_historicas', 'columna|remisiones_refacciones.es_historica'),
+  ('20261029000001_remisiones_refacciones_historicas', 'tabla|cargas_remisiones_historicas'),
+  ('20261029000001_remisiones_refacciones_historicas', 'funcion|cargar_remisiones_historicas_refacciones(jsonb,text,boolean)'),
+  ('20261029000001_remisiones_refacciones_historicas', 'funcion|anular_remision_historica_refacciones(uuid,text)'),
+  ('20261029000001_remisiones_refacciones_historicas', 'trigger|remisiones_refacciones.trg_remision_historica_protegida'),
+  ('20261029000001_remisiones_refacciones_historicas', 'sin_privilegio|cargar_remisiones_historicas_refacciones(jsonb,text,boolean)|anon')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
