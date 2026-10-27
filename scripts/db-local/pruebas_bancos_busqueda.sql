@@ -53,21 +53,24 @@ CREATE OR REPLACE FUNCTION public._t_uid(_email text) RETURNS uuid LANGUAGE sql 
 CREATE OR REPLACE FUNCTION public._t_cli(_codigo text) RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
   SELECT id FROM public.clientes WHERE codigo_erp = _codigo $$;
 CREATE OR REPLACE FUNCTION public._t_cuenta_mxn() RETURNS TABLE (id uuid) LANGUAGE sql SECURITY DEFINER AS $$
-  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo ORDER BY c.orden LIMIT 1 $$;
+  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo AND c.es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY c.orden LIMIT 1 $$;
 CREATE OR REPLACE FUNCTION public._t_saldo(_cta uuid) RETURNS numeric LANGUAGE sql SECURITY DEFINER AS $$
   SELECT saldo_actual FROM public.v_saldos_cuentas WHERE id = _cta $$;
+CREATE OR REPLACE FUNCTION public._t_emp() RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT id FROM public.empresas_grupo WHERE activo AND es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY nombre LIMIT 1 $$;
+GRANT EXECUTE ON FUNCTION public._t_emp() TO authenticated;
 -- Recibir con evidencia (desde la unificación es obligatoria): envoltura para las pruebas.
 CREATE OR REPLACE FUNCTION public._t_rec(_tipo text, _monto numeric, _moneda text, _metodo text, _fecha date, _contra text,
   _cliente uuid DEFAULT NULL, _concepto text DEFAULT NULL, _ref text DEFAULT NULL, _tc numeric DEFAULT NULL, _datos jsonb DEFAULT '{}'::jsonb)
 RETURNS jsonb LANGUAGE sql AS $$
   SELECT public.flujo_recibir(_tipo, _monto, _moneda, _metodo, _fecha, _contra, _cliente, _concepto, _ref, _tc,
-                              'prueba/comprobantes/comprobante.pdf', _datos) $$;
+                              'prueba/comprobantes/comprobante.pdf', _datos, public._t_emp()) $$;
 GRANT EXECUTE ON FUNCTION public._t_rec(text, numeric, text, text, date, text, uuid, text, text, numeric, jsonb) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_cuenta_mxn(), public._t_saldo(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_como(text), public._t_falla(text, text), public._t_uid(text), public._t_cli(text) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public._t_banco() RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
-  SELECT id FROM public.cuentas_financieras WHERE moneda = 'MXN' AND tipo = 'BANCO' AND activo ORDER BY orden LIMIT 1 $$;
+  SELECT id FROM public.cuentas_financieras WHERE moneda = 'MXN' AND tipo = 'BANCO' AND activo AND es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY orden LIMIT 1 $$;
 GRANT EXECUTE ON FUNCTION public._t_banco() TO authenticated;
 
 -- Etapas: martin.real recibe · almacen.real caja · admin.real aplica (y administra) · prueba.* como en el flujo.
@@ -142,7 +145,7 @@ END $$;
 RESET ROLE;
 SELECT public._t_como('martin.real@ejemplo.mx');
 DO $$ DECLARE v jsonb; BEGIN
-  PERFORM public._t_falla($q$SELECT public._t_rec('REEMBOLSO', 500, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Dev', 'R-0')$q$, 'Elige la empresa');
+  PERFORM public._t_falla($q$SELECT public.flujo_recibir('REEMBOLSO', 500, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Dev', 'R-0', NULL, 'e.pdf')$q$, 'Elige la empresa');
   PERFORM public._t_falla(format($q$SELECT public.flujo_recibir('REEMBOLSO', 500, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Dev', 'R-0', NULL, 'e.pdf', '{}'::jsonb, %L)$q$, gen_random_uuid()), 'no existe o está desactivada');
   v := public.flujo_recibir('REEMBOLSO', 500, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Dev', 'R-1', NULL, 'e.pdf', '{}'::jsonb, (SELECT otra FROM t_e));
   UPDATE t_e SET flujo = (v->>'id')::uuid;

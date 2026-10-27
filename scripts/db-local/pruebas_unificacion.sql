@@ -53,21 +53,24 @@ CREATE OR REPLACE FUNCTION public._t_uid(_email text) RETURNS uuid LANGUAGE sql 
 CREATE OR REPLACE FUNCTION public._t_cli(_codigo text) RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
   SELECT id FROM public.clientes WHERE codigo_erp = _codigo $$;
 CREATE OR REPLACE FUNCTION public._t_cuenta_mxn() RETURNS TABLE (id uuid) LANGUAGE sql SECURITY DEFINER AS $$
-  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo ORDER BY c.orden LIMIT 1 $$;
+  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo AND c.es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY c.orden LIMIT 1 $$;
 CREATE OR REPLACE FUNCTION public._t_saldo(_cta uuid) RETURNS numeric LANGUAGE sql SECURITY DEFINER AS $$
   SELECT saldo_actual FROM public.v_saldos_cuentas WHERE id = _cta $$;
+CREATE OR REPLACE FUNCTION public._t_emp() RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT id FROM public.empresas_grupo WHERE activo AND es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY nombre LIMIT 1 $$;
+GRANT EXECUTE ON FUNCTION public._t_emp() TO authenticated;
 -- Recibir con evidencia (desde la unificación es obligatoria): envoltura para las pruebas.
 CREATE OR REPLACE FUNCTION public._t_rec(_tipo text, _monto numeric, _moneda text, _metodo text, _fecha date, _contra text,
   _cliente uuid DEFAULT NULL, _concepto text DEFAULT NULL, _ref text DEFAULT NULL, _tc numeric DEFAULT NULL, _datos jsonb DEFAULT '{}'::jsonb)
 RETURNS jsonb LANGUAGE sql AS $$
   SELECT public.flujo_recibir(_tipo, _monto, _moneda, _metodo, _fecha, _contra, _cliente, _concepto, _ref, _tc,
-                              'prueba/comprobantes/comprobante.pdf', _datos) $$;
+                              'prueba/comprobantes/comprobante.pdf', _datos, public._t_emp()) $$;
 GRANT EXECUTE ON FUNCTION public._t_rec(text, numeric, text, text, date, text, uuid, text, text, numeric, jsonb) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_cuenta_mxn(), public._t_saldo(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_como(text), public._t_falla(text, text), public._t_uid(text), public._t_cli(text) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public._t_banco() RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
-  SELECT id FROM public.cuentas_financieras WHERE moneda = 'MXN' AND tipo = 'BANCO' AND activo ORDER BY orden LIMIT 1 $$;
+  SELECT id FROM public.cuentas_financieras WHERE moneda = 'MXN' AND tipo = 'BANCO' AND activo AND es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY orden LIMIT 1 $$;
 GRANT EXECUTE ON FUNCTION public._t_banco() TO authenticated;
 
 -- Etapas: martin.real recibe · almacen.real caja · admin.real aplica (y administra) · prueba.* como en el flujo.
@@ -117,7 +120,7 @@ INSERT INTO public.cuentas_por_cobrar (cliente_id, concepto, monto, saldo, moned
   SELECT id, 'Crédito de prueba', 1000, 1000, 'MXN', current_date, current_date + 30, 'ABIERTA' FROM public.clientes WHERE codigo_erp = 'REAL-CXC';
 DO $$ BEGIN
   PERFORM public._t_falla($q$INSERT INTO public.movimientos_financieros (tipo, estatus, concepto, monto, moneda, fecha_movimiento, metodo_pago, contraparte_tipo, contraparte_nombre, origen)
-    VALUES ('INGRESO', 'CONFIRMADO', 'x', 10, 'MXN', current_date, 'EFECTIVO', 'OTRO', 'x', 'HISTORICO_DIRECTO')$q$, 'solo recibe dinero cuando Caja');
+    VALUES ('INGRESO', 'CONFIRMADO', 'x', 10, 'MXN', current_date, 'EFECTIVO', 'OTRO', 'x', 'HISTORICO_DIRECTO')$q$, 'solo recibe dinero cuando');
   PERFORM public._t_falla($q$INSERT INTO public.cxc_abonos (cxc_id, monto, fecha_abono) SELECT id, 1, current_date FROM public.cuentas_por_cobrar LIMIT 1$q$, 'nacen solo del flujo');
   PERFORM public._t_falla($q$UPDATE public.cuentas_por_cobrar SET saldo = 0$q$, 'no se editan');
 END $$;
@@ -135,22 +138,33 @@ DO $$ BEGIN
 END $$;
 ROLLBACK;
 
-\echo '3. Una salida real: Caja crea el libro con origen y evidencia; Aplica clasifica; se comprueba; historial completo'
+\echo '3. Un gasto real en efectivo (captura → autoriza → entrega): el libro nace al entregar con origen y evidencia; se comprueba; historial completo; corrección con motivo'
 BEGIN;
 CREATE TEMP TABLE t_s (flujo uuid, mov uuid, saldo0 numeric, cta uuid);
 GRANT ALL ON t_s TO authenticated;
+SELECT public._t_como('admin.real@ejemplo.mx');
+SELECT public.flujo_asignar_capacidad(public._t_uid('martin.real@ejemplo.mx'), 'captura_gasto', true);
+SELECT public.flujo_asignar_capacidad(public._t_uid('admin.real@ejemplo.mx'), 'confirma_gasto', true);
+SELECT public.cuenta_ajustar_saldo_inicial((SELECT id FROM public._t_cuenta_mxn()), 5000, 'Fondo de caja para la prueba');
+RESET ROLE;
 SELECT public._t_como('martin.real@ejemplo.mx');
 DO $$ DECLARE v jsonb; BEGIN
-  v := public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL, 'Viáticos', NULL, NULL,
-        '{"categoria": "Viáticos", "requiere_comprobacion": true, "factura_folio": "A-1"}'::jsonb);
+  v := public.flujo_capturar_gasto(900, 'MXN', 'EFECTIVO', current_date, 'Chofer', 'Viáticos', 'Viáticos', NULL, NULL, 'prueba/gastos/vale.jpg', NULL, (SELECT id FROM public._t_cuenta_mxn()),
+        '{"requiere_comprobacion": true, "factura_folio": "A-1"}'::jsonb);
   INSERT INTO t_s (flujo, cta, saldo0) VALUES ((v->>'id')::uuid, (SELECT id FROM public._t_cuenta_mxn()), public._t_saldo((SELECT id FROM public._t_cuenta_mxn())));
-  ASSERT (SELECT saldo0 FROM t_s) = public._t_saldo((SELECT cta FROM t_s)), 'lo recibido no mueve la caja';
+END $$;
+RESET ROLE;
+SELECT public._t_como('admin.real@ejemplo.mx');
+DO $$ DECLARE t t_s%ROWTYPE; BEGIN
+  SELECT * INTO t FROM t_s;
+  PERFORM public.flujo_confirmar_gasto(t.flujo, NULL, 'Autorizado');
+  ASSERT public._t_saldo(t.cta) = t.saldo0, 'autorizar no mueve la caja';
 END $$;
 RESET ROLE;
 SELECT public._t_como('almacen.real@ejemplo.mx');
 DO $$ DECLARE t t_s%ROWTYPE; BEGIN
   SELECT * INTO t FROM t_s;
-  PERFORM public.flujo_confirmar_caja(t.flujo, t.cta, 'Entregado');
+  PERFORM public.flujo_entregar_gasto(t.flujo, 'Entregado');
   ASSERT (SELECT count(*) FROM public.movimientos_financieros) = 0, 'la cajera no ve el libro general';
 END $$;
 RESET ROLE;
@@ -160,37 +174,27 @@ DO $$ DECLARE t t_s%ROWTYPE; m public.movimientos_financieros%ROWTYPE; BEGIN
   SELECT * INTO m FROM public.movimientos_financieros WHERE flujo_id = t.flujo;
   UPDATE t_s SET mov = m.id;
   t.mov := m.id;
-  ASSERT m.origen = 'FLUJO' AND m.estatus = 'CONFIRMADO' AND m.tipo = 'EGRESO' AND m.monto = 900, 'el libro nace en Caja, confirmado';
-  ASSERT m.categoria = 'Viáticos' AND m.requiere_comprobacion AND m.factura_folio = 'A-1', 'los datos de Recibe llegan al libro';
+  ASSERT m.origen = 'FLUJO' AND m.estatus = 'CONFIRMADO' AND m.tipo = 'EGRESO' AND m.monto = 900, 'el libro nace al entregar, confirmado';
+  ASSERT m.categoria = 'Viáticos' AND m.requiere_comprobacion AND m.factura_folio = 'A-1', 'los datos de la captura llegan al libro';
   ASSERT m.descripcion LIKE 'Flujo de dinero FD-%', 'el libro muestra su folio FD';
   ASSERT (SELECT tipo_documento::text FROM public.movimiento_adjuntos WHERE movimiento_id = m.id) = 'VALE_EFECTIVO', 'la evidencia queda en el expediente';
-  ASSERT public._t_saldo(t.cta) = t.saldo0 - 900, 'la salida baja la caja';
+  ASSERT public._t_saldo(t.cta) = t.saldo0 - 900, 'el gasto baja la caja';
   ASSERT (SELECT flujo_folio FROM public.v_movimientos_financieros WHERE id = t.mov) LIKE 'FD-%', 'Control financiero muestra el folio del flujo';
-  ASSERT (SELECT flujo_etapa FROM public.v_movimientos_financieros WHERE id = t.mov) = 'EN_CAJA', 'y su etapa';
+  ASSERT (SELECT flujo_etapa FROM public.v_movimientos_financieros WHERE id = t.mov) = 'APLICADO', 'y su etapa';
   ASSERT (SELECT origen FROM public.v_movimientos_financieros WHERE id = t.mov) = 'FLUJO', 'y su origen';
-END $$;
-DO $$ DECLARE t t_s%ROWTYPE; BEGIN
-  SELECT * INTO t FROM t_s;
-  PERFORM public.flujo_aplicar(t.flujo, 'GASTO', '[]'::jsonb, 'Viáticos del chofer', '{"categoria": "Gastos de viaje"}'::jsonb);
-  ASSERT (SELECT categoria FROM public.movimientos_financieros WHERE id = t.mov) = 'Gastos de viaje', 'Aplica clasifica el libro';
-  ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = t.flujo) = 'APLICADO', 'aplicado';
   -- Comprobación de efectivo por RPC.
   PERFORM public._t_falla(format($q$SELECT public.movimiento_comprobar(%L, 900, 100)$q$, t.mov), 'no puede superar');
   PERFORM public.movimiento_comprobar(t.mov, 800, 100);
   ASSERT (SELECT comprobado FROM public.movimientos_financieros WHERE id = t.mov), 'comprobado';
   PERFORM public._t_falla(format($q$SELECT public.movimiento_comprobar(%L, 1, 0)$q$, t.mov), 'ya está comprobado');
-  -- Corrección: solo lo no monetario, con motivo, y queda en la bitácora.
+  -- Corrección: solo lo no monetario, con motivo (y no por quien participó en el flujo).
   PERFORM public._t_falla(format($q$SELECT public.movimiento_ajustar(%L, '{"monto": 1}'::jsonb, 'cambio de monto')$q$, t.mov), 'No se ajusta');
-  PERFORM public._t_falla(format($q$SELECT public.movimiento_ajustar(%L, '{"categoria": "x"}'::jsonb, 'x')$q$, t.mov), 'motivo');
-  PERFORM public.movimiento_ajustar(t.mov, '{"descripcion": "Aclarado por Finanzas"}'::jsonb, 'Aclaración de la descripción');
-  ASSERT (SELECT descripcion FROM public.movimientos_financieros WHERE id = t.mov) = 'Aclarado por Finanzas', 'ajuste no monetario';
-  ASSERT EXISTS (SELECT 1 FROM public.movimiento_bitacora WHERE movimiento_id = t.mov AND accion = 'AJUSTADO'), 'el ajuste queda en la bitácora';
-  -- Aplicado: no se cancela el libro sin revertir antes.
-  PERFORM public._t_falla(format($q$SELECT public.movimiento_cancelar(%L, 'Cancelación de prueba')$q$, t.mov), 'revierte primero');
+  PERFORM public._t_falla(format($q$SELECT public.movimiento_ajustar(%L, '{"descripcion": "x"}'::jsonb, 'Aclaración de la descripción')$q$, t.mov), 'participaste|capturaste');
+  PERFORM public._t_falla(format($q$SELECT public.movimiento_cancelar(%L, 'Cancelación de prueba')$q$, t.mov), 'participaste|capturaste');
   -- Historial: quién y cuándo en cada etapa.
-  ASSERT (SELECT array_agg(accion ORDER BY created_at, accion) FROM public.v_flujo_dinero_eventos WHERE flujo_id = t.flujo) @> ARRAY['RECIBIDO', 'CAJA_CONFIRMADA', 'APLICADO'], 'historial completo';
+  ASSERT (SELECT array_agg(accion ORDER BY created_at, accion) FROM public.v_flujo_dinero_eventos WHERE flujo_id = t.flujo) @> ARRAY['RECIBIDO', 'GASTO_AUTORIZADO', 'CAJA_CONFIRMADA'], 'historial completo';
   ASSERT (SELECT count(DISTINCT usuario_id) FROM public.v_flujo_dinero_eventos WHERE flujo_id = t.flujo) = 3, 'tres personas distintas';
-  ASSERT (SELECT recibido_por_nombre IS NOT NULL AND caja_por_nombre IS NOT NULL AND aplicado_por_nombre IS NOT NULL FROM public.v_flujo_dinero WHERE id = t.flujo), 'quién recibió, confirmó y aplicó';
+  ASSERT (SELECT recibido_por_nombre IS NOT NULL AND caja_por_nombre IS NOT NULL FROM public.v_flujo_dinero WHERE id = t.flujo), 'quién capturó y quién entregó';
 END $$;
 RESET ROLE;
 SELECT public._t_como('martin.real@ejemplo.mx');
@@ -412,7 +416,7 @@ DO $$ DECLARE a t_a%ROWTYPE; BEGIN
   PERFORM public.flujo_confirmar_caja(a.m2, a.cta);
   -- …pero no aplicarlo (lo metió él a caja), ni cancelar en el libro lo que confirmó él.
   PERFORM public._t_falla(format($q$SELECT public.flujo_aplicar(%L, 'REEMBOLSO_PROVEEDOR')$q$, a.m2), 'tercera persona');
-  PERFORM public._t_falla(format($q$SELECT public.movimiento_cancelar((SELECT movimiento_id FROM public.flujo_dinero WHERE id = %L), 'Cancelación propia')$q$, a.m2), 'no lo cancela');
+  PERFORM public._t_falla(format($q$SELECT public.movimiento_cancelar((SELECT movimiento_id FROM public.flujo_dinero WHERE id = %L), 'Cancelación propia')$q$, a.m2), 'no lo cancela|capturaste o confirmaste|participaste');
 END $$;
 RESET ROLE;
 SELECT public._t_como('almacen.real@ejemplo.mx');

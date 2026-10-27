@@ -54,15 +54,18 @@ CREATE OR REPLACE FUNCTION public._t_uid(_email text) RETURNS uuid LANGUAGE sql 
 CREATE OR REPLACE FUNCTION public._t_cli(_codigo text) RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
   SELECT id FROM public.clientes WHERE codigo_erp = _codigo $$;
 CREATE OR REPLACE FUNCTION public._t_cuenta_mxn() RETURNS TABLE (id uuid) LANGUAGE sql SECURITY DEFINER AS $$
-  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo ORDER BY c.orden LIMIT 1 $$;
+  SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo AND c.es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY c.orden LIMIT 1 $$;
 CREATE OR REPLACE FUNCTION public._t_saldo(_cta uuid) RETURNS numeric LANGUAGE sql SECURITY DEFINER AS $$
   SELECT saldo_actual FROM public.v_saldos_cuentas WHERE id = _cta $$;
+CREATE OR REPLACE FUNCTION public._t_emp() RETURNS uuid LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT id FROM public.empresas_grupo WHERE activo AND es_prueba = public.es_usuario_prueba(auth.uid()) ORDER BY nombre LIMIT 1 $$;
+GRANT EXECUTE ON FUNCTION public._t_emp() TO authenticated;
 -- Recibir con evidencia (desde la unificación es obligatoria): envoltura para las pruebas.
 CREATE OR REPLACE FUNCTION public._t_rec(_tipo text, _monto numeric, _moneda text, _metodo text, _fecha date, _contra text,
   _cliente uuid DEFAULT NULL, _concepto text DEFAULT NULL, _ref text DEFAULT NULL, _tc numeric DEFAULT NULL, _datos jsonb DEFAULT '{}'::jsonb)
 RETURNS jsonb LANGUAGE sql AS $$
   SELECT public.flujo_recibir(_tipo, _monto, _moneda, _metodo, _fecha, _contra, _cliente, _concepto, _ref, _tc,
-                              'prueba/comprobantes/comprobante.pdf', _datos) $$;
+                              'prueba/comprobantes/comprobante.pdf', _datos, public._t_emp()) $$;
 GRANT EXECUTE ON FUNCTION public._t_rec(text, numeric, text, text, date, text, uuid, text, text, numeric, jsonb) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_cuenta_mxn(), public._t_saldo(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_como(text), public._t_falla(text, text), public._t_uid(text), public._t_cli(text) TO authenticated;
@@ -205,26 +208,9 @@ SELECT public.flujo_asignar_capacidad(public._t_uid('martin.real@ejemplo.mx'), '
 SELECT public.flujo_asignar_capacidad(public._t_uid('almacen.real@ejemplo.mx'), 'caja', true);
 RESET ROLE;
 SELECT public._t_como('martin.real@ejemplo.mx');
-CREATE TEMP TABLE t_fd3 (id uuid, cta uuid, saldo0 numeric);
-GRANT ALL ON t_fd3 TO authenticated;
-DO $$
-DECLARE v jsonb; v_cta uuid;
-BEGIN
-  v_cta := (SELECT id FROM public._t_cuenta_mxn());
-  PERFORM public._t_falla($q$SELECT public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL)$q$, 'concepto');
-  v := public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL, 'Viáticos');
-  INSERT INTO t_fd3 VALUES ((v->>'id')::uuid, v_cta, public._t_saldo(v_cta));
-END $$;
-RESET ROLE;
-SELECT public._t_como('almacen.real@ejemplo.mx');
-DO $$ DECLARE r t_fd3%ROWTYPE; BEGIN
-  SELECT * INTO r FROM t_fd3;
-  PERFORM public.flujo_confirmar_caja(r.id, r.cta);
-  ASSERT public._t_saldo(r.cta) = r.saldo0 - 900, 'la salida descuenta la caja';
-  PERFORM public._t_falla(format('SELECT public.flujo_rechazar(%L, ''x'')', r.id), 'motivo');
-  PERFORM public.flujo_rechazar(r.id, 'La entrega no se realizó');
-  ASSERT public._t_saldo(r.cta) = r.saldo0, 'el rechazo devuelve el saldo';
-  ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = r.id) = 'RECHAZADO';
+-- Los gastos y salidas ya no pasan por Recibe: tienen su propia captura (pestaña Gastos).
+DO $$ BEGIN
+  PERFORM public._t_falla($q$SELECT public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL, 'Viáticos')$q$, 'pestaña Gastos');
 END $$;
 RESET ROLE;
 -- Nada se escribe directo ni se borra.
