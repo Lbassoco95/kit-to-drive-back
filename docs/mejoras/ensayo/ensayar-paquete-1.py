@@ -147,7 +147,7 @@ def matriz(ids):
             out[rol][etq] = sorted(inv[x.strip()] for x in r.splitlines() if x.strip() in inv)
     return out
 
-COLUMNAS_BASICAS = ['activo', 'codigo_erp', 'folio_interno', 'id', 'nombre_comercial', 'telefono']
+COLUMNAS_BASICAS = ['activo', 'codigo_erp', 'folio_interno', 'id', 'nombre_comercial']
 
 def catalogo_basico(ids):
     """Qué devuelve catalogo_clientes_basico() a cada rol: {rol: [etiquetas de cliente] | 'ERROR 42501'} y sus columnas."""
@@ -226,6 +226,7 @@ def main():
         ok, err = aplicar(mig(n)); out['migraciones'][MIG[n]] = {'aplica_ok': ok, 'error': err if not ok else ''}
     out['despues'] = {'matriz': matriz(ids), 'catalogo': catalogo(), 'conteos': conteos()}
     out['despues']['catalogo_basico'] = catalogo_basico(ids)
+    out['columnas_del_catalogo_son_exactamente_las_5'] = out['despues']['catalogo_basico']['columnas'] == COLUMNAS_BASICAS and 'telefono' not in out['despues']['catalogo_basico']['columnas']
     out['despues']['escritura'] = pruebas_escritura(ids)
     cat_despues = out['despues']['catalogo']
     # idempotencia
@@ -239,6 +240,7 @@ def main():
     json.dump(out, open(SALIDA, 'w'), ensure_ascii=False, indent=1, sort_keys=True)
     print('migraciones:', {k: v['aplica_ok'] and v.get('reversa_ok') for k, v in out['migraciones'].items()})
     print('conteos antes  :', out['antes']['conteos']); print('conteos despues:', out['despues']['conteos'])
+    print('columnas del catálogo = las 5 básicas y sin teléfono:', out['columnas_del_catalogo_son_exactamente_las_5'])
     print('reaplicar idempotente:', out['reaplicar_idempotente'], '| reversa restaura exacto:', out['reversa_restaura_exacto'])
     dif = {r: {t: (out['antes']['matriz'][r][t], out['despues']['matriz'][r][t]) for t in TABLAS
                if out['antes']['matriz'][r][t] != out['despues']['matriz'][r][t]} for r in ROLES}

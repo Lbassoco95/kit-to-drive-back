@@ -2,7 +2,7 @@
 
 **Qué se midió:** en la réplica local, con la Fase 1 aplicada y también sin ella, con usuarios y datos sintéticos (`ensayo/resultado-paquete-1-con-fase1.json` y `…-sin-fase1.json`): para cada rol, qué filas de cada tabla ve **antes** y **después** de las 3 migraciones, y qué devuelve el catálogo básico. **Qué no se midió:** el «administrador de Comercial» se comporta como «supervisor» (`rol_comercial = supervisor`); los recorridos de pantalla los hace la persona de pruebas (`VENTANA-PAQUETE-1.md` §5).
 
-Leyenda: **V** = solo los suyos (los asignados a él, y los de sus propias remisiones); **T** = todos; **—** = ninguno; **Cat.** = catálogo básico (id, código, folio, nombre, teléfono, activo; **sin** crédito, saldo, documentos ni cartera).
+Leyenda: **V** = solo los suyos (los asignados a él, y los de sus propias remisiones); **T** = todos; **—** = ninguno; **Cat.** = catálogo básico (id, código, folio, nombre, activo; **sin** crédito, saldo, documentos ni cartera).
 
 | Pantalla | Vendedor — antes | Vendedor — **después** | Supervisor / admin de Comercial | Administrativo de Comercial | Dirección | Finanzas · Almacén · Compras · Fábrica |
 |---|---|---|---|---|---|---|

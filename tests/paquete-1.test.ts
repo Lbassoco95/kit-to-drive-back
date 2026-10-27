@@ -4,10 +4,10 @@ import { readFileSync, readdirSync } from 'node:fs';
 const MIG = readdirSync('supabase/migrations').filter((f) => f.startsWith('20261103')).sort();
 const leer = (f: string) => readFileSync(`supabase/migrations/${f}`, 'utf8');
 const sinComentarios = (s: string) => s.replace(/--.*$/gm, '');
-const BASICAS = ['id', 'codigo_erp', 'folio_interno', 'nombre_comercial', 'telefono', 'activo'];
+const BASICAS = ['id', 'codigo_erp', 'folio_interno', 'nombre_comercial', 'activo'];
 // Columnas de `clientes` que NO son básicas: crédito, fiscal, contacto, domicilio, documentos, notas, coordenadas, vendedor.
 const SENSIBLES = ['limite_credito', 'dias_credito', 'moneda_credito', 'rfc', 'razon_social', 'email', 'email_cobranza', 'nombre_contacto',
-  'cargo_contacto', 'telefono_contacto', 'direccion', 'calle', 'num_exterior', 'num_interior', 'colonia', 'municipio', 'estado',
+  'cargo_contacto', 'telefono_contacto', 'telefono', 'direccion', 'calle', 'num_exterior', 'num_interior', 'colonia', 'municipio', 'estado',
   'codigo_postal', 'pais', 'latitud', 'longitud', 'notas', 'vendedor_id', 'doc_constancia_sf_url', 'doc_comprobante_domicilio_url',
   'doc_ine_representante_url', 'doc_acta_constitutiva_url', 'doc_poder_notarial_url'];
 
@@ -23,7 +23,7 @@ describe('Paquete 1 — permisos del vendedor (catálogo básico)', () => {
     }
   });
 
-  it('el catálogo devuelve SOLO las 6 columnas básicas, sin parámetros, y ninguna sensible', () => {
+  it('el catálogo devuelve SOLO las 5 columnas básicas (sin teléfono), sin parámetros, y ninguna sensible', () => {
     const sql = sinComentarios(leer(MIG[0]));
     const firma = sql.match(/CREATE OR REPLACE FUNCTION public\.catalogo_clientes_basico\(\)\s+RETURNS TABLE \(([\s\S]*?)\)\s+LANGUAGE/)!;
     expect(firma).toBeTruthy();

@@ -23,18 +23,19 @@
 | 1.6 | La frase: «Autorizo Fase 1 en producción, ventana del 2026-10-26» | Polo |
 | 1.7 | En la ventana: agregar `supabase-prod-escritura` tras la frase; quitarlo al terminar el último paso | Polo |
 
-### Bloque 2 — Para abrir el Paquete 1 (jueves 29 oct, 19:00–22:00). Depende de que la Fase 1 haya salido limpia (V, A1, A3 y D2 del martes 27, del miércoles 28 y del jueves antes de empezar, sin diferencias inexplicadas)
+### Bloque 2 — Para abrir el Paquete 1 (**martes 27 oct, 19:00–00:00**, todo el paquete en una sola ventana). Depende de que la Fase 1 haya salido limpia (cumplido el 26 oct: V, A1 y A3 verificados paso a paso, 96 registros); V, A1 y A3 se repiten antes de empezar
 
 | # | Qué | Quién |
 |---|---|---|
-| 2.1 | Mezclar el PR #16 del back (Paquete 1). **Mezclar el back no aplica nada en producción** (ver abajo). **No** mezclar antes de la ventana el PR #8 de la compuerta ni el PR #75 del front: **los dos se mezclan DENTRO de la ventana, en este orden: M1 y M2 verificados → PR #8 (compuerta) → PR #75 (front)**; cada uno despliega en producción en Vercel | Polo |
+| 2.1 | Mezclar el PR #16 del back (Paquete 1). **Mezclar el back no aplica nada en producción** (ver abajo). **No** mezclar antes de la ventana el PR #8 de la compuerta ni el PR #76 del front (**sustituye al #75, que se cerró**: estaba apilado sobre la Fase 2): **los dos se mezclan DENTRO de la ventana, en este orden: M1, M2 y M3 verificados → PR #8 (compuerta) → PR #76 (front, desde `main`)**; cada uno despliega en producción en Vercel | Polo |
 | 2.2 | Dos clientes de prueba **sin vendedor** («ZZ PRUEBA P1 sin asignar A» y «B»), creados por un supervisor; se **desactivan** al final, no se borran | Polo / supervisor |
 | 2.3 | Cuentas: un **vendedor sin clientes**, **otro vendedor**, un **supervisor** de Comercial, un **administrativo** de Comercial y **Dirección** | Polo + persona de pruebas |
-| 2.4 | **D8 = A:** el cambio de texto de «Clientes» ya está hecho en el PR #75 (sin tocar la base) | Code (hecho) |
-| 2.5 | Respaldo del día; aviso a Dazon (miércoles y al empezar) | Polo |
-| 2.6 | La frase: «Autorizo paquete 1 (permisos de vendedor) en producción, ventana del 2026-10-29» | Polo |
+| 2.4 | **D8 = A:** el cambio de texto de «Clientes» ya está hecho en el PR #76 (sin tocar la base). **Catálogo sin teléfono** (27 oct): M1 y front rehechos | Code (hecho) |
+| 2.5 | Respaldo del día; aviso a Dazon (al empezar) | Polo |
+| 2.6 | La frase: «Autorizo paquete 1 (permisos de vendedor) en producción, ventana del 2026-10-27» | Polo |
 | 2.7 | **Mezclar el PR #8 de la compuerta** (despliega en producción en Vercel): **después de verificar M1 y M2 y antes de los recorridos** | Polo |
 | 2.8 | **Después de la ventana:** Martin devuelve el nivel a los vendedores subidos a supervisor y **asigna clientes** (D6). Hasta entonces el vendedor ve «0 de 0» en Clientes | Martin |
+| 2.9 | **R8, PENDIENTE PARA UN PAQUETE APARTE (no se toca en el Paquete 1):** hoy el vendedor puede editar el límite, los días y la moneda de crédito de sus clientes. Es la decisión de crédito D-C1 de Martin; opciones A (solo Administración y Dirección) o B (Comercial lo captura) en `PAQUETE-1-PERMISOS-VENDEDOR.md` §7 | Martin / Polo |
 
 ### Bloque 3 — Para abrir la Fase 2 (sábado 31 oct, 10:00–15:00). Depende del Bloque 2 limpio
 
@@ -105,9 +106,9 @@ Orden: M1, M2, M4, M5, M6 y, **al final y solo**, M3 (solo si empieza a más tar
 
 **Recorridos:** persona de pruebas por rol (`HOJA-DE-PRUEBAS-POR-ROL.md`); obligatorios el 1 y el 6; el alta de usuario tras M2. **Detener y revertir** (orden inverso M3, M6, M5, M4, M2, M1): falla un recorrido, un usuario pierde algo, suben los errores de D2 o V no coincide. **Cierre:** `RUNBOOK-FINAL-FASE-1.md` §7. Observación hasta el Paquete 1.
 
-### Ventana Paquete 1 — jueves 29 oct, 19:00 a 22:00
+### Ventana Paquete 1 — martes 27 oct, 19:00 a 00:00
 
-Detalle y recorridos R1–R11: `docs/mejoras/VENTANA-PAQUETE-1.md`. Orden: **M1 → verificar → M2 → verificar → mezclar PR #8 de la compuerta (esperar «Ready» en Vercel) → R1–R8 → M3 → verificar → R9–R11**.
+Detalle y recorridos R1–R11: `docs/mejoras/VENTANA-PAQUETE-1.md`. Orden: **M1 → verificar → M2 → verificar → M3 → verificar → mezclar PR #8 de la compuerta (esperar «Ready» en Vercel) → mezclar PR #76 del front (esperar «Ready») → recorridos R1–R11 con un vendedor real**. Secuencia final con horas, fotos y criterios de detención: `docs/mejoras/VENTANA-PAQUETE-1.md`.
 
 | Momento | `funciones` | `secdef_authenticated` | `triggers` | `politicas` | `registros_migraciones` |
 |---|---|---|---|---|---|
@@ -116,7 +117,7 @@ Detalle y recorridos R1–R11: `docs/mejoras/VENTANA-PAQUETE-1.md`. Orden: **M1 
 | Tras M2 | 272 | 179 | T0+2 | 301 | 98 |
 | Tras M3 | 272 | 179 | T0+2 | 301 | 99 |
 
-Con M1: `catalogo_definer_con_search_path` = 1, `catalogo_authenticated_ejecuta` = true, `catalogo_anon_ejecuta` = false. Con M2: `funciones_alta_cliente` = 3, `triggers_alta_cliente` = 2, `alta_cliente_ejecutables` = 0 y `clientes_sin_vendedor` sin cambio. Con M3: `refacciones_con_administrativo` y `refacciones_sin_comercial` = true. El bloque V de la Fase 1 cambia `secdef_authenticated` a 179 desde M1 (esperado). **Detener y revertir** (M3, M2, M1) si falla R5, R8, R10 o R11, si suben los errores de D2, o si el bloque P1V no coincide. A las 21:30 un paso a medias se revierte.
+Con M1: `catalogo_definer_con_search_path` = 1, `catalogo_authenticated_ejecuta` = true, `catalogo_anon_ejecuta` = false. Con M2: `funciones_alta_cliente` = 3, `triggers_alta_cliente` = 2, `alta_cliente_ejecutables` = 0 y `clientes_sin_vendedor` sin cambio. Con M3: `refacciones_con_administrativo` y `refacciones_sin_comercial` = true. El bloque V de la Fase 1 cambia `secdef_authenticated` a 179 desde M1 (esperado). **Detener y revertir** (M3, M2, M1) si falla R5, R8, R10 o R11, si suben los errores de D2, o si el bloque P1V no coincide. Un paso a medias se revierte; no se empieza un paso nuevo después de las 22:45.
 
 ### Ventana Fase 2 — sábado 31 oct, 10:00 a 15:00
 

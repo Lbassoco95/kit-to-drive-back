@@ -6,7 +6,8 @@
 
 | Grupo | Columnas de `clientes` | ¿Catálogo básico? |
 |---|---|---|
-| **Identificación (básicas)** | `id`, `codigo_erp`, `folio_interno`, `nombre_comercial`, `telefono`, `activo` | **Sí: es todo lo que devuelve** |
+| **Identificación (básicas)** | `id`, `codigo_erp`, `folio_interno`, `nombre_comercial`, `activo` | **Sí: es todo lo que devuelve** |
+| Teléfono | `telefono` | **No** (quitado por decisión de Polo, 27 oct; lo lee de la ficha quien la ve) |
 | Crédito | `limite_credito`, `dias_credito`, `moneda_credito` | No (sensible) |
 | Fiscal y legal | `razon_social`, `rfc` | No (sensible; ver D9) |
 | Contacto | `email`, `email_cobranza`, `nombre_contacto`, `cargo_contacto`, `telefono_contacto` | No (sensible) |
@@ -19,7 +20,7 @@
 
 ## 2. Mecanismo: función de solo lectura `catalogo_clientes_basico()`
 
-- **Sin parámetros**, devuelve únicamente las 6 columnas básicas, ordenadas por folio, código e id (orden estable para leerla por tramos de mil).
+- **Sin parámetros**, devuelve únicamente las 5 columnas básicas, ordenadas por folio, código e id (orden estable para leerla por tramos de mil).
 - **Quién la ejecuta:** `authenticated` (con permiso explícito) y `service_role`; **`anon` no**. Dentro, solo quien trabaja en Comercial (operador, supervisor o administrador global) o en Dirección, y activo; otro rol recibe `42501`.
 - **Modo prueba:** un usuario de prueba solo ve clientes de prueba (misma regla que su política de lectura).
 - **`SECURITY DEFINER` es necesario aquí y es el único que se agrega** (el trigger de remisiones es INVOKER): la política «leer clientes» oculta por diseño las filas de otros vendedores, así que sin saltarla la función devolvería 0 filas. Con `search_path` fijo y las 6 columnas escritas a mano (sin `*`); un test del repo falla si se agrega una columna sensible.
