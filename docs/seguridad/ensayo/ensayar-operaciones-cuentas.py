@@ -62,7 +62,7 @@ INSERT INTO public.user_roles VALUES ('00000000-0000-4000-8000-000000000001', 'f
 
 def foto():
     return psql('ops_cuentas', """SELECT md5(string_agg(x, '|' ORDER BY x)) FROM (
-      SELECT 'u|'||id||'|'||coalesce(email,'')||'|'||raw_user_meta_data::text||'|'||coalesce(banned_until::text,'') FROM auth.users
+      SELECT 'u|'||id||'|'||coalesce(email,'')||'|'||raw_user_meta_data::text||'|'||coalesce(banned_until::text,'') AS x FROM auth.users
       UNION ALL SELECT 'i|'||user_id||'|'||identity_data::text FROM auth.identities
       UNION ALL SELECT 'p|'||id||'|'||coalesce(email,'')||'|'||coalesce(activo::text,'')||'|'||coalesce(nombre_completo,'') FROM public.profiles
       UNION ALL SELECT 'r|'||user_id||'|'||area||'|'||nivel FROM public.user_roles) q;""").strip().splitlines()[-1]
@@ -141,7 +141,7 @@ def como_prep(rol, prep, cuerpo): return psql('p_asig', "BEGIN;\n" + prep + "\nS
 
 def catalogo():
     return psql('p_asig', """SELECT md5(string_agg(x, E'\\n' ORDER BY x)) FROM (
-      SELECT 'p|'||schemaname||'.'||tablename||'|'||policyname||'|'||cmd||'|'||coalesce(qual,'')||'|'||coalesce(with_check,'') FROM pg_policies WHERE schemaname IN ('public','storage')
+      SELECT 'p|'||schemaname||'.'||tablename||'|'||policyname||'|'||cmd||'|'||coalesce(qual,'')||'|'||coalesce(with_check,'') AS x FROM pg_policies WHERE schemaname IN ('public','storage')
       UNION ALL SELECT 'f|'||p.oid::regprocedure::text||'|'||md5(pg_get_functiondef(p.oid))||'|'||coalesce(p.proacl::text,'') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.prokind IN ('f','p')
       UNION ALL SELECT 't|'||c.relname||'|'||t.tgname||'|'||md5(pg_get_triggerdef(t.oid)) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE NOT t.tgisinternal AND n.nspname='public') q;""").strip().splitlines()[-1]
 def funciones_salvo_asignar():
