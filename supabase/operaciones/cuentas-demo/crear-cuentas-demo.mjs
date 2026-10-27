@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 /**
- * Alta de 4 cuentas demo en producción (proyecto kit-to-drive). PROPUESTA: NO se ha ejecutado.
+ * Alta de 3 cuentas de PRUEBA (modo prueba) en producción (proyecto kit-to-drive). VERSIÓN FINAL PARA REVISAR: NO se ha ejecutado.
  *
  * Hace lo mismo que la función admin-create-user (la que usa la pantalla de Usuarios), paso por paso y en el mismo
- * orden, con DOS diferencias obligadas que Polo debe aprobar:
+ * orden, con DOS diferencias obligadas, aprobadas por Polo en principio:
  *   · NO envía correo (las direcciones no tienen buzón), así que la contraseña no puede viajar por correo;
  *   · la contraseña se genera aquí y se imprime UNA vez, solo en esta terminal.
- * Pasos por cuenta (igual que la función): 1) rastro en bridge_bitacora (si falla, no se crea nada)
- * 2) autorizar el alta en altas_autorizadas 3) crear en Auth (Admin API, correo confirmado, sin enviar nada)
- * 4) upsert en profiles 5) upsert en user_roles. Nunca toca cuentas existentes: si alguno de los 4 correos ya existe, aborta.
+ * Marca de demo = el mecanismo del sistema: la cuenta se registra en inventario_usuarios_prueba (modo prueba): solo ve y toca
+ * datos de prueba. Por eso los correos son prueba.*@demo.kawiil.mx (la tabla exige el prefijo «prueba.»). El registro se hace
+ * ANTES de crear la cuenta en Auth, para que nunca exista una cuenta de prueba sin su modo prueba.
+ * Pasos por cuenta: 1) rastro en bridge_bitacora (si falla, no se crea nada) 2) registrar en inventario_usuarios_prueba
+ * 3) autorizar el alta en altas_autorizadas 4) crear en Auth (Admin API, correo confirmado, sin enviar nada)
+ * 5) upsert en profiles 6) upsert en user_roles. Nunca toca cuentas existentes: si algún correo ya existe (en Auth o en el
+ * registro de cuentas de prueba), aborta sin escribir.
  *
  * Uso (en la terminal de Polo; la llave NO se pega en el chat ni se guarda en ningún archivo):
  *   read -rs SUPABASE_SERVICE_ROLE_KEY; export SUPABASE_SERVICE_ROLE_KEY     # (zsh/bash) escribe la llave y Enter
@@ -23,12 +27,11 @@ const REF_PRODUCCION = "dmhzhyeivvuliumcgsmm";
 const REF_QA = "qszllskpizvpnzcytqpj";
 const VENTANA = "2026-10-26";
 
-// ── Lista exacta de cuentas (PROPUESTA de perfiles: pendiente de aprobación) ────────────────────────────────────
+// ── Lista exacta de cuentas ──────────────────────────────────────────────────────────────────────────────────────
 const CUENTAS = [
-  { email: "demo.vendedor@demo.kawiil.mx",  nombre: "DEMO Vendedor",  area: "comercial", nivel: "operador", es_vendedor: true },
-  { email: "demo.operador@demo.kawiil.mx",  nombre: "DEMO Operador",  area: "fabrica",   nivel: "operador", es_vendedor: false },
-  { email: "demo.direccion@demo.kawiil.mx", nombre: "DEMO Dirección", area: "direccion", nivel: "supervisor", es_vendedor: false },
-  { email: "demo.lectura@demo.kawiil.mx",   nombre: "DEMO Lectura",   area: "direccion", nivel: "operador", es_vendedor: false },
+  { email: "prueba.vendedor@demo.kawiil.mx",  nombre: "PRUEBA Vendedor",  area: "comercial", nivel: "operador",   es_vendedor: true },
+  { email: "prueba.operador@demo.kawiil.mx",  nombre: "PRUEBA Operador",  area: "fabrica",   nivel: "operador",   es_vendedor: false },
+  { email: "prueba.direccion@demo.kawiil.mx", nombre: "PRUEBA Dirección", area: "direccion", nivel: "supervisor", es_vendedor: false },
 ];
 // Mismo mapeo (área, nivel) → rol heredado que admin-create-user.
 const rolLegacy = (a, n) => a === "comercial" ? (n === "admin" ? "director_ventas" : n === "supervisor" ? "coordinador_ventas" : "ventas")
@@ -53,6 +56,7 @@ try {
   if (p.role !== "service_role") falla("la llave no es de rol service_role");
   if (!hostLocalDePrueba && p.ref !== REF_PRODUCCION) falla("la llave no pertenece al proyecto de producción");
 } catch { falla("la llave no tiene formato de JWT"); }
+for (const c of CUENTAS) if (!/^prueba\.[^@]+@/i.test(c.email)) falla(`${c.email} no empieza con «prueba.»: la tabla de cuentas de prueba lo exige`);
 if (ejecutar && process.env.CONFIRMO_VENTANA !== VENTANA) falla(`para ejecutar hace falta CONFIRMO_VENTANA=${VENTANA}`);
 
 const H = { apikey: llave, Authorization: `Bearer ${llave}` };
@@ -83,7 +87,8 @@ async function usuariosAuth() {
 }
 async function conteos() {
   return { "auth.users": (await usuariosAuth()).length, profiles: await conteoTabla("profiles"), user_roles: await conteoTabla("user_roles"),
-           bridge_bitacora: await conteoTabla("bridge_bitacora"), altas_autorizadas: await conteoTabla("altas_autorizadas") };
+           bridge_bitacora: await conteoTabla("bridge_bitacora"), inventario_usuarios_prueba: await conteoTabla("inventario_usuarios_prueba"),
+           altas_autorizadas: await conteoTabla("altas_autorizadas") };
 }
 function generarPassword(largo = 24) {
   const U = "ABCDEFGHJKLMNPQRSTUVWXYZ", L = "abcdefghijkmnopqrstuvwxyz", D = "23456789", S = "!@#$%&*-_=+";
@@ -98,10 +103,17 @@ function generarPassword(largo = 24) {
 const antes = await conteos();
 const existentes = (await usuariosAuth()).map((u) => (u.email || "").toLowerCase());
 const yaExisten = CUENTAS.filter((c) => existentes.includes(c.email));
+{
+  const r = await api("GET", "/rest/v1/inventario_usuarios_prueba?select=email");
+  if (!r.ok) falla("no se pudo leer inventario_usuarios_prueba: " + motivo(r));
+  const reg = (r.json ?? []).map((x) => String(x.email).toLowerCase());
+  const ya = CUENTAS.filter((c) => reg.includes(c.email));
+  if (ya.length) falla("ya están en inventario_usuarios_prueba: " + ya.map((c) => c.email).join(", "));
+}
 if (yaExisten.length) falla("ya existe(n): " + yaExisten.map((c) => c.email).join(", ") + ". No se toca ninguna cuenta existente.");
 
 console.log("Proyecto:", url.replace("https://", "").replace(".supabase.co", ""), hostLocalDePrueba ? "(servidor local de ensayo)" : "(producción)");
-console.log("Cuentas a crear:");
+console.log("Cuentas de prueba a crear (modo prueba):");
 for (const c of CUENTAS) console.log(`  ${c.email.padEnd(34)} ${c.area}/${c.nivel}${c.es_vendedor ? " · es_vendedor" : ""}  (rol heredado: ${rolLegacy(c.area, c.nivel)})`);
 console.log("Conteos antes:", JSON.stringify(antes));
 if (!ejecutar) { console.log("\nEnsayo: no se escribió nada. Para crear: CONFIRMO_VENTANA=" + VENTANA + " node crear-cuentas-demo.mjs --ejecutar"); process.exit(0); }
@@ -115,17 +127,21 @@ for (const c of CUENTAS) {
   let r = await api("POST", "/rest/v1/bridge_bitacora", { accion: "usuario.crear", objetivo: c.email,
     detalle: { area: c.area, nivel: c.nivel, reutiliza_cuenta: false, actor: "script-cuentas-demo", correlacion, origen: "script", ventana: VENTANA } });
   if (!r.ok) falla(`rastro de ${c.email}: ${motivo(r)}. No se creó esa cuenta. Ya creadas: ${creadas.join(", ") || "ninguna"}.`);
-  // 2) Alta autorizada (el candado de la base solo deja pasar altas autorizadas).
+  // 2) Modo prueba: registrar la cuenta ANTES de crearla en Auth.
+  r = await api("POST", "/rest/v1/inventario_usuarios_prueba", { email: c.email, nota: "cuenta de prueba demo (script cuentas-demo, ventana " + VENTANA + ")" },
+    { Prefer: "return=minimal" });
+  if (!r.ok) falla(`registrar ${c.email} en inventario_usuarios_prueba: ${motivo(r)}. Ya creadas: ${creadas.join(", ") || "ninguna"}.`);
+  // 3) Alta autorizada (el candado de la base solo deja pasar altas autorizadas).
   r = await api("POST", "/rest/v1/altas_autorizadas?on_conflict=email", { email: c.email, expira_at: new Date(Date.now() + 3 * 60_000).toISOString() },
     { Prefer: "resolution=merge-duplicates,return=minimal" });
   if (!r.ok) falla(`autorizar alta de ${c.email}: ${motivo(r)}. Ya creadas: ${creadas.join(", ") || "ninguna"}.`);
-  // 3) Auth: correo confirmado, sin enviar correo. La marca de demo va en app_metadata (solo la Admin API la escribe).
+  // 4) Auth: correo confirmado, sin enviar correo. La marca de demo va en app_metadata (solo la Admin API la escribe).
   r = await api("POST", "/auth/v1/admin/users", { email: c.email, password, email_confirm: true,
     app_metadata: { must_change_password: false, created_via_admin: true, managed_by: "cuentas-demo", demo: true },
     user_metadata: { full_name: c.nombre, must_change_password: false } });
   if (!r.ok || !r.json?.id) falla(`crear ${c.email} en Auth: ${motivo(r)}. Ya creadas: ${creadas.join(", ") || "ninguna"}.`);
   const uid = r.json.id;
-  // 4) Perfil. 5) Tipo de usuario.
+  // 5) Perfil. 6) Tipo de usuario.
   r = await api("POST", "/rest/v1/profiles?on_conflict=id", { id: uid, email: c.email, nombre_completo: c.nombre, codigo_vendedor: null,
     es_vendedor: c.es_vendedor, es_administrativo: false, activo: true, debe_cambiar_password: false },
     { Prefer: "resolution=merge-duplicates,return=minimal" });
@@ -141,7 +157,7 @@ const despues = await conteos();
 console.log("\nConteos antes :", JSON.stringify(antes));
 console.log("Conteos después:", JSON.stringify(despues));
 console.log("\n" + "=".repeat(64));
-console.log("CONTRASEÑA (la misma para las 4 cuentas; se muestra UNA sola vez):");
+console.log("CONTRASEÑA (la misma para las 3 cuentas; se muestra UNA sola vez):");
 console.log("  " + password);
 console.log("=".repeat(64));
 console.log("Cópiala a donde corresponda y limpia el historial de la terminal (clear / cerrar la pestaña).");

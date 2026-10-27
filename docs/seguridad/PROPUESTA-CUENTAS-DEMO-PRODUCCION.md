@@ -1,67 +1,67 @@
-# Cuatro cuentas demo en producción: propuesta para revisar (26 oct 2026)
+# Tres cuentas de prueba en producción (opción A, modo prueba): versión final para revisar (26 oct 2026)
 
-**Nada se ha ejecutado.** Sobre producción solo se verificó el proyecto (`get_project_url` → `dmhzhyeivvuliumcgsmm`, producción) y se leyeron conteos. No se inició sesión en ninguna cuenta ni se probó ninguna contraseña. Se espera la frase: «Autorizo crear cuentas demo en producción, ventana del 2026-10-26».
+**Nada se ha ejecutado.** Sobre producción solo se verificó el proyecto (`get_project_url` → `dmhzhyeivvuliumcgsmm`) y se leyeron conteos. Se espera la frase: «Autorizo crear cuentas demo en producción, ventana del 2026-10-26». Decisiones de Polo: **opción A** (mecanismo del sistema, correos `prueba.*`) y **sin `demo.lectura`**.
 
-## 1. Tres cosas que no se pueden cumplir tal cual (hay que decidir)
-
-1. **«El mismo método que la pantalla de Usuarios» + «sin correo» + «contraseña solo en tu terminal» chocan.** La pantalla llama a la función `admin-create-user`, que (a) exige la sesión de un administrador, (b) **genera la contraseña en el servidor y la manda por correo, y si el correo no sale no crea nada**, y (c) no devuelve la contraseña. Con direcciones sin buzón esa función no sirve. El script hace **los mismos cinco pasos, en el mismo orden y con las mismas tablas** que la función (rastro en `bridge_bitacora` → `altas_autorizadas` → Auth con correo confirmado → `profiles` → `user_roles`), pero **desde tu terminal con la llave de servicio, sin enviar correo, y con la contraseña generada ahí**. Es la única forma que respeta tus reglas de contraseña; **el SQL directo a `auth.users` no es opción** porque la contraseña tendría que pasar por mí.
-2. **Los perfiles que dices no existen tal cual.** El sistema tiene 3 niveles (operador, supervisor, admin) en 6 áreas; no hay perfil «Lectura» de solo lectura. **Propuesta** (la decides tú):
-
-| Correo | Perfil propuesto | Por qué / alternativa |
+## 1. Cuentas
+| Correo | Perfil | Nota |
 |---|---|---|
-| `demo.vendedor@demo.kawiil.mx` | Comercial · operador, marcado vendedor | Es el vendedor. |
-| `demo.operador@demo.kawiil.mx` | Fábrica · operador | «Operador» existe en todas las áreas; Fábrica es la más típica. Alternativa: Almacén y logística · operador. |
-| `demo.direccion@demo.kawiil.mx` | **Dirección · supervisor** | **No propongo Dirección · admin:** es el administrador global y con una contraseña compartida en producción es el riesgo mayor. Supervisor ve todo y no administra usuarios. Si necesitas probar al admin global, dímelo. |
-| `demo.lectura@demo.kawiil.mx` | Dirección · operador | Lo más cercano a «lectura»: ve de forma amplia, **pero no es solo lectura** (hallazgo R6 de la matriz: puede crear clientes y remisiones). |
+| `prueba.vendedor@demo.kawiil.mx` | Comercial · operador, marcado vendedor | |
+| `prueba.operador@demo.kawiil.mx` | Fábrica · operador | Alternativa: Almacén y logística · operador |
+| `prueba.direccion@demo.kawiil.mx` | **Dirección · supervisor** | No admin global. Si Polo prefiere admin, es un cambio de una línea; el modo prueba ya aísla datos, pero no cambia lo que el rol puede administrar. |
 
-3. **Cómo marcarlas como demo.** El sistema **sí** tiene su mecanismo: la tabla `inventario_usuarios_prueba` (modo prueba). Pero (a) su restricción exige correos `prueba.%@…`, y los tuyos son `demo.%`; (b) el modo prueba hace que la cuenta **solo vea y toque datos de prueba**, nunca los reales.
+Las tres se registran en `inventario_usuarios_prueba` (la tabla exige el prefijo `prueba.`) **antes** de crearse en Auth, y llevan además la marca `app_metadata.managed_by = cuentas-demo`. Contraseña: una sola para las tres, 24 caracteres, impresa una vez en la terminal de Polo. `must_change_password = false` (si la primera persona la cambiara, la impresa dejaría de servir).
 
-| Opción | Qué implica |
-|---|---|
-| **A: mecanismo del sistema** | Cambiar los correos a `prueba.vendedor@demo.kawiil.mx`, etc., y registrarlos en `inventario_usuarios_prueba` (+4 filas, sin columnas ni tablas nuevas). Las cuentas **no ven datos reales**: lo más seguro con una contraseña compartida, pero prueba los perfiles sobre datos de prueba. |
-| **B: marca propia (la del script)** | Mantiene tus correos. Marca en `app_metadata` de Auth (`managed_by = cuentas-demo`, `demo = true`, solo la Admin API la escribe) y nombre «DEMO …» en el perfil. Las cuentas **ven datos reales** según su perfil. El script de bloqueo solo actúa sobre cuentas con esa marca. |
+## 2. Qué cubre el modo prueba (medido en la réplica y por catálogo; no por pantallas)
+**Lo que protege (aislamiento):** la cuenta solo ve filas con `es_prueba = true`, y los rastros de lo que cree quedan marcados como prueba. Hay filtro de lectura en **69 de las 93 tablas** y candado de escritura en **79**. Las 18 vistas son `security_invoker`, así que el filtro también las alcanza. **No es solo inventario**: cubre clientes, remisiones (de refacciones y de motocarros), cobranza, compras, CRM, kárdex y los reportes de refacciones.
 
-Recomiendo **A** si lo que quieres es comprobar que los permisos de M1–M2 y M4 no rompen pantallas; **B** si necesitas verlas sobre datos reales. El script que está en la rama es **B**; si eliges A, lo ajusto antes de que lo corras.
+**Pero «cubre» no es «se puede probar».** Hay tres casos:
 
-Un detalle más: la función obliga a cambiar la contraseña al primer ingreso. Para cuentas compartidas **propongo no obligarlo** (`must_change_password = false`), porque si la primera persona la cambia, la que imprimí deja de servir. Dime si prefieres lo contrario.
+| Área | Qué ve y qué puede hacer la cuenta de prueba | Datos de prueba hoy en producción |
+|---|---|---|
+| **Clientes**, artículos de refacciones, **kárdex** (movimientos), remisiones de refacciones, compras, cobranza | Ve **solo lo de prueba**. Si crea un cliente, el sistema lo marca como prueba solo. Puede escribir sobre lo de prueba; sobre lo real, no ve nada que tocar. | Clientes 1 · artículos 5 · movimientos de kárdex 5 · remisiones de refacciones 1 · compras 0 · pagos de cobranza 0 |
+| **Remisiones de motocarros**, motocarros, **cuentas por cobrar** y vista de crédito, **CRM** (oportunidades, rutas, actividades) | **No ve ninguna fila y no puede escribir** (el intento se rechaza con «Estás en MODO PRUEBA…»). Está aislada, pero **no existe dato de prueba** en estas tablas. | No existe mecanismo de datos de prueba para ellas |
+| Reportes y kárdex | `reporte_ventas_refacciones` se filtra por las políticas de las tablas; `ventas_mensuales_refacciones` y la rotación filtran por `es_prueba`; `kardex_refaccion` y `kardex_refacciones_multi` piden que el artículo sea de prueba. Ejecutados por la cuenta devolverían solo lo de prueba o nada. | Los 5 artículos y 5 movimientos de prueba |
 
-## 2. Archivos (rama `claude/cuentas-demo-produccion`)
+**Medido:** con una cuenta de prueba simulada, **0 remisiones, 0 motocarros, 0 cuentas por cobrar, 0 filas de CRM, 0 clientes reales** visibles; crear una remisión, una cuenta por cobrar o una oportunidad se rechaza; crear un cliente lo guarda marcado como prueba; solo ve su propio perfil.
+**Sin cubrir (24 tablas sin filtro de lectura de prueba):** configuración y catálogos (`config_general`, `compras_parametros`, `inventario_almacenes`, `app_modulos`, `flujo_capacidades`, `flujo_dinero`), `firmas_*`, `soporte_*`, `solicitudes_aprobacion`, bitácoras, `super_admins`. La mayoría tiene su propia política por rol; la cuenta de prueba sigue sujeta a ella.
 
+**Consecuencia para tu objetivo.** Con la opción A, las cuentas sirven para comprobar que **las pantallas cargan sin errores de permisos** con el perfil correcto (funciones, vistas, tablas) tras M1, M2 y M4, sobre datos de prueba. **No sirven para ejercitar los flujos de ventas con remisiones de motocarros, cartera o CRM**, porque esas tablas no admiten datos de prueba. Si necesitas ver esos flujos con datos, hay que usar una cuenta real o definir datos de prueba para esas tablas (otra decisión).
+
+## 3. Archivos (rama `claude/cuentas-demo-produccion`)
 | Archivo | Para qué | sha256 (16) |
 |---|---|---|
-| `supabase/operaciones/cuentas-demo/crear-cuentas-demo.mjs` | Alta de las 4 cuentas. Ensayo por defecto; escribe solo con `--ejecutar` y `CONFIRMO_VENTANA=2026-10-26`. | `3b48bb5cc16ed87b` |
-| `…/ensayo-con-servidor-falso.mjs` | Prueba del script contra un servidor falso local: 12 de 12. | `8e5cc3e040ee48fe` |
-| `…/bloquear-cuentas-demo.sql` | Bloquea las 4 a la vez (Auth `banned_until = infinity` y perfil inactivo). **No ejecutar.** | `08bf893f3b97560d` |
-| `…/bloquear-cuentas-demo_reversa.sql` | Reabre las 4. | `949100f3f7963491` |
+| `supabase/operaciones/cuentas-demo/crear-cuentas-demo.mjs` | Alta. Ensayo por defecto; escribe solo con `--ejecutar` y `CONFIRMO_VENTANA=2026-10-26`. | `30edae089bf283cc` |
+| `…/ensayo-con-servidor-falso.mjs` | Prueba contra un servidor falso local: **14 de 14**. | `accffa7287431e88` |
+| `…/bloquear-cuentas-demo.sql` | Bloquea las 3 a la vez (`banned_until = infinity` y perfil inactivo). **No ejecutar.** No toca el registro de modo prueba. | `35acef9069d4aee9` |
+| `…/bloquear-cuentas-demo_reversa.sql` | Reabre las 3. | `8273a0a53abb5ea3` |
 
-**Guardas del script:** solo la URL exacta de producción (rechaza QA y cualquier otra); la llave debe ser `service_role` **de ese proyecto**; si alguno de los 4 correos ya existe, aborta sin tocar nada (nunca toca cuentas existentes); si falla un paso, se detiene y **no borra nada**; la contraseña (24 caracteres, las 4 clases, generada con `crypto.randomInt`) se imprime **una vez** al final, solo en stdout, y no aparece en errores, logs, archivos ni tablas fuera de Auth. **Probado:** el ensayo no escribe; el orden de pasos por cuenta; contraseña una sola vez; sin llamadas de correo o invitación; aborta si el correo ya existe; se detiene al primer error sin borrar.
-**Guardas del bloqueo:** exactamente 4 cuentas, las 4 con la marca de demo, ninguna ya bloqueada o inactiva. **Probado en la réplica:** aborta sin marca, bloquea 4, aborta el segundo intento, la reversa reabre las 4 y es idempotente.
+**Guardas del alta:** solo la URL exacta de producción (rechaza QA y cualquier otra); la llave debe ser `service_role` de ese proyecto; los correos deben empezar con `prueba.`; si alguno ya existe en Auth o en `inventario_usuarios_prueba`, aborta sin escribir; si falla un paso, se detiene y no borra nada; la contraseña no sale en errores, archivos ni logs.
+**Probado:** 14 de 14 contra el servidor falso (orden de 6 pasos por cuenta, el registro de modo prueba antes de Auth, contraseña una vez y solo en stdout, sin llamadas de correo, aborta si el correo existe, se detiene al primer error). En la réplica: el bloqueo aborta sin marca, bloquea 3, aborta el segundo intento, y la reversa reabre las 3.
 
-## 3. Cómo se correría (cuando apruebes y des la frase)
-
-En **tu terminal** (la llave no se pega en el chat ni en ningún archivo):
+## 4. Cómo se correría
+En la terminal de Polo (la llave no pasa por el chat ni se guarda en archivos):
 ```
 read -rs SUPABASE_SERVICE_ROLE_KEY; export SUPABASE_SERVICE_ROLE_KEY
 export SUPABASE_URL=https://dmhzhyeivvuliumcgsmm.supabase.co
-node crear-cuentas-demo.mjs                                           # ensayo: lee y muestra el plan y los conteos
+node crear-cuentas-demo.mjs                                           # ensayo: lee y muestra plan y conteos
 CONFIRMO_VENTANA=2026-10-26 node crear-cuentas-demo.mjs --ejecutar    # crea y muestra la contraseña una vez
 ```
-Antes de eso, yo verifico el proyecto con `get_project_url`, tomo V, A1 y A3 por lectura y los pego. Después, los vuelvo a tomar y comparo. **Esto no pasa por el conector de escritura ni por `apply_migration`**; el bloqueo sí iría por `execute_sql`, un archivo por llamada y con tu aprobación.
+Antes y después tomo V, A1 y A3 por lectura y comparo. No pasa por el conector de escritura ni por `apply_migration`; el bloqueo sí iría por `execute_sql`, un archivo por llamada y con aprobación.
 
-## 4. Efecto esperado sobre los conteos (medido ejecutando los mismos pasos en la réplica)
-
+## 5. Efecto esperado (medido ejecutando los mismos pasos en la réplica)
 | Objeto | Antes | Después |
 |---|---|---|
-| `auth.users` | 26 | **30** |
-| `profiles` | 26 | **30** |
-| `user_roles` | 25 | **29** |
-| `bridge_bitacora` (rastro del alta) | 3 | **7** |
-| `auth.identities` (la crea Auth; no simulable en la réplica) | 28 | **32** |
-| `altas_autorizadas` | 0 | 0 (las filas se consumen o caducan en 3 minutos) |
+| `auth.users` | 26 | **29** |
+| `profiles` | 26 | **29** |
+| `user_roles` | 25 | **28** |
+| `bridge_bitacora` | 3 | **6** |
+| `inventario_usuarios_prueba` | 7 | **10** |
+| `auth.identities` (la crea Auth; no simulable) | 28 | **31** |
+| `altas_autorizadas` | 0 | 0 |
 | Filas totales de `public` | 20,626 | **20,638** |
-| `migraciones_aplicadas` | 92 | 92 (no es una migración y no deja registro ahí; el rastro queda en `bridge_bitacora`) |
+| `migraciones_aplicadas` | 92 | 92 (no es migración) |
 
-**Sobre «la misma huella de las 92 tablas»:** no puede ser literal. Crear usuarios cambia **forzosamente** tres tablas de `public`: `profiles`, `user_roles` y `bridge_bitacora`. Lo que sí se verifica es que **las otras 90 tablas** (incluida `migraciones_aplicadas`) tengan la misma huella y los mismos conteos, que `auth.users` solo gane esas 4 filas con las huellas de las 26 existentes intactas, y que storage no cambie. Con la opción A, `inventario_usuarios_prueba` sería la cuarta tabla (7 → 11).
+**Huellas:** cambian forzosamente **cuatro** tablas de `public` (`profiles`, `user_roles`, `bridge_bitacora`, `inventario_usuarios_prueba`). Las **otras 89** deben conservar conteo y huella (incluida `migraciones_aplicadas`); `auth.users` solo gana 3 filas con las huellas de las 26 existentes intactas; storage sin cambios. En la réplica, solo esas cuatro cambiaron de huella.
 
-## 5. Lo que te devuelvo al terminar
-Solo: los 4 correos con su perfil, el conteo de usuarios antes y después, y la comparación de huellas del resto. Nunca la contraseña.
+## 6. Qué te devuelvo
+Solo: los 3 correos con su perfil, el conteo de usuarios antes y después, y la confirmación de que el resto no cambió. Nunca la contraseña.

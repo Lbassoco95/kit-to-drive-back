@@ -10,7 +10,7 @@ const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
 const llave = `${b64({ alg: "HS256" })}.${b64({ role: "service_role", ref: "falso" })}.firma`;
 
 function servidor({ existentes = [], fallaEn = null } = {}) {
-  const bitacora = [], tablas = { profiles: 5, user_roles: 4, bridge_bitacora: 3, altas_autorizadas: 0 }; let usuarios = existentes.map((e) => ({ id: "u-" + e, email: e }));
+  const bitacora = [], tablas = { profiles: 5, user_roles: 4, bridge_bitacora: 3, altas_autorizadas: 0, inventario_usuarios_prueba: 7 }; let usuarios = existentes.map((e) => ({ id: "u-" + e, email: e }));
   const s = http.createServer((req, res) => {
     let cuerpo = ""; req.on("data", (d) => cuerpo += d); req.on("end", () => {
       const ruta = req.url.split("?")[0]; const j = cuerpo ? JSON.parse(cuerpo) : null; const escribe = req.method !== "GET" && req.method !== "HEAD";
@@ -21,7 +21,7 @@ function servidor({ existentes = [], fallaEn = null } = {}) {
       if (ruta === "/auth/v1/admin/users" && escribe) { const u = { id: "id-" + usuarios.length, email: j.email }; usuarios.push(u); return ok(u); }
       const t = ruta.replace("/rest/v1/", "");
       if (req.method === "HEAD") return ok(null, 200, { "content-range": `0-0/${tablas[t] ?? 0}` });
-      if (escribe) { if (t === "profiles" || t === "user_roles" || t === "bridge_bitacora") tablas[t]++; return ok(null, 201); }
+      if (escribe) { if (t in tablas) tablas[t]++; return ok(null, 201); }
       ok([]);
     });
   });
@@ -45,16 +45,18 @@ let fallos = 0; const T = (n, c) => { console.log((c ? "ok   " : "FALLA ") + n);
   s.close(); }
 { const { s, bitacora, puerto } = await servidor(); const r = await corre(puerto, ["--ejecutar"], { CONFIRMO_VENTANA: "2026-10-26" });
   const esc = bitacora.filter((x) => x.m === "POST").map((x) => x.ruta);
-  const porCuenta = ["/rest/v1/bridge_bitacora", "/rest/v1/altas_autorizadas", "/auth/v1/admin/users", "/rest/v1/profiles", "/rest/v1/user_roles"];
-  T("ejecución: 4 cuentas × 5 pasos en el orden de admin-create-user", r.status === 0 && JSON.stringify(esc) === JSON.stringify(Array(4).fill(porCuenta).flat()));
+  const porCuenta = ["/rest/v1/bridge_bitacora", "/rest/v1/inventario_usuarios_prueba", "/rest/v1/altas_autorizadas", "/auth/v1/admin/users", "/rest/v1/profiles", "/rest/v1/user_roles"];
+  T("ejecución: 3 cuentas × 6 pasos (rastro, modo prueba, alta autorizada, Auth, perfil, rol)", r.status === 0 && JSON.stringify(esc) === JSON.stringify(Array(3).fill(porCuenta).flat()));
+  T("los tres correos empiezan con prueba. y terminan en @demo.kawiil.mx", bitacora.filter((x) => x.ruta === "/auth/v1/admin/users" && x.m === "POST").every((x) => /^prueba\.(vendedor|operador|direccion)@demo\.kawiil\.mx$/.test(x.email)) && bitacora.filter((x) => x.ruta === "/auth/v1/admin/users" && x.m === "POST").length === 3);
+  T("el registro de modo prueba va ANTES de crear la cuenta en Auth, para cada cuenta", (() => { const i = bitacora.filter((x) => x.m === "POST").map((x) => x.ruta + "|" + x.email); const a = i.indexOf("/rest/v1/inventario_usuarios_prueba|prueba.vendedor@demo.kawiil.mx"), b = i.indexOf("/auth/v1/admin/users|prueba.vendedor@demo.kawiil.mx"); return a >= 0 && b > a; })());
   const pw = bitacora.find((x) => x.tienePassword); const clave = JSON.parse(pw.cuerpo).password;
   T("contraseña de al menos 20 caracteres con las 4 clases", clave.length >= 20 && /[a-z]/.test(clave) && /[A-Z]/.test(clave) && /\d/.test(clave) && /[^A-Za-z0-9]/.test(clave));
-  T("la misma contraseña para las 4 cuentas y solo en la llamada de Auth", bitacora.filter((x) => x.tienePassword).length === 4 && bitacora.filter((x) => x.cuerpo.includes(clave)).length === 4);
+  T("la misma contraseña para las 3 cuentas y solo en la llamada de Auth", bitacora.filter((x) => x.tienePassword).length === 3 && bitacora.filter((x) => x.cuerpo.includes(clave)).length === 3);
   T("la contraseña sale UNA vez en stdout y nunca en stderr", r.stdout.split(clave).length === 2 && !r.stderr.includes(clave));
   T("la llave de servicio no sale ni en stdout ni en stderr", !r.stdout.includes(llave) && !r.stderr.includes(llave));
   T("no se llama a ninguna ruta de correo ni de invitación", !bitacora.some((x) => /invite|recover|magiclink|otp|verify/.test(x.ruta)));
   s.close(); }
-{ const { s, bitacora, puerto } = await servidor({ existentes: ["demo.lectura@demo.kawiil.mx"] }); const r = await corre(puerto, ["--ejecutar"], { CONFIRMO_VENTANA: "2026-10-26" });
+{ const { s, bitacora, puerto } = await servidor({ existentes: ["prueba.direccion@demo.kawiil.mx"] }); const r = await corre(puerto, ["--ejecutar"], { CONFIRMO_VENTANA: "2026-10-26" });
   T("si uno de los correos ya existe, aborta sin escribir", r.status !== 0 && !bitacora.some((x) => x.m === "POST"));
   s.close(); }
 { const { s, bitacora, puerto } = await servidor({ fallaEn: "/rest/v1/profiles" }); const r = await corre(puerto, ["--ejecutar"], { CONFIRMO_VENTANA: "2026-10-26" });
