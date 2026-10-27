@@ -508,6 +508,27 @@ BEGIN
 END;
 $$;
 
+-- Cuentas por cobrar abiertas del cliente del pago (destino «Abonar a crédito»): solo datos reales y en pesos.
+CREATE OR REPLACE FUNCTION public.flujo_cxc_cliente(_flujo_id uuid)
+RETURNS TABLE (id uuid, folio text, concepto text, fecha_emision date, fecha_vencimiento date, monto numeric, saldo numeric, estatus text)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+DECLARE f public.flujo_dinero%ROWTYPE;
+BEGIN
+  IF NOT public.flujo_cap('aplica') THEN RAISE EXCEPTION 'No tienes asignada la etapa de aplicación'; END IF;
+  SELECT * INTO f FROM public.flujo_dinero WHERE flujo_dinero.id = _flujo_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'No existe el movimiento'; END IF;
+  PERFORM public.exigir_dato_prueba(f.es_prueba, 'el movimiento ' || f.folio);
+  IF f.es_prueba OR f.tipo <> 'PAGO_CLIENTE' OR f.cliente_id IS NULL THEN RETURN; END IF;
+  RETURN QUERY
+    SELECT c.id, c.folio, c.concepto, c.fecha_emision, c.fecha_vencimiento, c.monto, c.saldo, c.estatus::text
+      FROM public.cuentas_por_cobrar c
+     WHERE c.cliente_id = f.cliente_id AND c.moneda = 'MXN' AND c.estatus IN ('ABIERTA', 'PARCIAL') AND c.saldo > 0
+     ORDER BY c.fecha_vencimiento NULLS LAST, c.fecha_emision;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.flujo_cxc_cliente(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.flujo_cxc_cliente(uuid) TO authenticated;
+
 -- Cambiar el cliente de un pago capturado por error: lo hace quien aplica (no quien recibió ni confirmó),
 -- con motivo obligatorio y huella en el historial. Con el parámetro `flujo_cambio_cliente_exige_admin` encendido,
 -- además lo debe hacer un administrador (segunda persona).
@@ -579,6 +600,23 @@ GRANT EXECUTE ON FUNCTION public.flujo_recibir(text, numeric, text, text, date, 
 GRANT EXECUTE ON FUNCTION public.flujo_confirmar_caja(uuid, uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.flujo_buscar_remisiones(uuid, boolean, text, text, text, date, date, numeric, numeric, integer, integer) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.flujo_cambiar_cliente(uuid, uuid, text) TO authenticated;
+
+-- ── 6b. Evidencia del flujo: quien recibe, lleva caja o aplica sube y ve la carpeta flujo/ ───
+-- (el bucket evidencias-compras solo dejaba a quienes leen Compras e inventario).
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS evidencias_flujo_select ON storage.objects;
+  CREATE POLICY evidencias_flujo_select ON storage.objects FOR SELECT TO authenticated
+    USING (bucket_id = 'evidencias-compras' AND (name LIKE 'flujo/%' OR name LIKE 'prueba/flujo/%')
+           AND (public.flujo_es_admin() OR public.es_finanzas(auth.uid()) OR public.flujo_cap('recibe') OR public.flujo_cap('caja') OR public.flujo_cap('aplica')));
+  DROP POLICY IF EXISTS evidencias_flujo_insert ON storage.objects;
+  CREATE POLICY evidencias_flujo_insert ON storage.objects FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'evidencias-compras' AND (name LIKE 'flujo/%' OR name LIKE 'prueba/flujo/%')
+           AND (public.flujo_es_admin() OR public.flujo_cap('recibe')));
+EXCEPTION
+  WHEN insufficient_privilege OR undefined_table THEN
+    RAISE NOTICE 'PENDIENTE MANUAL: crea en Storage las políticas de evidencias-compras para la carpeta flujo/ (ver el documento de diseño).';
+END $$;
 
 -- ── 7. Postflight ──────────────────────────────────────────────────────────
 DO $postflight$

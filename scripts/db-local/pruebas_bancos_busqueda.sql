@@ -291,4 +291,26 @@ END $$;
 RESET ROLE;
 ROLLBACK;
 
+\echo '5. Cuentas por cobrar del cliente del pago (solo reales)'
+BEGIN;
+CREATE TEMP TABLE t_x (flujo uuid);
+GRANT ALL ON t_x TO authenticated;
+INSERT INTO public.clientes (nombre_comercial, razon_social, codigo_erp, es_prueba) VALUES ('Cliente Real X', 'CLIENTE REAL X SA', 'REAL-X', false);
+INSERT INTO public.cuentas_por_cobrar (cliente_id, concepto, monto, saldo, moneda, fecha_emision, fecha_vencimiento, estatus)
+  SELECT id, 'Crédito', 1000, 1000, 'MXN', current_date, current_date + 30, 'ABIERTA' FROM public.clientes WHERE codigo_erp = 'REAL-X';
+SELECT public._t_como('martin.real@ejemplo.mx');
+DO $$ BEGIN INSERT INTO t_x VALUES ((public._t_rec('PAGO_CLIENTE', 400, 'MXN', 'EFECTIVO', current_date, 'Cliente X', public._t_cli('REAL-X'), 'Pago')->>'id')::uuid); END $$;
+RESET ROLE;
+SELECT public._t_como('almacen.real@ejemplo.mx');
+SELECT public.flujo_confirmar_caja((SELECT flujo FROM t_x), (SELECT id FROM public._t_cuenta_mxn()), NULL);
+DO $$ BEGIN PERFORM public._t_falla(format($q$SELECT * FROM public.flujo_cxc_cliente(%L)$q$, (SELECT flujo FROM t_x)), 'etapa de aplicación'); END $$;
+RESET ROLE;
+SELECT public._t_como('admin.real@ejemplo.mx');
+DO $$ BEGIN
+  ASSERT (SELECT count(*) FROM public.flujo_cxc_cliente((SELECT flujo FROM t_x))) = 1, 'la cuenta por cobrar del cliente aparece';
+  ASSERT (SELECT saldo FROM public.flujo_cxc_cliente((SELECT flujo FROM t_x))) = 1000, 'con su saldo';
+END $$;
+RESET ROLE;
+ROLLBACK;
+
 \echo 'OK: bancos por empresa y búsqueda de remisiones'

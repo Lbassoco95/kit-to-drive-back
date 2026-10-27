@@ -552,6 +552,7 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric,text,jsonb,uuid)'),
   ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_buscar_remisiones(uuid,boolean,text,text,text,date,date,numeric,numeric,integer,integer)'),
   ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_cambiar_cliente(uuid,uuid,text)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_cxc_cliente(uuid)'),
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

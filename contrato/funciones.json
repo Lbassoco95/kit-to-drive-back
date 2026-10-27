@@ -135,6 +135,7 @@
     "flujo_clientes",
     "flujo_confirmar_caja",
     "flujo_cuentas",
+    "flujo_cxc_cliente",
     "flujo_dinero_sin_borrar",
     "flujo_empresas",
     "flujo_es_admin",
