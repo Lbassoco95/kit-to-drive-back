@@ -1,29 +1,37 @@
-# Plan de ventana · Control financiero unificado (27 oct 2026)
+# Plan de despliegue (Fase 4) · Flujo de dinero y Control financiero — versión del 27 oct 2026 (v2)
 
-Nada se ejecuta hasta que Polo escriba la autorización con fecha y hora. Orden pedido: (a) unificación con evidencia obligatoria, (b) bancos por empresa, (c) búsqueda al aplicar. (b) y (c) viajan en un solo archivo de migración (`20261031000001`), que se aplica después de (a).
+Nada se ejecuta en producción sin la autorización escrita de Polo, con fecha y ventana, **por fase**. Ventana **fuera del horario en que Jair y Leti capturan** (el horario lo da Polo). SQL que Polo corre: va pegado en el chat y está en `docs/ventana/`.
 
-| # | Paso | Quién | Verificación después | Reversa |
-|---|------|-------|----------------------|---------|
-| 0 | Aviso al equipo y **apagar el módulo de finanzas** en MATI Admin (desaparece del menú). Cobranza y Crédito siguen, pero no se usan en la ventana | Polo | El menú ya no muestra «Control financiero» | Volver a encender el módulo |
-| 1 | **Respaldo** (`00_respaldo.sql`): schema `respaldo_20261027` con las 5 tablas | Polo pega, yo verifico | Conteos vivo = respaldo (3·3·6·1·9) | `DROP SCHEMA respaldo_20261027 CASCADE` (solo si ya no se necesita) |
-| 2 | **Migración (a)** `20261030000001` (unificación, evidencia, reversa, historial, candados) | Polo pega | V1 (conteos y saldos idénticos), V2 (sin_origen = 0; libro y registrar cerrados) | `reversa_unificacion_y_bancos.sql`: quita candados y devuelve políticas/privilegios; los datos no se tocan. Si hiciera falta, restaurar tablas desde el respaldo |
-| 3 | **Migración (b)+(c)** `20261031000001` (empresas, cuentas por empresa, búsqueda, cambio de cliente, crédito, políticas de evidencia) | Polo pega | V1, V3 (empresas 0, cuentas sin empresa 3, firmas nuevas presentes, políticas `evidencias_flujo_*`) | Mismo script de reversa (quita los candados de cuentas; las tablas nuevas quedan vacías) |
-| 4 | **Registro** de ambas en `migraciones_aplicadas` | Polo pega (SQL que entrego) | Dos filas nuevas | `DELETE` de esas dos filas |
-| 5 | **Compuerta** (`kit-to-drive-api`): allowlist nueva y solo lectura en libro/cuentas/abonos | Yo preparo PR, Polo autoriza el despliegue | `/rest/v1/rpc/flujo_empresas` pasa; `POST movimientos_financieros` da 403 | Revertir el despliegue en la plataforma (rollback al anterior) |
-| 6 | **Front**: merge a `main` y Vercel despliega (un solo módulo con pestañas) | Yo, tras autorización | Vercel en verde para el SHA; `https://kit-to-drive.vercel.app` apunta a él | Rollback del deployment anterior en Vercel (el anterior *no* funciona con la base nueva; usar solo junto con la reversa SQL) |
-| 7 | **Cuentas bancarias**: el administrador financiero da de alta las empresas y asigna las 3 cuentas actuales (banco y últimos 4) | Admin financiero (UI) | V4: saldos por cuenta iguales a V1; bitácora con las altas | Desactivar (no se borra) |
-| 8 | **Movimiento heredado**: cancelar con motivo el movimiento PENDIENTE antiguo del libro y volver a capturarlo por Recibe | Admin financiero | Libro: 1 cancelado con motivo; nuevo movimiento con folio FD-… | Es un movimiento más; no hay reversa necesaria |
-| 9 | **Prueba de humo** con cuentas de prueba: recibir con evidencia → caja con la cuenta de la empresa → aplicar con búsqueda de remisiones → cambiar cliente → revertir | Yo (cuentas `prueba.*`) | Cada paso OK; el libro real no cambia (prueba y real separados); V1 igual | Datos de prueba, no se tocan los reales |
-| 10 | **Encender el módulo** y avisar al equipo | Polo | Menú visible; Jair/Leti/Martin entran a su pestaña | Apagar de nuevo |
+## Ventana 1 — única puerta, evidencia, gastos, categorías, bancos por empresa y cuentas en USD, búsqueda de remisiones
+Migraciones que se aplican, en este orden: `20261030000001` (unificación) → `20261031000001` (bancos por empresa, búsqueda, cambio de cliente) → `20261101000001` (gastos, categorías, es_prueba, monedas, históricos y regularización).
 
-## Qué ve el equipo mientras tanto
-- Pasos 0 a 6 (≈ 30 min, fuera de horario): «Control financiero» no aparece en el menú. No se puede registrar ni confirmar dinero. Lo que llegue hoy se anota en papel y se captura al terminar.
-- Entre 2 y 6 no se debe abrir la versión anterior de la pantalla (fallaría: ya exige evidencia y empresa).
-- Desde el paso 10: una sola entrada, «Control financiero», con pestañas Recibe, Caja, Aplica, Movimientos y (solo administración) Cuentas bancarias; cada persona ve las de su etapa.
+| # | Paso | Verificación después | Reversa |
+|---|------|----------------------|---------|
+| 0 | Aviso al equipo (texto abajo) y confirmar que Jair, Leti, Martin y Luna no están capturando | Polo confirma | — |
+| 1 | **Respaldo** `00_respaldo.sql` (movimientos_financieros, cuentas_financieras, cobranza_pagos, cxc_abonos, flujo_dinero) | Conteos vivo = respaldo (4·3·6·1·9 al día de hoy) | `DROP SCHEMA respaldo_20261027 CASCADE` solo si ya no hace falta |
+| 2 | Migración `20261030000001` | V1 (conteos y saldos idénticos), V2 (sin_origen = 0; libro/registrar cerrados) | `reversa_unificacion_y_bancos.sql` |
+| 3 | Migración `20261031000001` | V1, V3 (empresas 0, cuentas sin empresa 3, funciones nuevas) | misma reversa |
+| 4 | Migración `20261101000001` | V1 y V5 (categorías nuevas, Mantenimiento inactiva, cuentas de prueba, parámetro monedas) | `reversa_gastos_categorias.sql` |
+| 5 | Registrar las 3 migraciones en `migraciones_aplicadas` (SQL pegado en el chat) | 3 filas nuevas | borrar esas filas |
+| 6 | **Compuerta** (allowlist + solo lectura en libro, cuentas, abonos, categorías) | `POST movimientos_financieros` → 403; `flujo_capturar_gasto` pasa | rollback del despliegue |
+| 7 | **Front** a `main`, Vercel despliega (dos entradas de menú) | Vercel verde para ese SHA | rollback del deployment **junto con** la reversa SQL |
+| 8 | **P1** perfiles (o por el diálogo, sin SQL): Luna solo confirma gastos; Jair captura gastos | lista de capacidades | `flujo_asignar_capacidad` inverso |
+| 9 | **P2** empresas y cuentas reales (con los datos de Polo): las 3 cuentas conservan id y saldo | V4: saldos iguales a V1 | desactivar (no se borra) |
+| 10 | **P3** cancelar ING-000005 (duplicado de ING-000006 / FD-000009) e ING-000004 (DEMO) — actúa Jair | libro: 2 cancelados con motivo; Caja chica = 3,050 | no tiene reversa (cancelación con motivo, queda en bitácora) |
+| 11 | **P4** EGR-000004: entrada de USD + reclasificación al banco en USD — actúa Jair | Caja dólares 0; banco USD = entrada − 8,664.41; EGR-000004 intacto | los contra-movimientos se cancelan con `movimiento_cancelar` (otro administrador) |
+| 12 | **P5** CP-00001 con cuenta y fecha reales | libro: 1 movimiento REGULARIZACION de 3,000 | `movimiento_cancelar` |
+| 13 | **Prueba de humo** con cuentas `prueba.*` y luego con cada persona real: Jair (recibe y captura gasto), Leti (caja y entrega), Martin (aplica), Luna (confirma gasto) | cada uno completa su paso; el libro real solo cambia con lo confirmado | el libro real no se toca en la prueba |
+| 14 | Avisar al equipo y reabrir | Jair y Leti trabajan sus pestañas | **Reabrir la puerta directa** con `reversa_unificacion_y_bancos.sql` si hay un bloqueo que impida trabajar |
 
-## Lo que se conserva
-Los 3 movimientos del libro (uno PENDIENTE, dos CONFIRMADOS), 6 pagos, 1 abono, 9 flujos y 3 cuentas con su saldo: ninguna migración borra ni modifica montos. Los movimientos anteriores quedan marcados `HISTORICO_DIRECTO`; los flujos abiertos siguen en su etapa.
+## Cómo se cierra la puerta directa sin dejar a nadie sin poder trabajar
+1. El hallazgo: hoy se captura directo (EGR-000004 se capturó así hoy). Desde el paso 2 esa vía deja de existir.
+2. Todo está construido antes de cerrar: el front nuevo y la compuerta se despliegan **inmediatamente después** de las migraciones, en la misma ventana, y la ventana es fuera del horario de captura. Entre el paso 2 y el 7 nadie debe abrir la pantalla vieja (ya exige evidencia y empresa).
+3. Lo que alguien capture el mismo día por la vía directa **antes de la ventana** se conserva y queda marcado como histórico; se regulariza con el mismo procedimiento. Después, solo hay flujo.
+4. Cada persona tiene su camino antes de reabrir (paso 13): Jair recibe y captura gastos; Leti confirma en caja y entrega efectivo de gastos; Martin aplica; Luna confirma gastos. Si algo bloquea, la reversa reabre la puerta anterior en minutos y los datos no se pierden.
+5. Primer día: acompañamiento a Jair y Leti en vivo; todo lo que no puedan hacer por falta de datos (empresa, cuenta, categoría) se corrige desde Control financiero (cuentas bancarias / categorías), sin SQL.
 
-## Qué se probó y qué no
-Probado en local: ambas migraciones sobre base vacía y sobre una base con datos (transición sin pérdida), pruebas SQL de las puertas cerradas, evidencia, empresas, reglas de cuenta/método/moneda, búsqueda, cambio de cliente, reversa, prueba/real y separación de funciones; vitest y typecheck/build del front; pruebas de la compuerta; la reversa SQL.
-Sin probar: la pantalla en un navegador contra una base real (solo typecheck, vitest y build); la política de Storage para subir evidencia (se prueba en el paso 9); el despliegue de la compuerta (plataforma por confirmar).
+## Ventana 2 — cambio de divisa y posición en USD (diseñado, no construido)
+Ver el documento de diseño. Se despliega solo con autorización y tras probarse en local.
+
+## Aviso para el equipo (para enviar antes de la ventana)
+> Equipo: el <fecha> de <hora> a <hora> actualizamos el manejo del dinero. Durante ese tiempo no capturen ni confirmen movimientos. Desde el <fecha> **todo el dinero (ingresos, reembolsos y gastos) se registra únicamente en «Flujo de dinero»**: Jair recibe los pagos y captura los gastos con su evidencia; Leti confirma en caja (y entrega el efectivo de los gastos); Martin aplica los pagos a remisiones; Luna confirma o rechaza los gastos. «Control financiero» queda para consultar saldos, conciliar y corregir (con motivo). Ya no hay otra forma de capturar un movimiento. Cualquier cosa que quieran capturar antes de la ventana, anótenla y se registra al terminar. Guía: «Control financiero: guía del equipo».

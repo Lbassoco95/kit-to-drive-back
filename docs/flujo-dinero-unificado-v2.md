@@ -91,3 +91,37 @@ Ventana 1: respaldo → unificación (única puerta, evidencia, reversa) → ban
 8. **CP-00001** (3,000 real cobrado sin pasar por el flujo ni el libro): ¿lo dejamos como histórico sin libro (la caja no lo refleja) o lo regularizamos con un movimiento autorizado por ti?
 9. **«Conciliar»**: no existe conciliación en el libro. Propongo una marca simple «conciliado» (quién y cuándo) en Control financiero. ¿Es eso?
 10. Datos reales: empresas (nombre y razón social), banco y últimos 4 de las cuentas, saldo inicial de USD con tipo de cambio, y el horario en que Jair y Leti capturan.
+
+
+---
+
+# FASE 3 · Construcción local y pruebas (decisiones de Polo del 27 oct) — resultado
+
+## Decisiones aplicadas
+1. Históricos: función única `movimiento_historico_resolver` (solo administrador financiero, motivo y bitácora). ING-000005 y ING-000004 los cancela Polo en la ventana con el procedimiento P3 (yo no los toco).
+2. EGR-000004: se conserva; P4 = entrada de USD (`movimiento_regularizar`) + reclasificación al banco USD (`movimiento_reclasificar_cuenta`, dos contra-movimientos que no suman en totales; el original no se modifica).
+3. Efectivo de gastos (opción B): Luna autoriza, Leti registra la entrega y el libro se mueve al entregar. Banco: Luna confirma y sale del banco.
+4. Monedas: parámetro `monedas_permitidas` (hoy MXN y USD), ampliable sin código. Categorías internacionales exigen moneda distinta de MXN.
+5. Cambio de cliente sin segunda persona, con parámetro `flujo_cambio_cliente_exige_admin`.
+6. Luna: P1 le quita Recibe, Caja y Aplica y le deja confirmación de gastos.
+7. Regla para toda persona: nadie cancela ni ajusta un movimiento que capturó, confirmó, autorizó, entregó o aplicó.
+8. CP-00001: `cobranza_pago_regularizar` (movimiento histórico con marca REGULARIZACION, cuenta y fecha reales); se ejecuta en P5 con los datos de Polo.
+9. Conciliación: marca simple `conciliado` (quién y cuándo) en Control financiero.
+10. Empresas y cuentas reales: pantalla vacía y procedimiento P2 listo; no hay datos inventados.
+
+## Qué cambia respecto a lo anterior
+- Menú: dos entradas (Flujo de dinero: Recibe, Caja, Aplica, Gastos · Control financiero: Movimientos y saldos, Pendientes, Cuentas bancarias, Categorías).
+- SALIDA ya no pasa por Recibe/Caja/Aplica: tiene captura y confirmación propias; `flujo_recibir/confirmar_caja/aplicar/rechazar` rechazan gastos con un mensaje claro.
+- Empresas, cuentas y categorías con `es_prueba`: los usuarios de prueba tienen su empresa, sus 4 cuentas (MXN/USD, efectivo/banco) y sus categorías; no ven las reales y viceversa. El saldo de una cuenta de prueba sale del flujo de prueba (el libro real no se toca).
+- Los tests viejos de SALIDA se reescribieron al flujo de gastos; las suites anteriores siguen en verde.
+
+## Cambio de divisa y posición en USD (G) — DISEÑO (segunda ventana; no construido)
+**Operación atómica** `flujo_cambio_divisa`: captura (Jair) → confirma (Luna), evidencia obligatoria, personas distintas. Datos: cuenta origen (moneda A, monto A), cuenta destino (moneda B, monto B), empresa (misma en ambas). Tipo de cambio efectivo = monto en MXN ÷ monto en USD (se calcula, no se captura). Al confirmar, en una sola transacción: dos movimientos del libro (egreso en origen, ingreso en destino) con el mismo `operacion_id`, categoría «Cambio de divisa» (`afecta_totales = false`, ya creada), origen FLUJO. Se bloquea si el origen no tiene saldo. No suma en totales de gastos ni de ingresos; sí mueve los saldos de las dos cuentas. Reversa: cancelar la operación cancela los dos movimientos juntos con motivo.
+**Posición en USD** (vista en Control financiero): por cuenta y empresa, saldo en USD, entradas y salidas del periodo y **costo promedio ponderado móvil**: cada entrada en USD (cambio de divisa o ingreso con tipo de cambio o regularización) recalcula `(saldo_prev × costo_prev + entrada × TC) ÷ (saldo_prev + entrada)`; las salidas bajan saldo al costo vigente. Un pago internacional se valúa al costo promedio vigente (no al tipo de cambio del día); la diferencia contra el tipo de cambio de captura se reporta aparte como **resultado cambiario** (utilidad/pérdida), para que el gasto en MXN sea explicable. En reportes: «pagos internacionales a costo promedio» y «resultado cambiario» en dos renglones. Requiere un saldo inicial de USD con su tipo de cambio (P4 lo carga como regularización con `_afecta_totales = false`).
+Inventario previo: `tipo_cambio` existe en `flujo_dinero` y en `movimientos_financieros` (con `monto_mxn`); hoy solo EGR-000004 lo usa (18.68) y «Caja dólares» está en −8,664.41 hasta P4.
+
+## Pruebas (local)
+- `probar_gastos.sh` (nuevo, 10 secciones): perfiles; gastos por transferencia (evidencia, categoría, moneda, cuenta, saldo suficiente con mensaje, rechazo con motivo, corrección, Luna no confirma lo que capturó); gastos en efectivo (autoriza → entrega, libro solo al entregar, saldo en ambos pasos, ninguno de los participantes cancela); categorías; **puertas cerradas** (ningún rol inserta directo en libro, cuentas, categorías, pagos ni abonos; ni el dueño); históricos (resolver, cancelar con motivo y bitácora, regularizar y reclasificar EGR sin tocar el original, históricos intactos); CP-00001; conciliación; **prueba/real** aislados; monedas por parámetro.
+- Suites anteriores en verde: flujo de dinero, unificación, transición (sin pérdida de datos), bancos y búsqueda (cuentas por empresa y tipo, regla método/moneda, búsqueda y reparto de remisiones, cambio de cliente).
+- Ensayo de los procedimientos P1–P5 contra una base con los 4 movimientos, CP-00001 y los usuarios reales: pasan.
+- Back: vitest 91 en verde; front: typecheck, 500 pruebas y build; compuerta: 19 pruebas.
