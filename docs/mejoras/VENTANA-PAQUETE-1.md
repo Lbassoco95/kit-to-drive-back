@@ -1,6 +1,6 @@
-# Ventana del Paquete 1 (permisos del vendedor) — secuencia final · martes 27 de octubre de 2026
+# Ventana del Paquete 1 (permisos del vendedor) — secuencia final · martes 27 de octubre de 2026 (de día)
 
-**Estado: preparado, NADA APLICADO.** Ventana propuesta: **martes 27 de octubre de 2026, de 19:00 a 00:00 (CDMX)**, con **todo el paquete** (base, compuerta y front) en una sola ventana, y **sin mezclar nada de la Fase 2 ni de los Paquetes 2 y 3**.
+**Estado: preparado, NADA APLICADO.** Ventana (cambio de Polo, 27 oct): **hoy, martes 27 de octubre de 2026, durante el día, con la aplicación en uso** (etapa de pruebas; Dazon lo sabe), con **todo el paquete** (base, compuerta y front) en una sola ventana, y **sin mezclar nada de la Fase 2 ni de los Paquetes 2 y 3**.
 Frase (la escribe Polo, en la sesión): **«Autorizo paquete 1 (permisos de vendedor) en producción, ventana del 2026-10-27»**.
 Hasta esa frase: el conector de escritura `supabase-prod-escritura` **no está agregado** y Code solo lee.
 
@@ -31,7 +31,7 @@ Hasta esa frase: el conector de escritura `supabase-prod-escritura` **no está a
 
 Antes de cada llamada Code pega la huella del archivo y la de la llamada completa (con `begin;`, el registro y `commit;`).
 
-## 3. Antes de las 19:00 (lo que debe estar listo)
+## 3. Antes de abrir la ventana (lo que debe estar listo)
 
 ☐ **Respaldo del mismo día** (fecha y hora escritas en la sesión) — *Polo*.
 ☐ **Aviso a Dazon** al empezar — *Polo*.
@@ -47,20 +47,20 @@ Antes de cada llamada Code pega la huella del archivo y la de la llamada complet
 
 | # | Hora aprox. | Qué | Quién | Debe pasar | Detener si |
 |---|---|---|---|---|---|
-| 0 | 19:00 | Frase, conector de escritura, `get_project_url`, bloque 0, **foto previa** (V, A1, A3, bloque P1V de la §6 y línea base D2 con `query_logs`) | Polo / Code | Todo igual a la foto del día anterior salvo la actividad normal | Algo que no se explica |
-| 1 | 19:30 | **M1** (una llamada) | Code (Polo aprueba) | La verificación del archivo da 1 / true / false / **5** | Un error: no quedó nada (una transacción) |
+| 0 | al abrir | Frase, conector de escritura, `get_project_url`, bloque 0, **foto previa** (V, A1, A3, bloque P1V de la §6 y línea base D2 con `query_logs`) | Polo / Code | Todo igual a la foto del día anterior salvo la actividad normal | Algo que no se explica |
+| 1 | +10 min | **M1** (una llamada) | Code (Polo aprueba) | La verificación del archivo da 1 / true / false / **5** | Un error: no quedó nada (una transacción) |
 | 2 | +15 min | **V, A1, A3 + bloque P1V** tras M1 | Code | Ver §6, fila «Tras M1» | Cualquier otro cambio |
 | 3 | +15 min | **M2** | Code (Polo aprueba) | La verificación da 3 funciones, 2 triggers y 0 ejecutables | Error o cambio en `clientes` / `clientes_sin_vendedor` |
 | 4 | +15 min | **V, A1, A3 + P1V** tras M2 | Code | Fila «Tras M2» | Cualquier otro cambio |
 | 5 | +15 min | **M3** | Code (Polo aprueba) | La verificación da `sin_comercial_en_la_lista` y `con_administrativo` = true | Error o cambio en datos |
 | 6 | +15 min | **V, A1, A3 + P1V** tras M3 | Code | Fila «Tras M3» | Cualquier otro cambio |
-| 7 | ~21:00 | **Mezclar el PR #8** (compuerta). Esperar *Ready* en Vercel (`kit-to-drive-api`) y anotar el commit | Polo / Code lee Vercel | Despliegue *Ready*; `/health` responde | Despliegue fallido: revertir el commit de la mezcla |
+| 7 | tras el 6 | **Mezclar el PR #8** (compuerta). Esperar *Ready* en Vercel (`kit-to-drive-api`) y anotar el commit | Polo / Code lee Vercel | Despliegue *Ready*; `/health` responde | Despliegue fallido: revertir el commit de la mezcla |
 | 8 | +10 min | **Mezclar el PR #76** (front). Esperar *Ready* en Vercel (`kit-to-drive`) y anotar el commit | Polo / Code lee Vercel | Despliegue *Ready* | Despliegue fallido: revertir el commit de la mezcla |
-| 9 | ~21:20 | **Recorridos con el vendedor real** (§7) y los de supervisor, administrativo y Dirección | Persona de pruebas | Todo lo de §7 | Falla de un recorrido que antes pasaba |
-| 10 | 22:30 | **Cierre:** V, A1, A3, P1V y D2 final; desactivar los dos «ZZ PRUEBA P1» | Code / supervisor | Estado final de la §6 | — |
+| 9 | tras el 8 | **Recorridos con el vendedor real** (§7) y los de supervisor, administrativo y Dirección | Persona de pruebas | Todo lo de §7 | Falla de un recorrido que antes pasaba |
+| 10 | al terminar | **Cierre:** V, A1, A3, P1V y D2 final; desactivar los dos «ZZ PRUEBA P1» | Code / supervisor | Estado final de la §6 | — |
 | 11 | al terminar | **Polo quita `supabase-prod-escritura`** | Polo | — | — |
 
-**Reglas de tiempo:** **no se empieza ningún paso nuevo (migración o mezcla) después de las 22:45**; un paso a medias se revierte; los recorridos deben terminar antes de las 00:00. **Cada paso deja la base consistente**: si el tiempo se acaba entre pasos, se queda en el último verificado (el front funciona en cualquier orden).
+**Regla de movimiento (Polo, 27 oct):** **si algo se mueve distinto de lo previsto, no se empieza ningún paso nuevo: Code se detiene y lo reporta.** Un paso a medias se revierte. **Cada paso deja la base consistente**: si se pausa entre pasos, se queda en el último verificado (el front funciona en cualquier orden). Como es de día y hay usuarios en la aplicación, **Polo avisa a quien esté trabajando** antes de M2 (cambia cómo se dan de alta los clientes del vendedor) y antes de mezclar el front.
 
 ## 5. Verificación (solo lectura)
 
@@ -94,7 +94,7 @@ select
 rollback;
 ```
 
-Además, después de **cada** paso, antes de que la persona de pruebas entre: los bloques **V** (permisos), **A1** (huella de las 92 tablas, comparada con la foto previa del mismo día) y **A3** (Auth y Storage) del `docs/seguridad/RUNBOOK-FINAL-FASE-1.md`. **No deben cambiar**, salvo `registros_migraciones` y `filas_totales` (+1 por paso) y, en V, `secdef_authenticated` (+1 desde M1: 178 → 179), porque el catálogo es una función que `authenticated` ejecuta a propósito. La huella de datos cambia solo por la actividad normal (por ejemplo `historial_conexiones`) y por lo que cree la persona de pruebas (clientes «ZZ PRUEBA», oportunidades, remisión de prueba); Code explica cada diferencia contra esa lista.
+Además, después de **cada** paso, antes de que la persona de pruebas entre: los bloques **V** (permisos), **A1** (huella de las 92 tablas, comparada con la foto previa del mismo día) y **A3** (Auth y Storage) del `docs/seguridad/RUNBOOK-FINAL-FASE-1.md`. **No deben cambiar**, salvo `registros_migraciones` y `filas_totales` (+1 por paso) y, en V, `secdef_authenticated` (+1 desde M1: 178 → 179), porque el catálogo es una función que `authenticated` ejecuta a propósito. **De día, la huella global se mueve sola** (la gente trabaja): por eso A1 se compara **tabla por tabla** contra la foto previa y se acepta únicamente el cambio de tablas de actividad normal (`historial_conexiones`, `bitacora_eventos`, `notificaciones`, remisiones, clientes, etc.) cuando Code muestra la fila nueva o el conteo que lo explica; **ninguna tabla de configuración o de permisos puede cambiar** (`profiles`, `user_roles`, `super_admins`, `app_modulos`, `config_general`, `migraciones_aplicadas` salvo el +1 del paso). La huella de datos cambia solo por la actividad normal (por ejemplo `historial_conexiones`) y por lo que cree la persona de pruebas (clientes «ZZ PRUEBA», oportunidades, remisión de prueba); Code explica cada diferencia contra esa lista.
 
 ## 6. Valores esperados
 
@@ -166,7 +166,7 @@ Tras cada reversa el bloque P1V debe dar la fila anterior de la §6 (con `regist
 
 ## 9. Cuándo detenerse
 
-Detente (y revierte ese paso y los anteriores) si: falla un recorrido que antes pasaba (S1–S3 o V12–V16); un usuario legítimo pierde algo que tenía; suben los 401, 403 o 5xx contra la línea base D2; cualquier conteo o huella de V, A1 o A3 cambia sin explicación (distinto de `migraciones_aplicadas`, de `secdef_authenticated` +1 y de lo que cree la persona de pruebas); el bloque P1V no coincide con la §6; un despliegue de Vercel falla.
+Detente (y revierte ese paso y los anteriores) si: falla un recorrido que antes pasaba (S1–S3 o V12–V16); un usuario legítimo pierde algo que tenía; suben los 401, 403 o 5xx contra la línea base D2; **algo se mueve distinto de lo previsto** (no se empieza ningún paso nuevo; se reporta); cualquier conteo o huella de V, A1 o A3 cambia sin explicación (distinto de `migraciones_aplicadas`, de `secdef_authenticated` +1 y de lo que cree la persona de pruebas); el bloque P1V no coincide con la §6; un despliegue de Vercel falla.
 
 ## 10. Después de la ventana
 
