@@ -442,7 +442,6 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261010000002_altas_autorizadas', 'funcion|reject_public_signups()|altas_autorizadas'),
   -- Flujo de dinero en tres etapas (2026-10-12): recepción → caja → aplicación.
   ('20261012000001_flujo_dinero_tres_etapas', 'tabla|flujo_dinero'),
-  ('20261012000001_flujo_dinero_tres_etapas', 'tabla|flujo_capacidades'),
   ('20261012000001_flujo_dinero_tres_etapas', 'vista|v_flujo_dinero'),
   ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric)'),
   ('20261012000001_flujo_dinero_tres_etapas', 'funcion|flujo_confirmar_caja(uuid,uuid,text)'),
@@ -513,7 +512,22 @@ WITH esperado(script, objeto) AS (VALUES
   -- Tope de unidades ya armadas sube a 150 (75 cargadas + 75 más): el script
   -- cambia el DEFAULT de la columna (y la fila), así que la marca es
   -- `column_default` = 150 (2026-10-22).
-  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150')
+  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
+
+  -- Flujo de dinero: las etapas salen del perfil (Recepción de cobros, Cajera, Aplicación
+  -- de cobranza); se retira la marca por persona flujo_capacidades (2026-10-27).
+  ('20261027000001_flujo_perfiles_por_etapa', 'tabla|perfiles_flujo'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'tabla|usuario_perfiles_flujo'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'tabla|usuario_perfiles_flujo_bitacora'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'funcion|flujo_cap(text,uuid)|usuario_perfiles_flujo'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'funcion|flujo_asignar_perfil(uuid,text,boolean)'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'funcion|flujo_listar_perfiles()'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'funcion|flujo_catalogo_perfiles()'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'funcion|perfiles_flujo_fijar(uuid,text,text,uuid,text[])'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'politica|flujo_dinero.flujo_dinero_leer|es_usuario_prueba'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'trigger|flujo_dinero.trg_flujo_dinero_mismo_modo'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'sin_privilegio|perfiles_flujo_fijar(uuid,text,text,uuid,text[])|authenticated'),
+  ('20261027000001_flujo_perfiles_por_etapa', 'sin_privilegio|perfiles_flujo_fijar(uuid,text,text,uuid,text[])|anon')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

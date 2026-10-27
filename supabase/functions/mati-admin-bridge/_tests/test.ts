@@ -36,3 +36,7 @@ eq("body arreglo 400", (await call("/users", { method: "POST", headers: h, body:
 eq("body enorme 413", (await call("/users", { method: "POST", headers: h, body: JSON.stringify({ a: "x".repeat(70000) }) }))[0], 413);
 eq("alta sin campos 400", (await call("/users", { method: "POST", headers: h, body: "{}" }))[0], 400);
 eq("alta área inválida 400", (await call("/users", { method: "POST", headers: h, body: JSON.stringify({ email: "a@b.co", password: "12345678", nombre_completo: "X", area: "x", nivel: "admin" }) }))[0], 400);
+// Perfiles del flujo de dinero (Recepción de cobros, Cajera, Aplicación de cobranza).
+eq("meta lista los tres perfiles del flujo", (meta[1] as any).perfiles.map((p: any) => p.clave), ["recepcion_cobros", "cajera", "aplicacion_cobranza"]);
+eq("alta con perfil inválido 400 (antes del correo y de la cuenta)", (await call("/users", { method: "POST", headers: h, body: JSON.stringify({ email: "a@b.co", nombre_completo: "X", area: "comercial", nivel: "operador", perfiles: ["tesorero"] }) }))[0], 400);
+eq("alta con perfiles que no son lista 400", (await call("/users", { method: "POST", headers: h, body: JSON.stringify({ email: "a@b.co", nombre_completo: "X", area: "comercial", nivel: "operador", perfiles: "cajera" }) }))[0], 400);

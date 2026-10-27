@@ -61,21 +61,21 @@ GRANT EXECUTE ON FUNCTION public._t_cuenta_mxn(), public._t_saldo(uuid) TO authe
 GRANT EXECUTE ON FUNCTION public._t_como(text), public._t_falla(text, text), public._t_uid(text), public._t_cli(text) TO authenticated;
 
 -- Quién hace qué: a1 recibe, a2 caja, a3 aplica (admin: a5).
-\echo '1. Sólo un administrador asigna etapas; sin capacidad no se puede nada'
+\echo '1. Sólo un administrador asigna perfiles; sin el perfil no se puede la etapa'
 BEGIN;
 SELECT public._t_como('prueba.compras@dazon.demo');
 DO $$ BEGIN
-  PERFORM public._t_falla($q$SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'recibe', true)$q$, 'Sólo un administrador');
+  PERFORM public._t_falla($q$SELECT public.flujo_asignar_perfil(public._t_uid('prueba.compras@dazon.demo'), 'recepcion_cobros', true)$q$, 'Sólo un administrador');
   PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'etapa de recepción');
 END $$;
 RESET ROLE;
 SELECT public._t_como('prueba.super@dazon.demo');
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'recibe', true);
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.almacen@dazon.demo'), 'caja', true);
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.finanzas@dazon.demo'), 'aplica', true);
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.ventas@dazon.demo'), 'recibe', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.compras@dazon.demo'), 'recepcion_cobros', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.almacen@dazon.demo'), 'cajera', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.finanzas@dazon.demo'), 'aplicacion_cobranza', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.ventas@dazon.demo'), 'recepcion_cobros', true);
 DO $$ BEGIN
-  ASSERT (SELECT count(*) FROM public.flujo_listar_capacidades() WHERE recibe) = 2, 'listado de capacidades';
+  ASSERT (SELECT count(*) FROM public.flujo_listar_perfiles() WHERE 'recepcion_cobros' = ANY (perfiles)) = 2, 'listado de perfiles';
 END $$;
 COMMIT;
 -- (se confirma: las demás pruebas parten de estas asignaciones)
@@ -149,8 +149,8 @@ ROLLBACK;
 \echo '3. Separación de funciones: quien recibió o metió a caja no aplica'
 BEGIN;
 SELECT public._t_como('prueba.super@dazon.demo');
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'caja', true);
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'aplica', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.compras@dazon.demo'), 'cajera', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.compras@dazon.demo'), 'aplicacion_cobranza', true);
 RESET ROLE;
 SELECT public._t_como('prueba.compras@dazon.demo');
 CREATE TEMP TABLE t_fd2 (id uuid);
@@ -172,7 +172,7 @@ END $$;
 RESET ROLE;
 -- a2 (caja) recibe además la capacidad de aplicar: aun así no aplica lo que metió.
 SELECT public._t_como('prueba.super@dazon.demo');
-SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.almacen@dazon.demo'), 'aplica', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.almacen@dazon.demo'), 'aplicacion_cobranza', true);
 RESET ROLE;
 SELECT public._t_como('prueba.almacen@dazon.demo');
 DO $$ BEGIN
@@ -194,8 +194,8 @@ ROLLBACK;
 \echo '4. Salida de dinero (usuarios reales: la caja sí se mueve) y rechazo en caja'
 BEGIN;
 SELECT public._t_como('admin.real@ejemplo.mx');
-SELECT public.flujo_asignar_capacidad(public._t_uid('martin.real@ejemplo.mx'), 'recibe', true);
-SELECT public.flujo_asignar_capacidad(public._t_uid('almacen.real@ejemplo.mx'), 'caja', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('martin.real@ejemplo.mx'), 'recepcion_cobros', true);
+SELECT public.flujo_asignar_perfil(public._t_uid('almacen.real@ejemplo.mx'), 'cajera', true);
 RESET ROLE;
 SELECT public._t_como('martin.real@ejemplo.mx');
 CREATE TEMP TABLE t_fd3 (id uuid, cta uuid, saldo0 numeric);
@@ -214,6 +214,12 @@ DO $$ DECLARE r t_fd3%ROWTYPE; BEGIN
   SELECT * INTO r FROM t_fd3;
   PERFORM public.flujo_confirmar_caja(r.id, r.cta);
   ASSERT public._t_saldo(r.cta) = r.saldo0 - 900, 'la salida descuenta la caja';
+  -- Q: la Cajera no ve el libro general ni la cobranza; solo cuentas y su cola por las funciones flujo_*.
+  ASSERT (SELECT count(*) FROM public.movimientos_financieros) = 0, 'Q: la cajera no ve el libro general de movimientos';
+  ASSERT (SELECT count(*) FROM public.cuentas_financieras) = 0, 'Q: la cajera no lee la tabla de cuentas (solo flujo_cuentas)';
+  ASSERT (SELECT count(*) FROM public.cobranza_pagos) = 0 AND (SELECT count(*) FROM public.cobranza_aplicaciones) = 0, 'Q: la cajera no ve cobranza';
+  ASSERT (SELECT count(*) FROM public.flujo_cuentas()) >= 1, 'Q: la cajera sí ve las cuentas por flujo_cuentas()';
+  ASSERT NOT EXISTS (SELECT 1 FROM public.flujo_dinero WHERE etapa = 'EN_CAJA' AND caja_por <> auth.uid()), 'Q: la cajera no ve lo que otra confirmó';
   PERFORM public._t_falla(format('SELECT public.flujo_rechazar(%L, ''x'')', r.id), 'motivo');
   PERFORM public.flujo_rechazar(r.id, 'La entrega no se realizó');
   ASSERT public._t_saldo(r.cta) = r.saldo0, 'el rechazo devuelve el saldo';
@@ -225,6 +231,142 @@ SELECT public._t_como('admin.real@ejemplo.mx');
 DO $$ BEGIN
   PERFORM public._t_falla($q$UPDATE public.flujo_dinero SET etapa = 'APLICADO'$q$, 'permission denied');
   PERFORM public._t_falla($q$DELETE FROM public.flujo_dinero$q$, 'permission denied');
+END $$;
+ROLLBACK;
+
+
+\echo '5. Perfiles: O sin perfil no hay etapa · P retiro inmediato · R bitácora · relevo · tres perfiles'
+BEGIN;
+-- O: a6 (logística, sin perfil) no puede ninguna etapa.
+SELECT public._t_como('prueba.logistica@dazon.demo');
+DO $$ BEGIN
+  PERFORM public._t_falla($q$SELECT public.flujo_recibir('REEMBOLSO', 100, 'MXN', 'EFECTIVO', current_date, 'Prov', NULL, 'Devolución')$q$, 'etapa de recepción');
+  PERFORM public._t_falla($q$SELECT public.flujo_confirmar_caja(gen_random_uuid(), gen_random_uuid())$q$, 'etapa de caja');
+  PERFORM public._t_falla($q$SELECT public.flujo_aplicar(gen_random_uuid(), 'OTRO')$q$, 'etapa de aplicación');
+  PERFORM public._t_falla($q$SELECT public.flujo_asignar_perfil(public._t_uid('prueba.logistica@dazon.demo'), 'cajera', true)$q$, 'Sólo un administrador o administrador financiero');
+  ASSERT (SELECT count(*) FROM public.flujo_dinero) = 0, 'O: sin perfil no ve el flujo';
+  ASSERT (public.flujo_mis_capacidades()->>'caja')::boolean = false, 'O: sin perfil no tiene etapa';
+END $$;
+RESET ROLE;
+-- Perfil inválido y solo catálogo.
+SELECT public._t_como('prueba.super@dazon.demo');
+DO $$ BEGIN
+  PERFORM public._t_falla($q$SELECT public.flujo_asignar_perfil(public._t_uid('prueba.logistica@dazon.demo'), 'tesorero', true)$q$, 'Perfil inválido');
+  ASSERT (SELECT count(*) FROM public.flujo_catalogo_perfiles()) = 3, 'tres perfiles en el catálogo';
+END $$;
+RESET ROLE;
+-- Movimiento X recibido por prueba.compras (recepción).
+SELECT public._t_como('prueba.compras@dazon.demo');
+CREATE TEMP TABLE t_x (id uuid);
+GRANT ALL ON t_x TO authenticated;
+DO $$ DECLARE v jsonb; BEGIN
+  v := public.flujo_recibir('REEMBOLSO', 100, 'MXN', 'EFECTIVO', current_date, 'Proveedor Relevo', NULL, 'Devolución relevo');
+  INSERT INTO t_x VALUES ((v->>'id')::uuid);
+  ASSERT (SELECT count(*) FROM public.flujo_dinero) >= 1, 'recepción ve lo que registró';
+END $$;
+RESET ROLE;
+-- P: se retira el perfil de Cajera a prueba.almacen: pierde la etapa al instante.
+SELECT public._t_como('prueba.almacen@dazon.demo');
+DO $$ BEGIN
+  ASSERT (public.flujo_mis_capacidades()->>'caja')::boolean, 'P: antes del retiro tiene caja';
+  ASSERT (SELECT count(*) FROM public.flujo_dinero WHERE id = (SELECT id FROM t_x)) = 1, 'la cajera ve lo pendiente de caja';
+END $$;
+RESET ROLE;
+SELECT public._t_como('prueba.super@dazon.demo');
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.almacen@dazon.demo'), 'cajera', false);
+RESET ROLE;
+SELECT public._t_como('prueba.almacen@dazon.demo');
+DO $$ BEGIN
+  ASSERT (public.flujo_mis_capacidades()->>'caja')::boolean = false, 'P: tras el retiro ya no tiene caja';
+  PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, (SELECT id FROM public._t_cuenta_mxn()))', (SELECT id FROM t_x)), 'etapa de caja');
+  PERFORM public._t_falla($q$SELECT * FROM public.flujo_cuentas()$q$, 'etapa de caja');
+  ASSERT (SELECT count(*) FROM public.flujo_dinero WHERE id = (SELECT id FROM t_x)) = 0, 'P: ya no ve la cola de caja';
+END $$;
+RESET ROLE;
+-- Relevo: otra persona con el perfil continúa lo que quedó a medias.
+SELECT public._t_como('prueba.super@dazon.demo');
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.logistica@dazon.demo'), 'cajera', true);
+RESET ROLE;
+SELECT public._t_como('prueba.logistica@dazon.demo');
+DO $$ BEGIN
+  PERFORM public.flujo_confirmar_caja((SELECT id FROM t_x), (SELECT id FROM public._t_cuenta_mxn()), 'Relevo de caja');
+  ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = (SELECT id FROM t_x)) = 'EN_CAJA', 'el relevo continuó el movimiento';
+END $$;
+RESET ROLE;
+-- Aplicación: prueba.finanzas pierde el perfil; prueba.ventas (aplica) lo continúa.
+SELECT public._t_como('prueba.super@dazon.demo');
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.finanzas@dazon.demo'), 'aplicacion_cobranza', false);
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.ventas@dazon.demo'), 'aplicacion_cobranza', true);
+RESET ROLE;
+SELECT public._t_como('prueba.finanzas@dazon.demo');
+DO $$ BEGIN
+  PERFORM public._t_falla(format('SELECT public.flujo_aplicar(%L, ''OTRO'')', (SELECT id FROM t_x)), 'etapa de aplicación');
+END $$;
+RESET ROLE;
+SELECT public._t_como('prueba.ventas@dazon.demo');
+DO $$ BEGIN
+  -- prueba.ventas tiene Recepción y Aplicación: aplica lo que no recibió ni confirmó.
+  PERFORM public.flujo_aplicar((SELECT id FROM t_x), 'REEMBOLSO_EMPLEADO', '[]', 'relevo de aplicación');
+  ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = (SELECT id FROM t_x)) = 'APLICADO', 'el relevo de aplicación cerró el movimiento';
+END $$;
+RESET ROLE;
+-- Tres perfiles en una sola persona: la separación por movimiento sigue.
+SELECT public._t_como('prueba.super@dazon.demo');
+SELECT public.flujo_asignar_perfil(public._t_uid('prueba.ventas@dazon.demo'), 'cajera', true);
+RESET ROLE;
+SELECT public._t_como('prueba.ventas@dazon.demo');
+CREATE TEMP TABLE t_y (id uuid);
+GRANT ALL ON t_y TO authenticated;
+DO $$ DECLARE v jsonb; BEGIN
+  ASSERT (public.flujo_mis_capacidades()->>'recibe')::boolean AND (public.flujo_mis_capacidades()->>'caja')::boolean
+     AND (public.flujo_mis_capacidades()->>'aplica')::boolean, 'tiene los tres perfiles';
+  v := public.flujo_recibir('REEMBOLSO', 50, 'MXN', 'EFECTIVO', current_date, 'Proveedor Y', NULL, 'Y');
+  INSERT INTO t_y VALUES ((v->>'id')::uuid);
+  PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, (SELECT id FROM public._t_cuenta_mxn()))', (v->>'id')), 'Quien recibió el dinero no puede registrarlo en caja');
+END $$;
+RESET ROLE;
+SELECT public._t_como('prueba.logistica@dazon.demo');
+DO $$ BEGIN PERFORM public.flujo_confirmar_caja((SELECT id FROM t_y), (SELECT id FROM public._t_cuenta_mxn())); END $$;
+RESET ROLE;
+SELECT public._t_como('prueba.ventas@dazon.demo');
+DO $$ BEGIN
+  PERFORM public._t_falla(format('SELECT public.flujo_aplicar(%L, ''OTRO'')', (SELECT id FROM t_y)), 'tercera persona');
+END $$;
+RESET ROLE;
+-- Un usuario real no opera movimientos de prueba.
+SELECT public._t_como('admin.real@ejemplo.mx');
+DO $$ BEGIN
+  ASSERT (SELECT count(*) FROM public.flujo_dinero) = 0, 'L: el administrador real no ve movimientos de prueba';
+  ASSERT NOT EXISTS (SELECT 1 FROM public.flujo_listar_perfiles() WHERE nombre LIKE 'prueba.%'), 'L: la lista de perfiles real no incluye usuarios de prueba';
+END $$;
+RESET ROLE;
+-- R: bitácora de cambios de perfil.
+SELECT public._t_como('prueba.super@dazon.demo');
+DO $$ DECLARE b record; BEGIN
+  SELECT * INTO b FROM public.usuario_perfiles_flujo_bitacora
+   WHERE usuario_id = public._t_uid('prueba.almacen@dazon.demo') AND perfiles_despues = '{}' ORDER BY created_at DESC LIMIT 1;
+  ASSERT b.id IS NOT NULL, 'R: el retiro quedó en la bitácora';
+  ASSERT b.perfiles_antes = ARRAY['cajera'], format('R: perfil anterior, llegó %s', b.perfiles_antes);
+  ASSERT b.actor_id = public._t_uid('prueba.super@dazon.demo') AND b.origen = 'app' AND b.created_at IS NOT NULL, 'R: quién y cuándo';
+  ASSERT b.es_prueba, 'R: marcado de prueba';
+END $$;
+RESET ROLE;
+-- La bitácora no se edita ni se borra, ni siquiera el dueño de la tabla.
+DO $$ BEGIN
+  PERFORM public._t_falla($q$UPDATE public.usuario_perfiles_flujo_bitacora SET actor = 'x'$q$, 'no se edita ni se borra');
+  PERFORM public._t_falla($q$DELETE FROM public.usuario_perfiles_flujo_bitacora$q$, 'no se edita ni se borra');
+END $$;
+-- Nada de escribir perfiles directo ni por la función núcleo.
+SELECT public._t_como('prueba.super@dazon.demo');
+DO $$ BEGIN
+  PERFORM public._t_falla($q$INSERT INTO public.usuario_perfiles_flujo (user_id, perfil) VALUES (gen_random_uuid(), 'cajera')$q$, 'permission denied');
+  PERFORM public._t_falla($q$SELECT public.perfiles_flujo_fijar(NULL, 'x', 'app', public._t_uid('prueba.almacen@dazon.demo'), ARRAY['cajera'])$q$, 'permission denied');
+END $$;
+RESET ROLE;
+-- Una sola fuente: ya no existe la marca por persona.
+DO $$ BEGIN
+  ASSERT to_regclass('public.flujo_capacidades') IS NULL, 'no queda flujo_capacidades';
+  ASSERT to_regprocedure('public.flujo_asignar_capacidad(uuid,text,boolean)') IS NULL, 'no queda flujo_asignar_capacidad';
 END $$;
 ROLLBACK;
 

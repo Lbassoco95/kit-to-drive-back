@@ -8,12 +8,13 @@
  *
  * Rutas (después de /functions/v1/mati-admin-bridge):
  *   GET    /health
- *   GET    /meta
+ *   GET    /meta                        (areas, niveles y perfiles del flujo de dinero)
  *   GET    /app/status
  *   GET    /users                       POST /users
  *   GET    /users/:id                   PATCH /users/:id
  *   POST   /users/:id/activate          POST /users/:id/deactivate
  *   POST   /users/:id/reset-password
+ *   (POST/PATCH de usuarios aceptan `perfiles: [...]`; PATCH con [] los retira todos)
  *   GET    /config                      PATCH /config
  *   GET    /modules                     PUT /modules/:clave   { activo }
  *   GET    /tickets?estado=&limit=      GET /tickets/:id
@@ -26,6 +27,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { autorizarAlta, enviarAcceso, generarPassword, MENSAJE_CORREO } from "../_shared/acceso.ts";
+import { fijarPerfiles, parsePerfiles, PERFILES_FLUJO_INFO, PerfilesInvalidos } from "../_shared/perfiles_flujo.ts";
 
 const AREAS = ["comercial", "fabrica", "almacen_logistica", "administracion", "compras", "direccion"] as const;
 const NIVELES = ["operador", "supervisor", "admin"] as const;
@@ -128,6 +130,16 @@ const rolLegacy = (a: Area, n: Nivel): string => {
   return n === "admin" ? "admin" : "coordinador";
 };
 
+/** Perfiles del flujo de dinero: `undefined` = no se tocan. MATI Admin es de confianza (secreto del puente); el actor queda en la bitácora. */
+function parsePerfilesBody(valor: unknown) {
+  try {
+    return parsePerfiles(valor);
+  } catch (e) {
+    if (e instanceof PerfilesInvalidos) throw new HttpError(400, e.message, "PERFIL_INVALIDO");
+    throw e;
+  }
+}
+
 function parseAreaNivel(area: unknown, nivel: unknown): { area: Area; nivel: Nivel } {
   if (!AREAS.includes(area as Area) || !NIVELES.includes(nivel as Nivel)) {
     throw new HttpError(400, "area o nivel inválidos");
@@ -152,16 +164,20 @@ async function audit(admin: Admin, accion: string, objetivo: string | null, deta
 const PROFILE_COLS = "id, email, nombre_completo, codigo_vendedor, activo";
 
 async function listUsers(admin: Admin) {
-  const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
+  const [{ data: profiles, error: pErr }, { data: roles, error: rErr }, { data: perfs, error: fErr }] = await Promise.all([
     admin.from("profiles").select(PROFILE_COLS).order("nombre_completo"),
     admin.from("user_roles").select("user_id, area, nivel, role"),
+    admin.from("usuario_perfiles_flujo").select("user_id, perfil"),
   ]);
   if (pErr) throw new Error(pErr.message);
   if (rErr) throw new Error(rErr.message);
+  if (fErr) throw new Error(fErr.message);
   const byUser = new Map((roles ?? []).map((r) => [r.user_id, r]));
+  const perfilesPor = new Map<string, string[]>();
+  for (const f of perfs ?? []) perfilesPor.set(f.user_id, [...(perfilesPor.get(f.user_id) ?? []), f.perfil].sort());
   return (profiles ?? []).map((p) => {
     const r = byUser.get(p.id);
-    return { ...p, area: r?.area ?? null, nivel: r?.nivel ?? null, role: r?.role ?? null };
+    return { ...p, area: r?.area ?? null, nivel: r?.nivel ?? null, role: r?.role ?? null, perfiles: perfilesPor.get(p.id) ?? [] };
   });
 }
 
@@ -174,6 +190,7 @@ type UserRow = {
   area: string | null;
   nivel: string | null;
   role: string | null;
+  perfiles: string[];
 };
 
 async function getUser(admin: Admin, id: string): Promise<UserRow | null> {
@@ -181,7 +198,12 @@ async function getUser(admin: Admin, id: string): Promise<UserRow | null> {
   if (error) throw new Error(error.message);
   if (!profile) return null;
   const { data: role } = await admin.from("user_roles").select("area, nivel, role").eq("user_id", id).maybeSingle();
-  return { ...(profile as Omit<UserRow, "area" | "nivel" | "role">), area: role?.area ?? null, nivel: role?.nivel ?? null, role: role?.role ?? null };
+  const { data: perfs } = await admin.from("usuario_perfiles_flujo").select("perfil").eq("user_id", id);
+  return {
+    ...(profile as Omit<UserRow, "area" | "nivel" | "role" | "perfiles">),
+    area: role?.area ?? null, nivel: role?.nivel ?? null, role: role?.role ?? null,
+    perfiles: (perfs ?? []).map((f: { perfil: string }) => f.perfil).sort(),
+  };
 }
 
 /** Evita dejar el sistema sin ningún administrador global activo. */
@@ -216,6 +238,8 @@ async function createUser(admin: Admin, body: Record<string, unknown>) {
   const codigo = str(body.codigo_vendedor, "codigo_vendedor", 40);
   const forzar = true; // siempre se exige cambiar la contraseña temporal al primer ingreso
   const { area, nivel } = parseAreaNivel(body.area, body.nivel);
+  // Antes del correo y de la cuenta: un perfil inválido no deja un alta a medias.
+  const perfiles = parsePerfilesBody(body.perfiles);
 
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new HttpError(400, "email inválido");
 
@@ -256,13 +280,16 @@ async function createUser(admin: Admin, body: Record<string, unknown>) {
     });
     if (profErr) throw new Error(profErr.message);
     await setRole(admin, uid, area, nivel);
+    if (perfiles?.length) {
+      await fijarPerfiles(admin, { actorId: null, actor: admin.actor ?? "mati-admin", origen: "mati-admin", userId: uid, perfiles });
+    }
   } catch (e) {
     // Sin perfil o sin rol la cuenta queda inservible: se deshace la alta.
     await admin.auth.admin.deleteUser(uid);
     throw new HttpError(500, `No se pudo completar el alta: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  await audit(admin, "user.create", uid, { email, area, nivel, forzar_cambio_password: forzar, acceso_por_correo: true });
+  await audit(admin, "user.create", uid, { email, area, nivel, perfiles: perfiles ?? [], forzar_cambio_password: forzar, acceso_por_correo: true });
   return json({ user: await getUser(admin, uid), correo: { enviado: true } }, 201);
 }
 
@@ -283,6 +310,7 @@ async function patchUser(admin: Admin, userId: string, body: Record<string, unkn
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nuevoEmail)) throw new HttpError(400, "email inválido");
   }
 
+  const perfiles = parsePerfilesBody(body.perfiles);
   const cambiaRol = body.area !== undefined || body.nivel !== undefined;
   const destino = cambiaRol
     ? parseAreaNivel(body.area ?? current.area, body.nivel ?? current.nivel)
@@ -306,8 +334,15 @@ async function patchUser(admin: Admin, userId: string, body: Record<string, unkn
     if (error) throw new HttpError(400, error.message);
   }
   if (destino) await setRole(admin, userId, destino.area, destino.nivel);
+  // Cambiar o retirar perfiles: la base lo aplica al instante y deja la bitácora (antes/después).
+  if (perfiles !== undefined) {
+    await fijarPerfiles(admin, { actorId: null, actor: admin.actor ?? "mati-admin", origen: "mati-admin", userId, perfiles });
+  }
 
-  await audit(admin, "user.update", userId, { campos: [...Object.keys(patch), ...(destino ? ["area", "nivel"] : [])], destino });
+  await audit(admin, "user.update", userId, {
+    campos: [...Object.keys(patch), ...(destino ? ["area", "nivel"] : []), ...(perfiles !== undefined ? ["perfiles"] : [])],
+    destino, ...(perfiles !== undefined ? { perfiles } : {}),
+  });
   return json({ user: await getUser(admin, userId) });
 }
 
@@ -522,10 +557,11 @@ async function route(req: Request, admin: Admin): Promise<Response> {
       bridge: "v2",
       areas: AREAS,
       niveles: NIVELES,
+      perfiles: PERFILES_FLUJO_INFO,
       ticket_estados: TICKET_ESTADOS,
       ticket_prioridades: TICKET_PRIORIDADES,
       app_ui: "https://kit-to-drive.vercel.app",
-      modelo: "area × nivel (role legacy derivado)",
+      modelo: "area × nivel (role legacy derivado) + perfiles del flujo de dinero (recepcion_cobros, cajera, aplicacion_cobranza)",
     });
   }
   if (method === "GET" && path === "/app/status") return await appStatus(admin);

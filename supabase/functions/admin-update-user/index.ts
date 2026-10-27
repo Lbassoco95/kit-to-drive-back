@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fijarPerfiles, parsePerfiles, PerfilesInvalidos, puedeAsignarPerfiles } from "../_shared/perfiles_flujo.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -46,7 +47,21 @@ serve(async (req) => {
     }
 
     // Obtener datos del request
-    const { user_id, nombre_completo, email, codigo_vendedor, activo, area, nivel, es_vendedor, es_administrativo } = await req.json();
+    const body = await req.json();
+    const { user_id, nombre_completo, email, codigo_vendedor, activo, area, nivel, es_vendedor, es_administrativo } = body;
+
+    // Perfiles del flujo de dinero: un arreglo fija el conjunto completo (vacío = retira todos);
+    // si no viene, no se tocan. Se valida antes de cambiar nada.
+    let perfiles: ReturnType<typeof parsePerfiles>;
+    try {
+      perfiles = parsePerfiles(body.perfiles);
+    } catch (e) {
+      if (!(e instanceof PerfilesInvalidos)) throw e;
+      return respond({ error: e.message }, 400);
+    }
+    if (perfiles !== undefined && !puedeAsignarPerfiles(callerRole?.role)) {
+      return respond({ error: "Solo un administrador o administrador financiero asigna, cambia o retira perfiles del flujo de dinero" }, 403);
+    }
     
     if (!user_id || typeof user_id !== "string") {
       return respond({ error: "user_id es obligatorio" }, 400);
@@ -138,10 +153,22 @@ serve(async (req) => {
       }
     }
 
+    // 4. Perfiles del flujo de dinero (el retiro surte efecto al instante: la base lee el perfil en vivo).
+    let perfilesGuardados: string[] | undefined;
+    if (perfiles !== undefined) {
+      try {
+        perfilesGuardados = await fijarPerfiles(supabaseAdmin, {
+          actorId: caller.id, actor: caller.email ?? null, origen: "app", userId: user_id, perfiles,
+        });
+      } catch (e) {
+        return respond({ error: e instanceof Error ? e.message : "No se pudieron guardar los perfiles", code: "PERFILES_FALLO" }, 500);
+      }
+    }
+
     return respond({ 
       success: true,
       message: "Usuario actualizado correctamente",
-      updated: { email, nombre_completo, area, nivel, activo }
+      updated: { email, nombre_completo, area, nivel, activo, ...(perfilesGuardados ? { perfiles: perfilesGuardados } : {}) }
     });
 
   } catch (error) {

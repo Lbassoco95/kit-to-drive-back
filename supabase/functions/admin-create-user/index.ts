@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { autorizarAlta, enviarAcceso, generarPassword, MENSAJE_CORREO } from "../_shared/acceso.ts";
+import { fijarPerfiles, parsePerfiles, PerfilesInvalidos, puedeAsignarPerfiles } from "../_shared/perfiles_flujo.ts";
 
 const ALLOWED_ORIGINS = [
   "https://kit-to-drive.vercel.app",
@@ -112,6 +113,23 @@ serve(async (req) => {
     if (!NIVELES.includes(nivel)) {
       return new Response(JSON.stringify({ error: "Tipo de usuario inválido" }), {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" }
+      });
+    }
+
+    // Perfiles del flujo de dinero (Recepción de cobros, Cajera, Aplicación de cobranza):
+    // se validan ANTES de mandar el correo o crear la cuenta, para no dejar un alta a medias.
+    let perfiles: ReturnType<typeof parsePerfiles>;
+    try {
+      perfiles = parsePerfiles(body.perfiles);
+    } catch (e) {
+      if (!(e instanceof PerfilesInvalidos)) throw e;
+      return new Response(JSON.stringify({ error: e.message }), {
+        status: 400, headers: { ...CORS, "Content-Type": "application/json" }
+      });
+    }
+    if (perfiles?.length && !puedeAsignarPerfiles(roleRow?.role)) {
+      return new Response(JSON.stringify({ error: "Solo un administrador o administrador financiero asigna perfiles del flujo de dinero" }), {
+        status: 403, headers: { ...CORS, "Content-Type": "application/json" }
       });
     }
 
@@ -237,7 +255,22 @@ serve(async (req) => {
       role: rolDerivado,
     }, { onConflict: "user_id" });
 
-    return new Response(JSON.stringify({ user_id: uid, email, nombre_completo, area, nivel, role: rolDerivado, correo: { enviado: true } }), {
+    let perfilesGuardados: string[] = [];
+    if (perfiles?.length) {
+      try {
+        perfilesGuardados = await fijarPerfiles(supabaseAdmin, {
+          actorId: caller.id, actor: caller.email ?? null, origen: "alta", userId: uid, perfiles,
+        });
+      } catch (e) {
+        // La cuenta ya existe con su área y nivel; los perfiles se reintentan desde Usuarios.
+        return new Response(JSON.stringify({
+          error: e instanceof Error ? e.message : "No se pudieron guardar los perfiles",
+          code: "PERFILES_FALLO", user_id: uid, email, area, nivel,
+        }), { status: 500, headers: { ...CORS, "Content-Type": "application/json" } });
+      }
+    }
+
+    return new Response(JSON.stringify({ user_id: uid, email, nombre_completo, area, nivel, role: rolDerivado, perfiles: perfilesGuardados, correo: { enviado: true } }), {
       status: 200, headers: { ...CORS, "Content-Type": "application/json" }
     });
 
