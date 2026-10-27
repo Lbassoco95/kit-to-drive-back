@@ -513,7 +513,10 @@ WITH esperado(script, objeto) AS (VALUES
   -- Tope de unidades ya armadas sube a 150 (75 cargadas + 75 más): el script
   -- cambia el DEFAULT de la columna (y la fila), así que la marca es
   -- `column_default` = 150 (2026-10-22).
-  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150')
+  ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
+
+  -- Flujo de dinero: regla de cuenta por método de pago (propuesta, 2026-10-28).
+  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

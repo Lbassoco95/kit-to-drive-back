@@ -228,4 +228,38 @@ DO $$ BEGIN
 END $$;
 ROLLBACK;
 
+
+\echo '5. Regla de cuenta por método de pago (efectivo→efectivo; transferencia y depósito→banco)'
+BEGIN;
+SELECT public._t_como('prueba.compras@dazon.demo');
+CREATE TEMP TABLE t_m (id_ef uuid, id_tr uuid, id_dep uuid);
+GRANT ALL ON t_m TO authenticated;
+DO $$ DECLARE a jsonb; b jsonb; d jsonb; BEGIN
+  a := public.flujo_recibir('REEMBOLSO', 10, 'MXN', 'EFECTIVO', current_date, 'Prov', NULL, 'Efectivo');
+  b := public.flujo_recibir('REEMBOLSO', 20, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Transferencia', 'REF-1');
+  d := public.flujo_recibir('REEMBOLSO', 30, 'MXN', 'DEPOSITO', current_date, 'Prov', NULL, 'Depósito', 'REF-2');
+  INSERT INTO t_m VALUES ((a->>'id')::uuid, (b->>'id')::uuid, (d->>'id')::uuid);
+END $$;
+RESET ROLE;
+SELECT public._t_como('prueba.almacen@dazon.demo');
+DO $$
+DECLARE r t_m%ROWTYPE; v_ef uuid; v_bco uuid;
+BEGIN
+  SELECT * INTO r FROM t_m;
+  SELECT c.id INTO v_ef  FROM public.flujo_cuentas() c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' ORDER BY c.orden LIMIT 1;
+  SELECT c.id INTO v_bco FROM public.flujo_cuentas() c WHERE c.moneda = 'MXN' AND c.tipo = 'BANCO'    ORDER BY c.orden LIMIT 1;
+  ASSERT v_ef IS NOT NULL AND v_bco IS NOT NULL, 'se necesita una caja de efectivo y una cuenta de banco en MXN';
+  -- Efectivo en banco, transferencia y depósito en caja: rechazados, en español y chino.
+  PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, %L)', r.id_ef, v_bco), 'solo se registra en una caja de efectivo.*现金只能登记在现金账户');
+  PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, %L)', r.id_tr, v_ef), 'solo se registran en una cuenta de banco.*转账和存款只能登记在银行账户');
+  PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, %L)', r.id_dep, v_ef), 'solo se registran en una cuenta de banco');
+  ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = r.id_ef) = 'RECIBIDO', 'un rechazo no mueve el movimiento';
+  -- Cada método en su cuenta: pasa.
+  PERFORM public.flujo_confirmar_caja(r.id_ef,  v_ef);
+  PERFORM public.flujo_confirmar_caja(r.id_tr,  v_bco, 'Contra estado de cuenta');
+  PERFORM public.flujo_confirmar_caja(r.id_dep, v_bco);
+  ASSERT (SELECT count(*) FROM public.flujo_dinero WHERE id IN (r.id_ef, r.id_tr, r.id_dep) AND etapa = 'EN_CAJA') = 3, 'los tres quedan en caja';
+END $$;
+ROLLBACK;
+
 \echo 'OK: flujo de dinero'
