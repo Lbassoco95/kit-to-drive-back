@@ -2,12 +2,15 @@
 /**
  * Rota la contraseña de las 3 cuentas de prueba (prueba.*@demo.kawiil.mx) creadas con crear-cuentas-demo.mjs. NO se ha ejecutado.
  * Cambia SOLO la contraseña (Admin API de Auth). No toca perfiles, roles, bloqueos, sesiones ni ninguna otra cuenta.
- * La nueva contraseña (24 caracteres, la misma para las 3) se imprime UNA vez, solo en esta terminal.
+ * La nueva contraseña (24 caracteres, la misma para las 3) NO se imprime: se copia al portapapeles de la Mac con pbcopy.
+ * Si pbcopy no está disponible o falla, aborta ANTES de rotar nada (así nunca queda una contraseña que nadie pueda recibir).
+ * La salida es solo una línea por cuenta: «rotada: correo». Ni la contraseña, ni la llave, ni hashes.
  * Guardas: URL exacta de producción, llave service_role de ese proyecto, y solo cuentas cuyo correo está en la lista Y que
  * llevan app_metadata.managed_by = cuentas-demo (una cuenta real nunca se toca). Si no hay exactamente 3, aborta.
  * Uso: igual que crear-cuentas-demo.mjs; ensayo por defecto y   CONFIRMO_VENTANA=2026-10-26 node rotar-password-cuentas-demo.mjs --ejecutar
  */
 import { randomInt } from "node:crypto";
+import { spawnSync } from "node:child_process";
 const REF = "dmhzhyeivvuliumcgsmm", REF_QA = "qszllskpizvpnzcytqpj", VENTANA = "2026-10-26";
 const CORREOS = ["prueba.vendedor@demo.kawiil.mx", "prueba.operador@demo.kawiil.mx", "prueba.direccion@demo.kawiil.mx"];
 const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), llave = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -30,16 +33,20 @@ const cuentas = todos.filter((u) => CORREOS.includes((u.email || "").toLowerCase
 if (cuentas.length !== 3) falla(`se esperaban 3 cuentas y hay ${cuentas.length}: no se cambió nada`);
 const sinMarca = cuentas.filter((u) => u.app_metadata?.managed_by !== "cuentas-demo");
 if (sinMarca.length) falla("hay cuenta(s) sin la marca de demo: no se cambió nada");
-console.log("Cuentas cuya contraseña se rotaría:", cuentas.map((u) => u.email).join(", "), "| usuarios en Auth:", todos.length);
-if (!ejecutar) { console.log("Ensayo: no se cambió nada."); process.exit(0); }
+// pbcopy debe existir ANTES de tocar nada (también en el ensayo, para enterarse temprano).
+const hayPbcopy = spawnSync("sh", ["-c", "command -v pbcopy"], { encoding: "utf8" });
+if (hayPbcopy.status !== 0 || !hayPbcopy.stdout.trim()) falla("pbcopy no está disponible: no se rotó nada");
+if (!ejecutar) { for (const u of cuentas) console.log("ensayo (no se cambió nada):", u.email); process.exit(0); }
 const U = "ABCDEFGHJKLMNPQRSTUVWXYZ", L = "abcdefghijkmnopqrstuvwxyz", D = "23456789", S = "!@#$%&*-_=+", T = U + L + D + S, pick = (c) => c[randomInt(c.length)];
 const o = [pick(U), pick(L), pick(D), pick(S)]; while (o.length < 24) o.push(pick(T));
 for (let i = o.length - 1; i > 0; i--) { const j = randomInt(i + 1); [o[i], o[j]] = [o[j], o[i]]; }
 const password = o.join("");
+// La contraseña va al portapapeles ANTES de rotar: si no se puede entregar, no se cambia nada.
+const copia = spawnSync("pbcopy", [], { input: password });
+if (copia.error || copia.status !== 0) falla("no se pudo copiar al portapapeles con pbcopy: no se rotó nada");
 const hechas = [];
 for (const u of cuentas) {
   const r = await fetch(`${url}/auth/v1/admin/users/${u.id}`, { method: "PUT", headers: H, body: JSON.stringify({ password }) });
-  if (!r.ok) falla(`rotar ${u.email}: ${await motivo(r)}. Rotadas antes: ${hechas.join(", ") || "ninguna"}; las demás siguen con la contraseña anterior.`);
-  hechas.push(u.email); console.log("  rotada:", u.email);
+  if (!r.ok) falla(`rotar ${u.email}: ${await motivo(r)}. Rotadas antes: ${hechas.join(", ") || "ninguna"}; las demás siguen con la contraseña anterior (el portapapeles ya tiene la nueva: solo vale para las rotadas).`);
+  hechas.push(u.email); console.log("rotada:", u.email);
 }
-console.log("\n" + "=".repeat(64) + "\nNUEVA CONTRASEÑA (las 3 cuentas; se muestra UNA sola vez; NO la pegues en el chat):\n  " + password + "\n" + "=".repeat(64));
