@@ -57,6 +57,13 @@ CREATE OR REPLACE FUNCTION public._t_cuenta_mxn() RETURNS TABLE (id uuid) LANGUA
   SELECT c.id FROM public.cuentas_financieras c WHERE c.moneda = 'MXN' AND c.tipo = 'EFECTIVO' AND c.activo ORDER BY c.orden LIMIT 1 $$;
 CREATE OR REPLACE FUNCTION public._t_saldo(_cta uuid) RETURNS numeric LANGUAGE sql SECURITY DEFINER AS $$
   SELECT saldo_actual FROM public.v_saldos_cuentas WHERE id = _cta $$;
+-- Recibir con evidencia (desde la unificación es obligatoria): envoltura para las pruebas.
+CREATE OR REPLACE FUNCTION public._t_rec(_tipo text, _monto numeric, _moneda text, _metodo text, _fecha date, _contra text,
+  _cliente uuid DEFAULT NULL, _concepto text DEFAULT NULL, _ref text DEFAULT NULL, _tc numeric DEFAULT NULL, _datos jsonb DEFAULT '{}'::jsonb)
+RETURNS jsonb LANGUAGE sql AS $$
+  SELECT public.flujo_recibir(_tipo, _monto, _moneda, _metodo, _fecha, _contra, _cliente, _concepto, _ref, _tc,
+                              'prueba/comprobantes/comprobante.pdf', _datos) $$;
+GRANT EXECUTE ON FUNCTION public._t_rec(text, numeric, text, text, date, text, uuid, text, text, numeric, jsonb) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_cuenta_mxn(), public._t_saldo(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public._t_como(text), public._t_falla(text, text), public._t_uid(text), public._t_cli(text) TO authenticated;
 
@@ -66,7 +73,7 @@ BEGIN;
 SELECT public._t_como('prueba.compras@dazon.demo');
 DO $$ BEGIN
   PERFORM public._t_falla($q$SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'recibe', true)$q$, 'Sólo un administrador');
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'etapa de recepción');
+  PERFORM public._t_falla($q$SELECT public._t_rec('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'etapa de recepción');
 END $$;
 RESET ROLE;
 SELECT public._t_como('prueba.super@dazon.demo');
@@ -93,13 +100,13 @@ BEGIN
    ORDER BY fecha_remision LIMIT 1;
   ASSERT v_rem IS NOT NULL, 'se necesita una remisión de prueba con saldo';
   -- Validaciones de recepción.
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'USD', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'), NULL, NULL, 17)$q$, 'MXN');
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'TRANSFERENCIA', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'referencia');
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'CHEQUE', current_date, 'Juan', public._t_cli('TST-C02'), NULL, 'CH1')$q$, 'efectivo, transferencia o depósito');
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', NULL)$q$, 'Elige el cliente');
+  PERFORM public._t_falla($q$SELECT public._t_rec('PAGO_CLIENTE', 100, 'USD', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'), NULL, NULL, 17)$q$, 'MXN');
+  PERFORM public._t_falla($q$SELECT public._t_rec('PAGO_CLIENTE', 100, 'MXN', 'TRANSFERENCIA', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'referencia');
+  PERFORM public._t_falla($q$SELECT public._t_rec('PAGO_CLIENTE', 100, 'MXN', 'CHEQUE', current_date, 'Juan', public._t_cli('TST-C02'), NULL, 'CH1')$q$, 'efectivo, transferencia o depósito');
+  PERFORM public._t_falla($q$SELECT public._t_rec('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', NULL)$q$, 'Elige el cliente');
   ASSERT (SELECT count(*) FROM public.flujo_clientes() WHERE codigo = 'TST-C02') = 1, 'recibe ve los clientes por flujo_clientes()';
   PERFORM public._t_falla($q$SELECT * FROM public.flujo_cuentas()$q$, 'etapa de caja');
-  v := public.flujo_recibir('PAGO_CLIENTE', v_pend + 500, 'MXN', 'EFECTIVO', current_date, 'Juan Pérez', public._t_cli('TST-C02'));
+  v := public._t_rec('PAGO_CLIENTE', v_pend + 500, 'MXN', 'EFECTIVO', current_date, 'Juan Pérez', public._t_cli('TST-C02'));
   INSERT INTO t_fd VALUES ((v->>'id')::uuid, v_rem, v_pend);
   ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = (v->>'id')::uuid) = 'RECIBIDO';
   -- Quien recibió no mete su propio dinero a caja, ni lo aplica (aunque tuviera las capacidades).
@@ -158,7 +165,7 @@ GRANT ALL ON t_fd2 TO authenticated;
 DO $$
 DECLARE v jsonb; v_cta uuid;
 BEGIN
-  v := public.flujo_recibir('REEMBOLSO', 250, 'MXN', 'EFECTIVO', current_date, 'Proveedor X', NULL, 'Devolución de proveedor');
+  v := public._t_rec('REEMBOLSO', 250, 'MXN', 'EFECTIVO', current_date, 'Proveedor X', NULL, 'Devolución de proveedor');
   INSERT INTO t_fd2 VALUES ((v->>'id')::uuid);
   v_cta := (SELECT id FROM public._t_cuenta_mxn());
   PERFORM public._t_falla(format('SELECT public.flujo_confirmar_caja(%L, %L)', (v->>'id'), v_cta), 'no puede registrarlo en caja');
@@ -204,8 +211,8 @@ DO $$
 DECLARE v jsonb; v_cta uuid;
 BEGIN
   v_cta := (SELECT id FROM public._t_cuenta_mxn());
-  PERFORM public._t_falla($q$SELECT public.flujo_recibir('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL)$q$, 'concepto');
-  v := public.flujo_recibir('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL, 'Viáticos');
+  PERFORM public._t_falla($q$SELECT public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL)$q$, 'concepto');
+  v := public._t_rec('SALIDA', 900, 'MXN', 'EFECTIVO', current_date, 'Chofer', NULL, 'Viáticos');
   INSERT INTO t_fd3 VALUES ((v->>'id')::uuid, v_cta, public._t_saldo(v_cta));
 END $$;
 RESET ROLE;
@@ -235,9 +242,9 @@ SELECT public._t_como('prueba.compras@dazon.demo');
 CREATE TEMP TABLE t_m (id_ef uuid, id_tr uuid, id_dep uuid);
 GRANT ALL ON t_m TO authenticated;
 DO $$ DECLARE a jsonb; b jsonb; d jsonb; BEGIN
-  a := public.flujo_recibir('REEMBOLSO', 10, 'MXN', 'EFECTIVO', current_date, 'Prov', NULL, 'Efectivo');
-  b := public.flujo_recibir('REEMBOLSO', 20, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Transferencia', 'REF-1');
-  d := public.flujo_recibir('REEMBOLSO', 30, 'MXN', 'DEPOSITO', current_date, 'Prov', NULL, 'Depósito', 'REF-2');
+  a := public._t_rec('REEMBOLSO', 10, 'MXN', 'EFECTIVO', current_date, 'Prov', NULL, 'Efectivo');
+  b := public._t_rec('REEMBOLSO', 20, 'MXN', 'TRANSFERENCIA', current_date, 'Prov', NULL, 'Transferencia', 'REF-1');
+  d := public._t_rec('REEMBOLSO', 30, 'MXN', 'DEPOSITO', current_date, 'Prov', NULL, 'Depósito', 'REF-2');
   INSERT INTO t_m VALUES ((a->>'id')::uuid, (b->>'id')::uuid, (d->>'id')::uuid);
 END $$;
 RESET ROLE;

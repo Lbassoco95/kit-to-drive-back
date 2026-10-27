@@ -516,7 +516,30 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
 
   -- Flujo de dinero: regla de cuenta por método de pago (propuesta, 2026-10-28).
-  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco')
+  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco'),
+
+  -- Unificación de Control financiero y flujo de dinero (propuesta, 2026-10-30).
+  ('20261030000001_unificar_control_financiero_flujo', 'tabla|flujo_dinero_eventos'),
+  ('20261030000001_unificar_control_financiero_flujo', 'columna|movimientos_financieros.origen'),
+  ('20261030000001_unificar_control_financiero_flujo', 'columna|movimientos_financieros.flujo_id'),
+  ('20261030000001_unificar_control_financiero_flujo', 'columna|cxc_abonos.origen'),
+  ('20261030000001_unificar_control_financiero_flujo', 'columna|cobranza_pagos.origen'),
+  ('20261030000001_unificar_control_financiero_flujo', 'columna|flujo_dinero.evidencia_path'),
+  ('20261030000001_unificar_control_financiero_flujo', 'trigger|movimientos_financieros.a_libro_guardia'),
+  ('20261030000001_unificar_control_financiero_flujo', 'trigger|cxc_abonos.a_cxc_abonos_guardia'),
+  ('20261030000001_unificar_control_financiero_flujo', 'trigger|cuentas_financieras.a_cuenta_guardia'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric,text,jsonb)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_aplicar(uuid,text,jsonb,text,jsonb)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_revertir(uuid,text,boolean)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|movimiento_cancelar(uuid,text)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|movimiento_ajustar(uuid,jsonb,text)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|movimiento_comprobar(uuid,numeric,numeric)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|cuenta_ajustar_saldo_inicial(uuid,numeric,text)'),
+  ('20261030000001_unificar_control_financiero_flujo', 'funcion|revertir_pago_cobranza(uuid,text)|_flujo_revertir'),
+  ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|registrar_pago_cobranza(jsonb)|authenticated'),
+  ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|validar_pago_cobranza(uuid,boolean,text)|authenticated'),
+  ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|aplicar_pago_cobranza(uuid,jsonb,boolean,text)|authenticated'),
+  ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|_flujo_revertir(uuid,text,boolean)|authenticated')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

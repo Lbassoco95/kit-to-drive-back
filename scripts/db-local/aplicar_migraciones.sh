@@ -17,6 +17,8 @@ fallas=0
 # Las migraciones de main más las que producción tiene y main no (ver
 # fuera_de_main/LEEME.md), todas en orden de fecha.
 for f in $(ls "$RAIZ"/supabase/migrations/2*.sql "$RAIZ"/scripts/db-local/fuera_de_main/2*.sql | awk -F/ '{print $NF" "$0}' | sort | cut -d" " -f2); do
+  # SOLO_HASTA=<nombre sin .sql>: se detiene después de esa migración (pruebas de actualización).
+  if [ -n "${SOLO_HASTA:-}" ] && [[ "$(basename "$f" .sql)" > "$SOLO_HASTA" ]]; then continue; fi
   # En el SQL editor los `ALTER TYPE ... ADD VALUE` se confirman antes de usar
   # el valor nuevo (Postgres no deja usarlo en la misma transacción). Aquí se
   # corren primero, fuera de la transacción del archivo. Son idempotentes.
