@@ -528,7 +528,6 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261030000001_unificar_control_financiero_flujo', 'trigger|movimientos_financieros.a_libro_guardia'),
   ('20261030000001_unificar_control_financiero_flujo', 'trigger|cxc_abonos.a_cxc_abonos_guardia'),
   ('20261030000001_unificar_control_financiero_flujo', 'trigger|cuentas_financieras.a_cuenta_guardia'),
-  ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric,text,jsonb)'),
   ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_aplicar(uuid,text,jsonb,text,jsonb)'),
   ('20261030000001_unificar_control_financiero_flujo', 'funcion|flujo_revertir(uuid,text,boolean)'),
   ('20261030000001_unificar_control_financiero_flujo', 'funcion|movimiento_cancelar(uuid,text)'),
@@ -540,6 +539,19 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|validar_pago_cobranza(uuid,boolean,text)|authenticated'),
   ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|aplicar_pago_cobranza(uuid,jsonb,boolean,text)|authenticated'),
   ('20261030000001_unificar_control_financiero_flujo', 'sin_privilegio|_flujo_revertir(uuid,text,boolean)|authenticated')
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'tabla|empresas_grupo'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'tabla|catalogo_bancos_bitacora'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'columna|cuentas_financieras.empresa_id'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'columna|cuentas_financieras.ultimos4'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'columna|flujo_dinero.empresa_id'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'trigger|cuentas_financieras.a_cuenta_catalogo_guardia'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|empresa_guardar(uuid,text,text,boolean,text)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|cuenta_guardar(uuid,uuid,text,text,text,text,text,boolean,integer,numeric,text)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_empresas()'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_cuentas(uuid)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_recibir(text,numeric,text,text,date,text,uuid,text,text,numeric,text,jsonb,uuid)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_buscar_remisiones(uuid,boolean,text,text,text,date,date,numeric,numeric,integer,integer)'),
+  ('20261031000001_bancos_por_empresa_busqueda_remisiones', 'funcion|flujo_cambiar_cliente(uuid,uuid,text)'),
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

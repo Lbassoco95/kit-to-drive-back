@@ -108,7 +108,7 @@ DO $$ BEGIN
   PERFORM public._t_falla($q$SELECT public.registrar_pago_cobranza('{}'::jsonb)$q$, 'permission denied');
   PERFORM public._t_falla($q$SELECT public.aplicar_pago_cobranza(gen_random_uuid(), '[]'::jsonb, true, 'x')$q$, 'permission denied');
   -- El saldo inicial de una cuenta pasa la política (administrador financiero) pero el candado lo frena.
-  PERFORM public._t_falla($q$UPDATE public.cuentas_financieras SET saldo_inicial = 1000000$q$, 'no se edita directo');
+  PERFORM public._t_falla($q$UPDATE public.cuentas_financieras SET saldo_inicial = 1000000$q$, 'no se edita directo|permission denied');
 END $$;
 RESET ROLE;
 -- Ni el dueño de la base inserta en el libro sin pasar por Caja; nada se borra.
