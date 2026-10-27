@@ -250,7 +250,9 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
   const SCRIPTS = [
     "fase2-desactivar-cuentas-demo-inactivas.sql",
     "fase2-forzar-cambio-password-demo-activas.sql",
-    "fase2-migrar-correo-real-lee-marco.sql",
+    "fase2-bloquear-edgar.sql",
+    "fase2-bloquear-test-scan.sql",
+    "fase2-migrar-correo-real-lee.sql",
     "fase2-cerrar-sesiones-lee.sql",
   ];
 
@@ -281,14 +283,35 @@ describe("Cuentas demo (docs/seguridad/CUENTAS-DEMO.md)", () => {
     const sql = sinComentarios(ops(SCRIPTS[0]));
     expect(sql).toContain("banned_until = 'infinity'");
     expect(sql).toContain("p.activo IS NOT FALSE");
-    expect(sql).not.toMatch(/edgar@dazon\.demo'\)\s*;/); // edgar queda comentado hasta que Polo confirme
+    expect(sql).not.toMatch(/edgar@dazon\.demo|test-scan/); // edgar y test-scan tienen su propio script y su propia frase
   });
-  it("el script de correo no lleva correos reales: los recibe como variables de psql", () => {
-    const sql = ops("fase2-migrar-correo-real-lee-marco.sql");
-    expect(sql).toContain(":'correo_lee'");
-    expect(sql).toContain(":'correo_marco'");
-    expect((sinComentarios(sql).match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi) ?? []).filter(c => !/@dazon\.demo$/.test(c))).toEqual([]);
-    expect(sinComentarios(sql)).toMatch(/NOT LIKE|LIKE '%@dazon\.demo'/);
+  it("bloquear a edgar: solo esa cuenta, con perfil inactivo, sin sesiones ni datos propios, y con su frase", () => {
+    const sql = ops("fase2-bloquear-edgar.sql"), limpio = sinComentarios(sql);
+    expect(sql).toMatch(/«Autorizo bloquear la cuenta de Edgar \(exempleado\), ventana del <fecha>»/);
+    expect(limpio).toContain("UPDATE auth.users SET banned_until = 'infinity' WHERE email = 'edgar@dazon.demo'");
+    expect(limpio).toContain("v_activo IS DISTINCT FROM false");
+    expect(limpio).toMatch(/v_datos > 0/);
+    expect(limpio).not.toMatch(/UPDATE public\.profiles/); // no toca el perfil
+  });
+  it("bloquear a test-scan: solo si Polo lo confirma, y solo una cuenta sin rol, sin ser super admin y sin datos propios", () => {
+    const sql = ops("fase2-bloquear-test-scan.sql"), limpio = sinComentarios(sql);
+    expect(sql).toMatch(/SOLO se corre si Polo CONFIRMA que no es una persona/);
+    expect(sql).toMatch(/«Autorizo bloquear la cuenta test-scan, ventana del <fecha>»/);
+    expect(limpio).toMatch(/v_roles > 0 THEN RAISE EXCEPTION/);
+    expect(limpio).toMatch(/super_admins WHERE user_id = v_id/);
+    expect(limpio).toMatch(/v_datos > 0/);
+    expect(limpio).toContain("banned_until = 'infinity' WHERE email = 'test-scan@test.com'");
+    expect(limpio).toMatch(/UPDATE public\.profiles SET activo = false/);
+  });
+  it("el script de correo migra SOLO a lee, sin correos reales en el repo: el correo se pone al correrlo y mientras no se ponga aborta", () => {
+    const sql = ops("fase2-migrar-correo-real-lee.sql"), limpio = sinComentarios(sql);
+    expect(sql).toMatch(/«Autorizo migrar a correo real a lee, correo: <correo>, ventana del <fecha>»/);
+    expect(limpio).toContain("btrim('CORREO_REAL_DE_LEE')");
+    expect(limpio).not.toMatch(/marco/i); // marco queda como está
+    expect(limpio).toContain("nuevo !~ '^[^@[:space:]]+@[^@[:space:]]+\\.[^@[:space:]]+$'");
+    expect((limpio.match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi) ?? []).filter(c => !/@dazon\.demo$/.test(c))).toEqual([]);
+    expect(limpio).toMatch(/LIKE '%@dazon\.demo'/);
+    expect(existsSync(join(RAIZ, "supabase", "operaciones", "fase2-migrar-correo-real-lee-marco.sql"))).toBe(false);
   });
   it("ningún script lleva contraseñas, JWT ni llaves", () => {
     for (const f of [...SCRIPTS, ...SCRIPTS.map(s => s.replace(".sql", "_reversa.sql")), "README.md"]) {

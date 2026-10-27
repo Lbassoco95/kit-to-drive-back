@@ -550,7 +550,44 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente', 'sin_definer|cliente_tiene_cxc_vencidas(uuid)'),
   ('20261107000004_fase2_cxc_vencidas_solo_quien_ve_al_cliente', 'sin_definer|cxc_vencidas_resumen(uuid)'),
   ('20261107000005_fase2_super_admins_rastro', 'funcion|rastro_lista_super_admins()'),
-  ('20261107000005_fase2_super_admins_rastro', 'trigger|super_admins.trg_rastro_lista_super_admins')
+  ('20261107000005_fase2_super_admins_rastro', 'trigger|super_admins.trg_rastro_lista_super_admins'),
+  -- Paquete 1 (permisos del vendedor; se aplica ANTES de la Fase 2, versiones 20261103…)
+  ('20261103000001_paquete1_catalogo_basico_clientes', 'funcion|catalogo_clientes_basico()'),
+  ('20261103000001_paquete1_catalogo_basico_clientes', 'sin_privilegio|catalogo_clientes_basico()|anon'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|es_vendedor_comercial(uuid)'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|clientes_asignar_vendedor_al_crear()'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'trigger|clientes.trg_clientes_asignar_vendedor'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'sin_privilegio|clientes_asignar_vendedor_al_crear()|authenticated'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'funcion|remisiones_validar_cliente_visible()'),
+  ('20261103000002_paquete1_cliente_nuevo_a_nombre_del_vendedor', 'trigger|remisiones.trg_remisiones_validar_cliente'),
+  ('20261103000003_paquete1_remisiones_refacciones_solo_del_vendedor', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial'),
+  -- Paquete 2 (reportes y buscadores; se aplica DESPUÉS de la Fase 2, versiones 20261108…)
+  ('20261108000001_paquete2_reporte_ventas_refacciones', 'funcion|reporte_ventas_refacciones(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000001_paquete2_reporte_ventas_refacciones', 'sin_definer|reporte_ventas_refacciones(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000001_paquete2_reporte_ventas_refacciones', 'sin_privilegio|reporte_ventas_refacciones(date,date,text[],uuid[],uuid[],boolean)|anon'),
+  ('20261108000002_paquete2_kardex_varios_articulos', 'funcion|kardex_refacciones_multi(uuid[],date,date,text)'),
+  ('20261108000002_paquete2_kardex_varios_articulos', 'sin_privilegio|kardex_refacciones_multi(uuid[],date,date,text)|anon'),
+  ('20261108000003_paquete2_rotacion_filtrada', 'funcion|resumen_rotacion_refacciones_filtrado(date,date,boolean,uuid[],text)'),
+  ('20261108000003_paquete2_rotacion_filtrada', 'sin_privilegio|resumen_rotacion_refacciones_filtrado(date,date,boolean,uuid[],text)|anon'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'funcion|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'sin_definer|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)'),
+  ('20261108000004_paquete2_reporte_ventas_totales', 'sin_privilegio|reporte_ventas_refacciones_totales(date,date,text[],uuid[],uuid[],boolean)|anon'),
+  -- Paquete 3 (eliminar remisión y fecha de remisión; se aplica al final, versiones 20261109…)
+  ('20261109000001_paquete3_modo_prueba_global', 'funcion|modo_prueba_global_activo()'),
+  ('20261109000001_paquete3_modo_prueba_global', 'funcion|fijar_modo_prueba_global(boolean,text)'),
+  ('20261109000001_paquete3_modo_prueba_global', 'trigger|compras_parametros.trg_proteger_modo_prueba_global'),
+  ('20261109000001_paquete3_modo_prueba_global', 'sin_privilegio|fijar_modo_prueba_global(boolean,text)|anon'),
+  ('20261109000002_paquete3_eliminar_remision', 'funcion|eliminar_remision(text,uuid,text,text)'),
+  ('20261109000002_paquete3_eliminar_remision', 'sin_privilegio|eliminar_remision(text,uuid,text,text)|anon'),
+  ('20261109000002_paquete3_eliminar_remision', 'sin_politica|remisiones.borrar remisiones admin'),
+  ('20261109000002_paquete3_eliminar_remision', 'sin_politica|remisiones.admin de area borra remisiones'),
+  ('20261109000003_paquete3_fecha_de_remision', 'tabla|remision_fecha_cambios'),
+  ('20261109000003_paquete3_fecha_de_remision', 'funcion|cambiar_fecha_remision(text,uuid,date,text)'),
+  ('20261109000003_paquete3_fecha_de_remision', 'trigger|remisiones.trg_remisiones_fecha_solo_funcion'),
+  ('20261109000003_paquete3_fecha_de_remision', 'trigger|remisiones_refacciones.trg_remisiones_refacciones_fecha_solo_funcion'),
+  ('20261109000003_paquete3_fecha_de_remision', 'sin_privilegio|cambiar_fecha_remision(text,uuid,date,text)|anon'),
+  -- asignar_super_admin, opción B (solo un super admin; se aplica DESPUÉS de la Fase 2, versión 20261110…)
+  ('20261110000001_asignar_super_admin_solo_super_admin', 'funcion|asignar_super_admin(uuid,boolean)|NOT public.es_super_admin(auth.uid())')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

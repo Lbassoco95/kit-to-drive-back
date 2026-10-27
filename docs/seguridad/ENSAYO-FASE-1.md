@@ -11,7 +11,7 @@ El encargo: ensayar en «una rama de Supabase o proyecto duplicado sin datos rea
 
 **Lo que se hizo en su lugar (y su alcance):** una réplica en un **PostgreSQL 16 local dentro de esta sesión** (la imitación de Supabase del repo: roles `anon`, `authenticated`, `service_role`, `supabase_auth_admin`, `auth.users`, `auth.uid()`, `storage`). Sirve para probar lo que la Fase 1 cambia —permisos, triggers, políticas, valores por defecto— porque eso es comportamiento del **motor de PostgreSQL**, el mismo en Supabase. **No prueba** el servicio de autenticación (GoTrue), PostgREST, las Edge Functions, la compuerta ni las pantallas: eso queda en los recorridos de pantalla de `RECORRIDOS-Y-PRUEBAS-POR-ROL.md` y en la ventana.
 
-**Decisión pendiente de Polo (antes del sábado 31):**
+**Decisión pendiente de Polo (antes del lunes 26):**
 - **A.** Aceptar este ensayo local más la aplicación una migración a la vez en producción, con reversa y verificación entre cada una (lo que propone `VENTANA-FASE-1.md`); o
 - **B.** Autorizar un proyecto duplicado de Supabase (costo bajo, por horas) cargado con el esquema del respaldo y datos sintéticos, para repetir los recorridos de pantalla ahí, y borrarlo al terminar.
 Mi recomendación es la **B** si hay tiempo antes de la ventana; si no, la A con la ventana de 8 horas.

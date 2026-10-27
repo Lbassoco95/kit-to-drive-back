@@ -1,0 +1,261 @@
+{
+ "chequeos": [
+  {
+   "caso": "Edgar: el script aplica y bloquea SOLO a edgar (1 bloqueada, 1 existe, 0 perfiles activos)",
+   "detalle": "BEGIN\nDO\nUPDATE 1\n1|1|0\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: nadie más quedó bloqueado y no se tocó ningún perfil ni rol",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: aplicarlo dos veces ABORTA (ya bloqueada)",
+   "detalle": "BEGIN\nERROR:  edgar ya estaba bloqueada: revisa antes de seguir\nCONTEXT:  PL/pgSQL function inline_code_block line 9 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: la reversa lo desbloquea y la base queda EXACTAMENTE como estaba",
+   "detalle": "BEGIN\nUPDATE 1\n0\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: guarda «perfil ACTIVO» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  El perfil de edgar NO está inactivo: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 8 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: guarda «con datos propios» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  edgar tiene 1 registro(s) propios: revisa antes de bloquear\nCONTEXT:  PL/pgSQL function inline_code_block line 14 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: guarda «ya bloqueada» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  edgar ya estaba bloqueada: revisa antes de seguir\nCONTEXT:  PL/pgSQL function inline_code_block line 9 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Edgar: guarda «cuenta duplicada» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  Se esperaba 1 cuenta edgar@dazon.demo y hay 2: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 5 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: el script aplica, bloquea en Auth y desactiva el perfil (1, 1, 0)",
+   "detalle": "BEGIN\nDO\nUPDATE 1\nUPDATE 1\n1|1|0\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: nadie más cambió (1 bloqueada; quedan 3 perfiles activos → lee, marco, otra)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: la reversa devuelve la base EXACTAMENTE como estaba (banned NULL y activo true)",
+   "detalle": "BEGIN\nUPDATE 1\nUPDATE 1\n0|1\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: guarda «YA tiene área o nivel» aborta sin cambiar nada",
+   "detalle": "La cuenta YA tiene área o nivel asignados: no es la cuenta descrita, no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 12 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: guarda «es super admin» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  La cuenta es super admin: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 13 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: guarda «con datos propios» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  La cuenta tiene 1 registro(s) propios: revisa antes de bloquear\nCONTEXT:  PL/pgSQL function inline_code_block line 19 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: guarda «perfil ya inactivo» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  El perfil ya está inactivo: revisa antes de seguir\nCONTEXT:  PL/pgSQL function inline_code_block line 9 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "test-scan: guarda «ya bloqueada» aborta sin cambiar nada",
+   "detalle": "BEGIN\nERROR:  La cuenta ya estaba bloqueada: revisa antes de seguir\nCONTEXT:  PL/pgSQL function inline_code_block line 10 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: con el texto CORREO_REAL_DE_LEE sin reemplazar el script ABORTA y no cambia nada",
+   "detalle": "l correo nuevo no tiene forma de correo (¿sigue el texto CORREO_REAL_DE_LEE?): no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 12 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: con un correo real aplica (1, 1, 1 y 0 con correo demo)",
+   "detalle": "BEGIN\nCREATE TABLE\nINSERT 0 1\nDO\nUPDATE 1\nUPDATE 1\nUPDATE 1\n1|1|1|0\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: cambia solo a lee (usuario, identidad, perfil y metadato) y el correo queda en minúsculas",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Lee: Marco NO cambia (queda como está, A)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Lee: rol, área, nivel, activo y bloqueo intactos",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Lee: aplicarlo dos veces ABORTA (ya no existe lee@dazon.demo)",
+   "detalle": "BLE\nINSERT 0 1\nERROR:  Se esperaba la cuenta lee@dazon.demo y hay 0: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 10 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: la reversa devuelve la base EXACTAMENTE como estaba",
+   "detalle": "BEGIN\nCREATE TABLE\nINSERT 0 1\nDO\nUPDATE 1\nUPDATE 1\nUPDATE 1\n1|0\nCOMMIT\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: guarda «correo @dazon.demo» aborta sin cambiar nada",
+   "detalle": "E TABLE\nINSERT 0 1\nERROR:  El correo nuevo sigue siendo @dazon.demo: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 13 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: guarda «sin forma de correo» aborta sin cambiar nada",
+   "detalle": "correo nuevo no tiene forma de correo (¿sigue el texto sin-arroba?): no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 12 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: guarda «correo ya existente (otra mayúscula)» aborta sin cambiar nada",
+   "detalle": "TE TABLE\nINSERT 0 1\nERROR:  El correo nuevo ya existe en auth.users: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 14 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: guarda «perfil inactivo» aborta sin cambiar nada",
+   "detalle": "\nCREATE TABLE\nINSERT 0 1\nERROR:  La cuenta tiene el perfil inactivo: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 11 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "Lee: guarda «lee no existe» aborta sin cambiar nada",
+   "detalle": "BLE\nINSERT 0 1\nERROR:  Se esperaba la cuenta lee@dazon.demo y hay 0: no se cambió nada\nCONTEXT:  PL/pgSQL function inline_code_block line 10 at RAISE\n",
+   "ok": true
+  },
+  {
+   "caso": "fase2-bloquear-edgar.sql: no borra (sin DELETE, DROP ni TRUNCATE) y no toca contraseñas",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "fase2-bloquear-test-scan.sql: no borra (sin DELETE, DROP ni TRUNCATE) y no toca contraseñas",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "fase2-migrar-correo-real-lee.sql: no borra (sin DELETE, DROP ni TRUNCATE) y no toca contraseñas",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "ANTES (opción A de hoy): solo el administrador global que no es super admin asigna; los super admins NO",
+   "detalle": "{'sa1': 'rechazado', 'sa2': 'rechazado', 'dirglobal': 'ok', 'admcom': 'rechazado', 'superv': 'rechazado', 'vend1': 'rechazado', 'finanzas': 'rechazado', 'destino': 'rechazado'}",
+   "ok": true
+  },
+  {
+   "caso": "La migración 20261110000001 aplica sin error",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "DESPUÉS (opción B): solo un super admin asigna; el administrador global que no es super admin, ya no",
+   "detalle": "{'sa1': 'ok', 'sa2': 'ok', 'dirglobal': 'rechazado', 'admcom': 'rechazado', 'superv': 'rechazado', 'vend1': 'rechazado', 'finanzas': 'rechazado', 'destino': 'rechazado'}",
+   "ok": true
+  },
+  {
+   "caso": "Polo (administrador global, no super admin): mensaje claro «Sólo un super admin…»",
+   "detalle": "Sólo un super admin puede asignar o quitar el Super admin.",
+   "ok": true
+  },
+  {
+   "caso": "Un super admin asigna: el destino queda en super_admins",
+   "detalle": "\nsuper_admin=true\n",
+   "ok": true
+  },
+  {
+   "caso": "La asignación sube al destino a Dirección/admin y deja renglón en bitacora_super_admin",
+   "detalle": "\nrol=direccion/admin\nbitacora=1\n",
+   "ok": true
+  },
+  {
+   "caso": "Un super admin no se quita a sí mismo",
+   "detalle": "No puedes cambiar tu propio tipo de usuario.",
+   "ok": true
+  },
+  {
+   "caso": "Con DOS super admins, uno quita al otro",
+   "detalle": "\nsuper_admin=false\n",
+   "ok": true
+  },
+  {
+   "caso": "Sin sesión (auth.uid() nulo) se rechaza",
+   "detalle": "Sólo un super admin puede asignar o quitar el Super admin.",
+   "ok": true
+  },
+  {
+   "caso": "Permisos: anon no ejecuta y authenticated sí",
+   "detalle": "falsetrue",
+   "ok": true
+  },
+  {
+   "caso": "Una sola firma (sin sobrecargas) y ninguna otra función cambió (Fase 1, Paquete 1, Fase 2, Paquetes 2 y 3 intactas)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Reaplicar la migración no cambia nada (idempotente)",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "La reversa aplica sin error",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "La reversa deja el catálogo EXACTAMENTE como estaba antes",
+   "detalle": "",
+   "ok": true
+  },
+  {
+   "caso": "Tras la reversa, la función tiene la MISMA huella que en producción (8d3eb529…)",
+   "detalle": "8d3eb529c8b66bb2a7863a1fce250435",
+   "ok": true
+  },
+  {
+   "caso": "Tras la reversa vuelve la opción A (el administrador global asigna; los super admins no)",
+   "detalle": "{'sa1': 'rechazado', 'sa2': 'rechazado', 'dirglobal': 'ok', 'admcom': 'rechazado', 'superv': 'rechazado', 'vend1': 'rechazado', 'finanzas': 'rechazado', 'destino': 'rechazado'}",
+   "ok": true
+  }
+ ],
+ "parte_super_admin": {
+  "antes": {
+   "admcom": "rechazado",
+   "destino": "rechazado",
+   "dirglobal": "ok",
+   "finanzas": "rechazado",
+   "sa1": "rechazado",
+   "sa2": "rechazado",
+   "superv": "rechazado",
+   "vend1": "rechazado"
+  },
+  "despues": {
+   "admcom": "rechazado",
+   "destino": "rechazado",
+   "dirglobal": "rechazado",
+   "finanzas": "rechazado",
+   "sa1": "ok",
+   "sa2": "ok",
+   "superv": "rechazado",
+   "vend1": "rechazado"
+  }
+ }
+}

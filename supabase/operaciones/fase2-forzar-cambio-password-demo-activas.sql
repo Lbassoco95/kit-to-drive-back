@@ -7,7 +7,7 @@
 -- cuentas nombradas. Hasta entonces: no hacer nada.
 -- NOTA (26 oct 2026): `lee` YA tiene `debe_cambiar_password = true` y `must_change_password = true` (nunca cambió su contraseña
 -- inicial). Este script no cambiaría ningún valor de esa cuenta (solo `profiles.updated_at`): si Polo quiere invalidar la
--- contraseña vieja, necesita «Restablecer contraseña» (llega al correo; ver `fase2-migrar-correo-real-lee-marco.sql`).
+-- contraseña vieja, necesita «Restablecer contraseña» (llega al correo; ver `fase2-migrar-correo-real-lee.sql`).
 -- ============================================================================
 --
 -- Qué hace: marca profiles.debe_cambiar_password = true y auth.users.raw_app_meta_data.must_change_password = true.

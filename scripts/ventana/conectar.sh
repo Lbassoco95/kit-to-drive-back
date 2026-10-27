@@ -15,7 +15,7 @@ esac
 case "$PGUSER$PGHOST" in
   *qszllskpizvpnzcytqpj*) echo "STOP: es QA."; return 1 2>/dev/null || exit 1 ;;
 esac
-if [ -z "${PGPASSWORD:-}" ]; then read -rs -p "Contraseña de la base (no se muestra): " PGPASSWORD; echo; export PGPASSWORD; fi
+if [ -z "${PGPASSWORD:-}" ]; then printf "Contraseña de la base (no se muestra): "; read -rs PGPASSWORD; echo; export PGPASSWORD; fi  # sin «read -p»: zsh (macOS) lo interpreta distinto y falla
 export PGDATABASE="${PGDATABASE:-postgres}" PGSSLMODE="${PGSSLMODE:-prefer}" PGCONNECT_TIMEOUT=15
 mkdir -p ventana-logs
 # Comprobación de que es producción: tablas y cifras que solo tiene esa base.

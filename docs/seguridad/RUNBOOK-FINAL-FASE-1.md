@@ -8,8 +8,8 @@
 
 | Dato | Valor |
 |---|---|
-| Fecha de la ventana | `<por llenar>` |
-| Respaldo (fecha y hora, Database → Backups) | `<por llenar>` |
+| Fecha de la ventana | **2026-10-26** (lunes, 19:00–00:00 CDMX) |
+| Respaldo (fecha y hora, Database → Backups) | **26 oct 2026, 07:29 CDMX (13:29 UTC)**, programado y físico (declarado por Polo) |
 | Persona de pruebas | `<por llenar>` |
 | Cuentas por rol (una por cada rol de `HOJA-DE-PRUEBAS-POR-ROL.md`, **sin contraseñas aquí**) | `<por llenar>` |
 | Persona dueña de la cuenta que aplicó las migraciones anteriores | **pendiente de Polo** (no bloquea la ventana) |
@@ -25,23 +25,23 @@
 | Pegar los resultados | Polo | Esta sesión |
 | Comparar con los valores esperados y decir «sigue» o «detente» | Claude | Esta sesión |
 | Ejecutar los recorridos de la hoja de pruebas y anotar «Después» | Persona de pruebas | Su hoja impresa (`HOJA-DE-PRUEBAS-POR-ROL.md`) |
-| Aplicar o revertir **algo** en producción | **Solo Polo.** Claude no aplica nada | — |
+| Aplicar o revertir **algo** en producción | **Code, por el conector de escritura, solo dentro de la ventana y con la frase con fecha** (ver «Cómo aplica Code por el conector»); Polo habilita y quita el conector. Fuera de ventana nada se aplica | — |
 
-## 2. Horario propuesto: sábado 31 de octubre de 2026, 10:00 a 15:00 (CDMX)
+## 2. Horario propuesto: lunes 26 de octubre de 2026, 19:00 a 00:00 (CDMX)
 
-La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho el viernes) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
+La ventana de 19:00–00:00 (5 h) **cabe con 40 minutos de colchón** si la preparación dura 30 min (lo pesado se deja hecho durante el día, antes de las 19:00) y el paso 5 (permisos por defecto, que no cambia nada de lo existente) dura 15 min. Con los tiempos completos anteriores (45 min de preparación y 30 en el paso 5) el total sería 4 h 50 min: **cabe, pero con solo 10 minutos de colchón**, y no lo recomiendo.
 
 | Hora | Qué |
 |---|---|
-| 10:00–10:30 | Preparación y verificación previa (§3, §4) |
-| 10:30–11:05 | Paso 1 (M1) |
-| 11:05–11:40 | Paso 2 (M2) |
-| 11:40–12:10 | Paso 3 (M4) |
-| 12:10–12:40 | Paso 4 (M5) |
-| 12:40–12:55 | Paso 5 (M6) |
-| 12:55–13:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 13:15** |
-| 13:35–14:20 | Cierre: bloques finales, registro de resultado |
-| 14:20–15:00 | Colchón |
+| 19:00–19:30 | Preparación y verificación previa (§3, §4) |
+| 19:30–20:05 | Paso 1 (M1) |
+| 20:05–20:40 | Paso 2 (M2) |
+| 20:40–21:10 | Paso 3 (M4) |
+| 21:10–21:40 | Paso 4 (M5) |
+| 21:40–21:55 | Paso 5 (M6) |
+| 21:55–22:35 | Paso 6 (M3, `search_path`), **solo si empieza a más tardar a las 22:15** |
+| 22:35–23:20 | Cierre: bloques finales, registro de resultado |
+| 23:20–00:00 | Colchón |
 
 *Son estimaciones, no mediciones: la aplicación de cada archivo tarda segundos; el tiempo lo ponen la persona de pruebas y las verificaciones.* **Qué se recorta si no cabe** (en este orden): 1) los recorridos de los pasos 3, 4 y 5 se reducen a los obligatorios de la hoja (1 y 6; 7 y 8 solo en los pasos que los piden); 2) el paso 6 (M3) **pasa a otra ventana**: ya está diseñado para ir al final y solo, y es seguro dejar la Fase 1 en el paso 5.
 
@@ -50,7 +50,7 @@ La propuesta de 10:00–15:00 **cabe con 40 minutos de colchón** si la preparac
 ☐ Frase «Autorizo Fase 1 en producción, ventana del `<fecha>`» escrita en la sesión, con fecha, y la hora de inicio dentro de la ventana permitida.
 ☐ **Respaldo** del mismo día o del anterior, y la fecha y hora escritas en la sesión.
 ☐ **Persona de pruebas** presente toda la ventana, con **una cuenta por cada rol** de la hoja (las contraseñas las maneja ella, nunca en el chat).
-☐ **Aviso al equipo de Dazon** (el día anterior y al empezar): «Sábado 31 de octubre, de 10:00 a 15:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
+☐ **Aviso al equipo de Dazon** (hoy y al empezar): «Hoy lunes 26 de octubre, de 19:00 a 00:00, hacemos un ajuste de seguridad de la base. No debería notarse; si algo falla o se ve lento, avisen a Polo. Por favor eviten capturar remisiones o movimientos durante ese rato.»
 ☐ **Terminal lista** en la carpeta del repo, en la rama revisada y mezclada. Comprueba que están las doce piezas y que no cambiaron. **Esto va en la TERMINAL, nunca en el SQL Editor.** En Linux:
 ```bash
 sha256sum supabase/migrations/2026103100000*.sql supabase/reversas/2026103100000*_reversa.sql | cut -c1-16,65-
@@ -388,7 +388,7 @@ psql -X -v ON_ERROR_STOP=1 --single-transaction \
   2>&1 | tee "ventana-logs/aplicar-M3.log"
 ```
 
-**Esperado en pantalla:** termina sin la palabra `ERROR` y muestra el aviso «Funciones con search_path fijado: 14» y `0`. Si aparece «No existe …: se omite», **detente**. Si hay `ERROR`, no quedó nada aplicado (es una sola transacción): pasa el texto a Claude y **no repitas**.
+**Esperado en pantalla:** termina sin la palabra `ERROR` y muestra el aviso «Funciones con search_path fijado: 14» y `0`. **Antes de aplicarlo, Code corre `show search_path;` por el conector: debe incluir `public` (la migración resuelve dos tipos sin esquema; sin `public` omitiría dos funciones y haría COMMIT). Si no lo incluye, se detiene.** Si aparece «No existe …: se omite», **detente**. Si hay `ERROR`, no quedó nada aplicado (es una sola transacción): pasa el texto a Claude y **no repitas**.
 
 ### Rutina de cada paso (siempre igual)
 
@@ -522,6 +522,26 @@ where p.error_severity in ('ERROR', 'FATAL', 'PANIC')
 group by 1 order by 1
 ```
 
+### D2 por `query_logs` (probado el 26 oct con el conector de lectura)
+
+`query_logs` usa **ClickHouse** sobre la tabla `logs` (no la sintaxis de Logs Explorer de arriba). **Funciona**: se corre por Code, sin que Polo pegue nada. Ventana: las últimas 24 h por omisión. Fuentes disponibles: `edge_logs`, `postgrest_logs`, `postgres_logs`, `auth_logs`, `auth_audit_logs`, `storage_logs`, `realtime_logs`, `function_edge_logs`, `function_logs`, entre otras. Solo se piden conteos.
+
+```sql
+select log_attributes['response.status_code'] as codigo, count() as total
+from logs
+where source = 'edge_logs' and toUInt32OrZero(log_attributes['response.status_code']) >= 400
+group by codigo order by codigo
+```
+
+```sql
+select log_attributes['parsed.error_severity'] as severidad, count() as total
+from logs
+where source = 'postgres_logs' and log_attributes['parsed.error_severity'] in ('ERROR', 'FATAL', 'PANIC')
+group by severidad order by severidad
+```
+
+**Línea base del 26 oct (últimas 24 h):** API `400` = 2 y `401` = 4 (sin 403 ni 5xx); Postgres `ERROR` = 6. **Esperado en la ventana:** no suben los 401, 403 ni 5xx ni los errores de Postgres respecto a lo medido al empezar. La ventana de `query_logs` es de 24 h como máximo: se corre al empezar y al terminar.
+
 ## 11. Cuándo detenerse y revertir
 
 **Detente** (y revierte ese paso y los anteriores, en orden inverso) si, tras cualquier paso:
@@ -533,3 +553,105 @@ group by 1 order by 1
 - el alta de usuarios falla (recorrido 3) o `auth_conserva_alta` / `auth_conserva_candado` dejan de ser `true`.
 
 Un `REVOKE` que falle por dependencia: **no uses `CASCADE`**; detente y reporta. Se reporta qué pasó, qué se revirtió y en qué estado quedó.
+
+## Cómo aplica Code por el conector
+
+**Regla vigente (26 oct, Polo):** Code aplica por el conector de Supabase **solo dentro de una ventana y solo con la frase de autorización con fecha** escrita por Polo en la sesión. Fuera de ventana, el conector es **solo lectura** (conteos, huellas y catálogo; nunca filas con datos personales). Esto sustituye la prohibición anterior de usar el conector, **solo para este caso**. Seguido valen: no tocar QA, no borrar usuarios ni datos, no iniciar sesión en cuentas, ningún secreto en chat, archivos ni reportes.
+
+### Los dos conectores (solo producción, sin secretos en la URL)
+
+La referencia del proyecto va **en la URL**: el conector no puede ver ningún otro proyecto, QA incluido. La autenticación es el inicio de sesión de Polo en el navegador (OAuth); no hay contraseña ni token en la URL.
+
+| Nombre | URL | Cuándo está habilitado |
+|---|---|---|
+| `supabase-prod-lectura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging` | Siempre (solo lectura) |
+| `supabase-prod-escritura` | `https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development` | **Solo dentro de la ventana**: se agrega después de la frase y se quita al terminar el último paso |
+
+`features` limita los grupos de herramientas (verificado por Polo en la documentación de Supabase): `database` trae `execute_sql` y **también `apply_migration`** (ambas están en el mismo grupo y **no se pueden separar por URL**); `development` trae `get_project_url`; `debugging` (solo en lectura) trae `query_logs`. Si el cliente no reconoce las comas en `features`, se usa `%2C` (`features=database%2Cdevelopment`). La URL **debe llevar `project_ref=dmhzhyeivvuliumcgsmm`**: fija el proyecto y no existe argumento para cambiarlo.
+
+**`apply_migration` queda prohibida por regla, no por URL.** Polo la rechaza siempre: si aparece una solicitud de `apply_migration`, se rechaza. **Antes de cada llamada Code dice qué herramienta va a usar** (siempre `execute_sql` para aplicar y revertir; `get_project_url` y, en lectura, `query_logs`).
+
+**Vía principal: conector personalizado en claude.ai (no requiere el CLI `claude`)**
+
+Polo no tiene instalado el CLI `claude`; su vía es **claude.ai → Configuración → Conectores → Agregar conector personalizado**. Se agrega uno por cada fila de la tabla de arriba:
+
+1. **Nombre:** `supabase-prod-lectura` (o `supabase-prod-escritura`).
+2. **URL del servidor MCP remoto:** la de la tabla, completa y sin espacios.
+3. No hay campos de secretos que llenar. Al agregarlo, claude.ai pide iniciar sesión en Supabase en el navegador (OAuth); **Polo elige la organización dueña de `kit-to-drive`** y autoriza.
+4. En los permisos de herramientas del conector, dejar **«Pedir aprobación»** en todas (en el de escritura, `execute_sql` siempre con aprobación manual). `apply_migration` se rechaza siempre.
+5. Para **quitarlo**: Configuración → Conectores → el conector → **Desconectar / Eliminar**. Confirmar que ya no aparece en la lista.
+
+> ⚠️ **Un conector agregado en claude.ai queda disponible en TODA la cuenta de Polo (todas sus sesiones), no solo en esta.** Por eso: el conector de **lectura** se agrega antes y puede quedarse (solo lee y está fijado a producción); el de **escritura se agrega SOLO dentro de la ventana, después de la frase, y se quita en cuanto termina el último paso** (y los bloques finales se pegaron), **no al día siguiente**. Mientras exista, cualquier sesión de Polo podría proponer una escritura en producción; la aprobación manual de cada llamada es la última barrera, no la primera. Si la ventana se interrumpe, se quita y se vuelve a agregar al retomar.
+
+**Alternativa: CLI `claude` en terminal** (solo si Polo lo instala; no es la vía prevista). **No se usa `--scope project`**: guardaría la configuración del conector en el repo (`.mcp.json`); se usa el alcance **local**.
+
+```bash
+claude mcp add --transport http --scope local supabase-prod-lectura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&read_only=true&features=database,development,debugging"
+claude mcp add --transport http --scope local supabase-prod-escritura "https://mcp.supabase.com/mcp?project_ref=dmhzhyeivvuliumcgsmm&features=database,development"
+claude mcp remove supabase-prod-escritura --scope local
+claude mcp list
+```
+
+**Esperado:** `list` muestra el de lectura siempre y el de escritura solo durante la ventana.
+
+### Cuando Polo avise que agregó el conector de lectura
+
+Antes de cualquier ventana, Code hace dos comprobaciones y pega el resultado: (1) **confirma que no puede escribir** (la prueba es una consulta de solo lectura permitida y un intento de escritura inofensivo que debe ser rechazado por el modo solo lectura; si la escritura se acepta, se avisa a Polo de inmediato y se quita el conector); (2) **prueba `query_logs`** para el bloque D2 y dice si funciona.
+
+### Condiciones de cada llamada
+
+- **Aprobación manual de cada llamada** (permiso «preguntar» para `execute_sql` en el conector de escritura). Nada se aprueba por adelantado.
+- **Antes de cada escritura**, Code llama a `get_project_url` y pega el resultado. Debe decir `https://dmhzhyeivvuliumcgsmm.supabase.co`. Si dice `qszllskpizvpnzcytqpj` (QA) o cualquier otra cosa: **detenerse**. **Además confirma la identidad con el bloque 0** (`zz_lista_oct = 2219`, `super_admins = 2`), también antes de cada escritura: `project_ref` fija el proyecto, pero el bloque 0 lo comprueba por los datos.
+- **Antes de cada llamada, Code dice qué herramienta va a usar.** Aplicar y revertir es siempre `execute_sql`; **nunca `apply_migration`**.
+- Se aplica con **`execute_sql`, un archivo por llamada, dentro de `begin; … commit;`**, con el `INSERT` en `migraciones_aplicadas` **en la misma llamada**. **No se usa `apply_migration`.**
+- Antes de cada llamada Code pega la huella (`sha256`) del archivo que va a enviar; Polo la compara con la que ya verificó en su terminal.
+- **Después de cada paso** Code pega en el chat los resultados de **V, A1 y A3** y **espera el «sigue» de Polo** antes del siguiente.
+- **La primera escritura de la ventana es M1** (de la Fase 1 o del Paquete 1, según la ventana). Si no se comporta como una sola transacción (queda algo a medias tras un error) o si V no coincide con lo esperado: **detenerse y revertir** con la reversa del paso.
+- **Antes de M3 de la Fase 1 (`fijar_search_path`), Code corre `show search_path;`** (con `execute_sql`, solo lectura) y pega el resultado: debe incluir `public`. Si no, se detiene.
+- Las reversas se aplican por el mismo camino, una por llamada, con su propia aprobación.
+
+### Momento exacto, durante la ventana
+
+| # | Quién | Qué | Cuándo |
+|---|---|---|---|
+| 1 | Polo | Escribe la frase con fecha | Al abrir la ventana, ya con respaldo y persona de pruebas |
+| 2 | Polo | **Agrega** `supabase-prod-escritura` en claude.ai (y verifica que el general esté desconectado) | Justo después de la frase |
+| 3 | Code | `get_project_url`, bloque 0 y V, A1 y A3 «antes» por lectura | Antes de la primera escritura |
+| 4 | Code | Aplica un paso, pega V, A1 y A3 | Cada paso; espera «sigue» |
+| 5 | Polo | **Quita** (Desconectar/Eliminar) `supabase-prod-escritura` | En cuanto se aplica el último paso y se pegan los bloques finales, **o** a la hora de cierre de la ventana, lo que ocurra primero |
+| 6 | Code | Confirma por lectura que ya no puede escribir | Después de quitarlo |
+
+Si la ventana se interrumpe (algo falla y se pausa), Polo quita el conector de escritura y lo vuelve a agregar al retomar.
+
+### Qué hacer con el conector general de claude.ai en la sesión
+
+**Recomendación: desconectarlo** (claude.ai → Configuración → Conectores → Supabase → Desconectar) antes de la primera ventana, y trabajar solo con los dos conectores de arriba. El general ve **todos** los proyectos y organizaciones de la cuenta, QA entre ellos, y expone herramientas que no hacen falta y que son riesgosas (crear/pausar/restaurar proyectos, ramas, desplegar funciones). Además, con el general la comprobación `get_project_url` no protege: ahí el proyecto se le pasa a la herramienta como argumento, y un error de identificador llegaría a otro proyecto. Con el conector acotado por URL no existe ese argumento. Si no se puede desconectar, dejar **en «Nunca»** todas sus herramientas de escritura y de administración, y **no usarlo** para nada.
+
+### Verificación del conector de lectura (26 oct, hecha por Code)
+
+| Prueba | Resultado |
+|---|---|
+| `get_project_url` | `https://dmhzhyeivvuliumcgsmm.supabase.co` (producción) |
+| Bloque 0 por lectura | `zz_lista_oct = 2219`, `super_admins = 2`, registro = 90, `transaction_read_only = on` |
+| Escritura inocua (`UPDATE … WHERE false`, ninguna fila) | **Rechazada**: `25006: cannot execute UPDATE in a read-only transaction` |
+| `query_logs` | **Funciona** (ver abajo) |
+
+### D2 por `query_logs` (probado el 26 oct: funciona)
+
+`query_logs` usa **ClickHouse** sobre la tabla `logs`. Code corre D2 por ahí, sin que Polo pegue nada, al empezar y al terminar cada ventana (la ventana máxima es de 24 h). Solo se piden conteos.
+
+```sql
+select log_attributes['response.status_code'] as codigo, count() as total
+from logs
+where source = 'edge_logs' and toUInt32OrZero(log_attributes['response.status_code']) >= 400
+group by codigo order by codigo
+```
+
+```sql
+select log_attributes['parsed.error_severity'] as severidad, count() as total
+from logs
+where source = 'postgres_logs' and log_attributes['parsed.error_severity'] in ('ERROR', 'FATAL', 'PANIC')
+group by severidad order by severidad
+```
+
+**Línea base del 26 oct (últimas 24 h):** API `400` = 2 y `401` = 4 (sin 403 ni 5xx); Postgres `ERROR` = 6. **Esperado:** no suben los 401, 403 ni 5xx ni los errores de Postgres. Si en una ventana falla o no coincide con el Logs Explorer, Polo corre D2 como alternativa (`RUNBOOK-FINAL-FASE-1.md` §10).

@@ -20,10 +20,9 @@
 --   · todas tienen profiles.activo = false (ninguna persona activa se bloquea por error);
 --   · ninguna está ya bloqueada (así la reversa sabe que el valor anterior era NULL).
 --
--- BLOQUE 1: las 5 cuentas inactivas que son claramente de demostración.
--- BLOQUE 2 (aparte): edgar@dazon.demo. Polo avisó que edgar, lee y marco se crearon junto con las
---   cuentas de personas y pueden ser usuarios reales. edgar ya está inactiva en el perfil, pero NO se
---   bloquea en Auth sin que Polo confirme que no es una persona: déjalo comentado hasta entonces.
+-- Las 5 cuentas inactivas que son claramente de demostración.
+-- Edgar y test-scan NO van aquí: Polo confirmó (26 oct) que edgar es un exempleado y su bloqueo tiene su propio
+-- script y su propia frase (fase2-bloquear-edgar.sql); test-scan, también aparte (fase2-bloquear-test-scan.sql).
 -- ============================================================================
 BEGIN;
 
@@ -31,8 +30,6 @@ CREATE TEMP TABLE _cuentas (email text PRIMARY KEY) ON COMMIT DROP;
 INSERT INTO _cuentas VALUES
   ('admin@dazon.demo'), ('coordinador@dazon.demo'), ('fabrica@dazon.demo'),
   ('logistica@dazon.demo'), ('ventas@dazon.demo');
--- BLOQUE 2 (solo con confirmación de Polo): descomenta la línea siguiente.
--- INSERT INTO _cuentas VALUES ('edgar@dazon.demo');
 
 DO $$
 DECLARE esperadas int; halladas int; activas int; ya_bloqueadas int;
