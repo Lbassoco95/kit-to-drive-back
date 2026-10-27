@@ -165,7 +165,7 @@ def catalogo_basico(ids):
 
 def catalogo():
     sql = """SELECT md5(string_agg(x, E'\\n' ORDER BY x)) FROM (
-      SELECT 'p|'||schemaname||'.'||tablename||'|'||policyname||'|'||cmd||'|'||permissive||'|'||coalesce(roles::text,'')||'|'||coalesce(qual,'')||'|'||coalesce(with_check,'') FROM pg_policies WHERE schemaname IN ('public','storage')
+      SELECT 'p|'||schemaname||'.'||tablename||'|'||policyname||'|'||cmd||'|'||permissive||'|'||coalesce(roles::text,'')||'|'||coalesce(qual,'')||'|'||coalesce(with_check,'') AS x FROM pg_policies WHERE schemaname IN ('public','storage')
       UNION ALL SELECT 'f|'||p.oid::regprocedure::text||'|'||md5(pg_get_functiondef(p.oid))||'|'||coalesce(p.proacl::text,'') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.prokind IN ('f','p')
       UNION ALL SELECT 't|'||c.relname||'|'||t.tgname||'|'||md5(pg_get_triggerdef(t.oid)) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE NOT t.tgisinternal AND n.nspname='public') q;"""
     return psql(sql, True).strip().splitlines()[-1]
