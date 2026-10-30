@@ -516,7 +516,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261022000001_tope_ya_armados_150', 'columna|config_general.limite_ya_armados|150'),
 
   -- Flujo de dinero: regla de cuenta por método de pago (propuesta, 2026-10-28).
-  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco')
+  ('20261028000001_flujo_regla_cuenta_por_metodo', 'funcion|flujo_confirmar_caja(uuid,uuid,text)|cuenta de banco'),
+
+  -- Ana Karen con los mismos permisos de remisiones que Atenea (2026-10-30).
+  -- Sólo deja una fila de la allowlist: el tipo `fila` busca un correo activo.
+  ('20261030000001_anakaren_mismos_permisos_atenea', 'fila|remisiones_asignacion_acceso|ana%@dazon%')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
@@ -604,6 +608,12 @@ WITH esperado(script, objeto) AS (VALUES
                         OR COALESCE(p.qual,'') || ' ' || COALESCE(p.with_check,'') LIKE '%' || r.detalle || '%'))
       WHEN 'secuencia' THEN
         to_regclass('public.' || quote_ident(r.nombre)) IS NOT NULL
+      WHEN 'fila' THEN
+        -- Scripts que sólo dejan DATOS. `nombre` es la tabla y `detalle` un
+        -- patrón LIKE sobre el correo de la fila que debe quedar activa.
+        r.nombre = 'remisiones_asignacion_acceso'
+        AND EXISTS (SELECT 1 FROM public.remisiones_asignacion_acceso a
+                     WHERE lower(a.email) LIKE lower(r.detalle) AND a.activo)
     END AS existe
   FROM revisado r
 )
