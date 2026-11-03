@@ -129,6 +129,7 @@
     "flujo_asignar_capacidad",
     "flujo_cap",
     "flujo_clientes",
+    "flujo_comprobar",
     "flujo_confirmar_caja",
     "flujo_cuentas",
     "flujo_dinero_sin_borrar",
