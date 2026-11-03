@@ -548,7 +548,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261103000005_comprobacion_efectivo_en_flujo', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)'),
 
   -- El cambio devuelto suma a la caja (2026-11-03).
-  ('20261103000006_cambio_devuelto_suma_a_caja', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)|cambio_folio')
+  ('20261103000006_cambio_devuelto_suma_a_caja', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)|cambio_folio'),
+
+  -- Cancelar una remisión de refacciones regresa lo surtido al inventario (2026-11-03).
+  ('20261103000007_cancelar_remision_regresa_inventario', 'funcion|_devolver_surtido_remision_refaccion(uuid,text)'),
+  ('20261103000007_cancelar_remision_regresa_inventario', 'funcion|cancelar_remision_refacciones(uuid,text)|_devolver_surtido_remision_refaccion')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

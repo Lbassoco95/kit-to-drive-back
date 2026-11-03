@@ -5,6 +5,7 @@
     "_candado_movimientos_solo_flujo",
     "_compra_editable",
     "_crear_ajuste_inventario",
+    "_devolver_surtido_remision_refaccion",
     "_escribir_lineas_compra_refacciones",
     "_espejo_cuenta_para_pago",
     "_espejo_flujo_abono",
