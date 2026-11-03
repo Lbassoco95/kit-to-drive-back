@@ -529,7 +529,11 @@ WITH esperado(script, objeto) AS (VALUES
   -- eliminar remisión de refacciones, reporte de ventas y vendedores sólo ven lo suyo.
   ('20261103000001_pendientes_martin_refacciones', 'funcion|eliminar_remision_refacciones(uuid,text,boolean)'),
   ('20261103000001_pendientes_martin_refacciones', 'funcion|reporte_ventas_refacciones(date,date,boolean)'),
-  ('20261103000001_pendientes_martin_refacciones', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial')
+  ('20261103000001_pendientes_martin_refacciones', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial'),
+
+  -- Cobranza y Flujo de dinero son el mismo flujo (2026-11-03).
+  ('20261103000002_cobranza_espeja_en_flujo', 'funcion|_espejo_flujo_sincronizar(uuid)'),
+  ('20261103000002_cobranza_espeja_en_flujo', 'funcion|_flujo_espejo_guarda()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
