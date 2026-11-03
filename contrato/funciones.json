@@ -4,6 +4,7 @@
     "_aplicar_ajuste_inventario",
     "_candado_movimientos_solo_flujo",
     "_compra_editable",
+    "_conectar_movimiento_al_flujo",
     "_crear_ajuste_inventario",
     "_devolver_surtido_remision_refaccion",
     "_escribir_lineas_compra_refacciones",

@@ -556,7 +556,10 @@ WITH esperado(script, objeto) AS (VALUES
 
   -- El flujo muestra lo aplicado y se concilia (2026-11-03).
   ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_resumen_aplicacion(uuid,uuid)'),
-  ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_conciliacion()')
+  ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_conciliacion()'),
+
+  -- Historial conectado al flujo sin crear dinero (2026-11-03).
+  ('20261103000009_conectar_historial_al_flujo', 'funcion|_conectar_movimiento_al_flujo(uuid)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
