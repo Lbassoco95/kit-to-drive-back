@@ -6,6 +6,7 @@
     "_crear_ajuste_inventario",
     "_escribir_lineas_compra_refacciones",
     "_espejo_cuenta_para_pago",
+    "_espejo_flujo_abono",
     "_espejo_flujo_sincronizar",
     "_espejo_flujo_trg_hijo",
     "_espejo_flujo_trg_pago",

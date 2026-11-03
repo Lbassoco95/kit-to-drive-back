@@ -533,7 +533,11 @@ WITH esperado(script, objeto) AS (VALUES
 
   -- Cobranza y Flujo de dinero son el mismo flujo (2026-11-03).
   ('20261103000002_cobranza_espeja_en_flujo', 'funcion|_espejo_flujo_sincronizar(uuid)'),
-  ('20261103000002_cobranza_espeja_en_flujo', 'funcion|_flujo_espejo_guarda()')
+  ('20261103000002_cobranza_espeja_en_flujo', 'funcion|_flujo_espejo_guarda()'),
+
+  -- Los abonos de Crédito pasan por el flujo (2026-11-03).
+  ('20261103000003_abonos_credito_en_flujo', 'columna|flujo_dinero.cxc_abono_id'),
+  ('20261103000003_abonos_credito_en_flujo', 'funcion|_espejo_flujo_abono()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
