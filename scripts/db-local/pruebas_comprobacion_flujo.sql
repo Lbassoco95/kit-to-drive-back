@@ -76,4 +76,34 @@ DO $$ DECLARE f public.flujo_dinero%ROWTYPE; m public.movimientos_financieros%RO
   ASSERT EXISTS (SELECT 1 FROM public.movimiento_bitacora b WHERE b.movimiento_id = m.id AND b.accion = 'COMPROBADO'), 'queda en la bitácora del movimiento';
 END $$;
 COMMIT;
+
+\echo 'K4. El cambio devuelto suma a la caja: renglón del flujo (reembolso aplicado) e ingreso en Control Financiero'
+DO $$ DECLARE c public.flujo_dinero%ROWTYPE; m public.movimientos_financieros%ROWTYPE; orig public.flujo_dinero%ROWTYPE; BEGIN
+  SELECT * INTO orig FROM public.flujo_dinero WHERE id = (SELECT id FROM public._k_ids WHERE clave = 's1');
+  SELECT * INTO c FROM public.flujo_dinero WHERE tipo = 'REEMBOLSO' AND referencia = orig.folio;
+  ASSERT FOUND, 'debe existir el renglón del cambio';
+  ASSERT c.etapa = 'APLICADO' AND c.monto = 30 AND c.metodo_pago = 'EFECTIVO' AND c.destino = 'REEMBOLSO_EMPLEADO' AND c.cuenta_id = orig.cuenta_id AND c.concepto = 'Cambio devuelto de ' || orig.folio, format('%s', to_jsonb(c));
+  SELECT * INTO m FROM public.movimientos_financieros WHERE id = c.movimiento_id;
+  ASSERT m.tipo = 'INGRESO' AND m.estatus = 'CONFIRMADO' AND m.monto = 30 AND m.cuenta_id = orig.cuenta_id, format('%s', to_jsonb(m));
+  -- Una comprobación sin cambio no genera ingreso.
+  ASSERT (SELECT count(*) FROM public.flujo_dinero WHERE tipo = 'REEMBOLSO' AND concepto LIKE 'Cambio devuelto de %') = 1, 'solo el cambio de s1';
+END $$;
+BEGIN;
+SELECT public._m_como('martin.real@ejemplo.mx');
+DO $$ DECLARE v jsonb; BEGIN
+  v := public.flujo_recibir('SALIDA', 200, 'MXN', 'EFECTIVO', current_date, 'Proveedor W', NULL, 'Otra compra', NULL, NULL, 'Ana Gómez');
+  INSERT INTO public._k_ids VALUES ('s3', (v->>'id')::uuid);
+END $$;
+RESET ROLE;
+SELECT public._m_como('finanzas.real@ejemplo.mx');
+SELECT public.flujo_confirmar_caja((SELECT id FROM public._k_ids WHERE clave = 's3'), (SELECT id FROM public.cuentas_financieras WHERE nombre = 'Caja chica'));
+DO $$ DECLARE r jsonb; BEGIN
+  r := public.flujo_comprobar((SELECT id FROM public._k_ids WHERE clave = 's3'), 200, 0);
+  ASSERT r->>'cambio_folio' IS NULL, 'sin cambio no hay renglón de cambio';
+END $$;
+RESET ROLE;
+DO $$ BEGIN
+  ASSERT (SELECT count(*) FROM public.flujo_dinero WHERE tipo = 'REEMBOLSO' AND concepto LIKE 'Cambio devuelto de %') = 1, 'sin cambio no se crea ingreso';
+END $$;
+COMMIT;
 \echo 'OK: comprobación de efectivo en el flujo'

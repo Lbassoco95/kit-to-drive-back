@@ -545,7 +545,10 @@ WITH esperado(script, objeto) AS (VALUES
 
   -- La comprobación de efectivo vive en el flujo (2026-11-03).
   ('20261103000005_comprobacion_efectivo_en_flujo', 'columna|flujo_dinero.requiere_comprobacion'),
-  ('20261103000005_comprobacion_efectivo_en_flujo', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)')
+  ('20261103000005_comprobacion_efectivo_en_flujo', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)'),
+
+  -- El cambio devuelto suma a la caja (2026-11-03).
+  ('20261103000006_cambio_devuelto_suma_a_caja', 'funcion|flujo_comprobar(uuid,numeric,numeric,text)|cambio_folio')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
