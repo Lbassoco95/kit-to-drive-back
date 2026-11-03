@@ -552,7 +552,11 @@ WITH esperado(script, objeto) AS (VALUES
 
   -- Cancelar una remisión de refacciones regresa lo surtido al inventario (2026-11-03).
   ('20261103000007_cancelar_remision_regresa_inventario', 'funcion|_devolver_surtido_remision_refaccion(uuid,text)'),
-  ('20261103000007_cancelar_remision_regresa_inventario', 'funcion|cancelar_remision_refacciones(uuid,text)|_devolver_surtido_remision_refaccion')
+  ('20261103000007_cancelar_remision_regresa_inventario', 'funcion|cancelar_remision_refacciones(uuid,text)|_devolver_surtido_remision_refaccion'),
+
+  -- El flujo muestra lo aplicado y se concilia (2026-11-03).
+  ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_resumen_aplicacion(uuid,uuid)'),
+  ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_conciliacion()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
