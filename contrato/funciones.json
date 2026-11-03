@@ -2,6 +2,7 @@
   "generado_de": "supabase/migrations",
   "funciones": [
     "_aplicar_ajuste_inventario",
+    "_candado_movimientos_solo_flujo",
     "_compra_editable",
     "_crear_ajuste_inventario",
     "_escribir_lineas_compra_refacciones",
