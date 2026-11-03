@@ -537,7 +537,11 @@ WITH esperado(script, objeto) AS (VALUES
 
   -- Los abonos de Crédito pasan por el flujo (2026-11-03).
   ('20261103000003_abonos_credito_en_flujo', 'columna|flujo_dinero.cxc_abono_id'),
-  ('20261103000003_abonos_credito_en_flujo', 'funcion|_espejo_flujo_abono()')
+  ('20261103000003_abonos_credito_en_flujo', 'funcion|_espejo_flujo_abono()'),
+
+  -- Control Financiero solo de consulta: el efectivo nace en el flujo (2026-11-03).
+  ('20261103000004_control_financiero_solo_consulta', 'funcion|_candado_movimientos_solo_flujo()'),
+  ('20261103000004_control_financiero_solo_consulta', 'funcion|flujo_rechazar(uuid,text)|flujo_escribe')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
