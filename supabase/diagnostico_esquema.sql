@@ -523,7 +523,13 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261030000001_anakaren_mismos_permisos_atenea', 'fila|remisiones_asignacion_acceso|ana%@dazon%'),
 
   -- Todo Comercial lee el catálogo de clientes (CRM de vendedores, 2026-10-30).
-  ('20261030000002_comercial_lee_catalogo_clientes', 'politica|clientes.comercial lee catalogo clientes|usuario_activo')
+  ('20261030000002_comercial_lee_catalogo_clientes', 'politica|clientes.comercial lee catalogo clientes|usuario_activo'),
+
+  -- Pendientes de Martín (2026-11-03): crédito en refacciones, fecha editable,
+  -- eliminar remisión de refacciones, reporte de ventas y vendedores sólo ven lo suyo.
+  ('20261103000001_pendientes_martin_refacciones', 'funcion|eliminar_remision_refacciones(uuid,text,boolean)'),
+  ('20261103000001_pendientes_martin_refacciones', 'funcion|reporte_ventas_refacciones(date,date,boolean)'),
+  ('20261103000001_pendientes_martin_refacciones', 'funcion|puede_leer_remision_refaccion(uuid,uuid)|es_administrativo_comercial')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
