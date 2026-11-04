@@ -559,7 +559,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261103000008_flujo_aplicacion_y_conciliacion', 'funcion|flujo_conciliacion()'),
 
   -- Historial conectado al flujo sin crear dinero (2026-11-03).
-  ('20261103000009_conectar_historial_al_flujo', 'funcion|_conectar_movimiento_al_flujo(uuid)')
+  ('20261103000009_conectar_historial_al_flujo', 'funcion|_conectar_movimiento_al_flujo(uuid)'),
+  -- Limpieza puntual de datos de demostración de Cobranza y Crédito (2026-11-03).
+  ('20261103000010_limpiar_demo_cobranza_credito', 'funcion|_limpiar_demostracion_cobranza_credito(text[],text[],text,text[],text)'),
+  -- El flujo alimenta a Cobranza desde que se registra (2026-11-04).
+  ('20261104000001_flujo_alimenta_cobranza', 'funcion|_flujo_a_cobranza()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
