@@ -563,7 +563,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- Limpieza puntual de datos de demostración de Cobranza y Crédito (2026-11-03).
   ('20261103000010_limpiar_demo_cobranza_credito', 'funcion|_limpiar_demostracion_cobranza_credito(text[],text[],text,text[],text)'),
   -- El flujo alimenta a Cobranza desde que se registra (2026-11-04).
-  ('20261104000001_flujo_alimenta_cobranza', 'funcion|_flujo_a_cobranza()')
+  ('20261104000001_flujo_alimenta_cobranza', 'funcion|_flujo_a_cobranza()'),
+  -- Control Financiero muestra el ingreso «por confirmar» desde el registro (2026-11-04).
+  ('20261104000002_control_financiero_por_confirmar', 'funcion|flujo_confirmar_caja(uuid,uuid,text)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
