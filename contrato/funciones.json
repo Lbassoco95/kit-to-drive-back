@@ -3,6 +3,7 @@
   "funciones": [
     "_aplicar_ajuste_inventario",
     "_candado_movimientos_solo_flujo",
+    "_cobranza_pago_del_flujo_guarda",
     "_compra_editable",
     "_conectar_movimiento_al_flujo",
     "_crear_ajuste_inventario",
@@ -14,8 +15,10 @@
     "_espejo_flujo_trg_hijo",
     "_espejo_flujo_trg_pago",
     "_fijar_color_original",
+    "_flujo_a_cobranza",
     "_flujo_espejo_guarda",
     "_folio_incidencia",
+    "_limpiar_demostracion_cobranza_credito",
     "_mover_inventario_refaccion",
     "_orden_de_remision",
     "_parear_unidades_contenedor_internal",
