@@ -79,6 +79,13 @@ DO $$ BEGIN
 END $$;
 COMMIT;
 
+\echo 'FM3b. Las categorías del formulario las ve quien registra'
+BEGIN;
+SELECT public._m_como('martin.real@ejemplo.mx');
+DO $$ BEGIN ASSERT (SELECT count(*) FROM public.flujo_categorias('INGRESO')) >= 1, 'categorías de ingreso'; ASSERT (SELECT count(*) FROM public.flujo_categorias('EGRESO')) >= 1, 'categorías de egreso'; END $$;
+RESET ROLE;
+COMMIT;
+
 \echo 'FM4. Los clientes del flujo se piden por tramos y salen todos'
 BEGIN;
 SELECT public._m_como('martin.real@ejemplo.mx');

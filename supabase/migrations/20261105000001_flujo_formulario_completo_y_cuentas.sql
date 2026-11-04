@@ -225,6 +225,21 @@ $$;
 REVOKE ALL ON FUNCTION public.flujo_clientes(integer, integer) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.flujo_clientes(integer, integer) TO authenticated;
 
+-- Categorías del formulario: quien registra en el flujo no necesariamente lee las tablas de Finanzas.
+CREATE OR REPLACE FUNCTION public.flujo_categorias(_tipo text)
+RETURNS TABLE (nombre text)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NOT (public.flujo_cap('recibe') OR public.flujo_cap('caja') OR public.flujo_es_admin()) THEN
+    RAISE EXCEPTION 'No tienes asignada la etapa de recepción';
+  END IF;
+  RETURN QUERY SELECT c.nombre FROM public.categorias_financieras c
+   WHERE c.activo AND c.tipo::text = upper(coalesce(_tipo, '')) ORDER BY c.orden, c.nombre;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.flujo_categorias(text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.flujo_categorias(text) TO authenticated;
+
 -- ── 5. Aplicar: un INGRESO se aplica a «Otro» ───────────────────────────────
 
 CREATE OR REPLACE FUNCTION public.flujo_aplicar(_id uuid, _destino text, _aplicaciones jsonb DEFAULT '[]'::jsonb, _notas text DEFAULT NULL)

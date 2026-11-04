@@ -133,6 +133,7 @@
     "flujo_aplicar",
     "flujo_asignar_capacidad",
     "flujo_cap",
+    "flujo_categorias",
     "flujo_clientes",
     "flujo_comprobar",
     "flujo_conciliacion",
