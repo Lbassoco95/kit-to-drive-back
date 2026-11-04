@@ -17,6 +17,7 @@
     "_fijar_color_original",
     "_flujo_a_cobranza",
     "_flujo_espejo_guarda",
+    "_flujo_movimiento_pendiente",
     "_folio_incidencia",
     "_limpiar_demostracion_cobranza_credito",
     "_mover_inventario_refaccion",
