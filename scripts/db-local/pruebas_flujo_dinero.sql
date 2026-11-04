@@ -67,6 +67,7 @@ SELECT public._t_como('prueba.compras@dazon.demo');
 DO $$ BEGIN
   PERFORM public._t_falla($q$SELECT public.flujo_asignar_capacidad(public._t_uid('prueba.compras@dazon.demo'), 'recibe', true)$q$, 'Sólo un administrador');
   PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', public._t_cli('TST-C02'))$q$, 'etapa de recepción');
+  PERFORM public._t_falla($q$SELECT * FROM public.flujo_cuentas()$q$, 'etapa de caja');
 END $$;
 RESET ROLE;
 SELECT public._t_como('prueba.super@dazon.demo');
@@ -98,7 +99,8 @@ BEGIN
   PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'CHEQUE', current_date, 'Juan', public._t_cli('TST-C02'), NULL, 'CH1')$q$, 'efectivo, transferencia o depósito');
   PERFORM public._t_falla($q$SELECT public.flujo_recibir('PAGO_CLIENTE', 100, 'MXN', 'EFECTIVO', current_date, 'Juan', NULL)$q$, 'Elige el cliente');
   ASSERT (SELECT count(*) FROM public.flujo_clientes() WHERE codigo = 'TST-C02') = 1, 'recibe ve los clientes por flujo_clientes()';
-  PERFORM public._t_falla($q$SELECT * FROM public.flujo_cuentas()$q$, 'etapa de caja');
+  -- Quien registra ve las cuentas (para elegir dónde entra o sale el dinero); sin ninguna etapa del flujo, no.
+  ASSERT (SELECT count(*) FROM public.flujo_cuentas()) >= 1, 'quien registra ve las cuentas';
   v := public.flujo_recibir('PAGO_CLIENTE', v_pend + 500, 'MXN', 'EFECTIVO', current_date, 'Juan Pérez', public._t_cli('TST-C02'));
   INSERT INTO t_fd VALUES ((v->>'id')::uuid, v_rem, v_pend);
   ASSERT (SELECT etapa FROM public.flujo_dinero WHERE id = (v->>'id')::uuid) = 'RECIBIDO';
