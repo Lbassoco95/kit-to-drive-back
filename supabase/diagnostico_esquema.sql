@@ -565,7 +565,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- El flujo alimenta a Cobranza desde que se registra (2026-11-04).
   ('20261104000001_flujo_alimenta_cobranza', 'funcion|_flujo_a_cobranza()'),
   -- Control Financiero muestra el ingreso «por confirmar» desde el registro (2026-11-04).
-  ('20261104000002_control_financiero_por_confirmar', 'funcion|flujo_confirmar_caja(uuid,uuid,text)')
+  ('20261104000002_control_financiero_por_confirmar', 'funcion|flujo_confirmar_caja(uuid,uuid,text)'),
+  -- Formulario completo de ingresos/egresos, alta de cuentas y clientes por tramos en el flujo (2026-11-05).
+  ('20261105000001_flujo_formulario_completo_y_cuentas', 'funcion|flujo_registrar_movimiento(jsonb)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
