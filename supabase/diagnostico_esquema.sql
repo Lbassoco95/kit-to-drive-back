@@ -567,7 +567,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- Control Financiero muestra el ingreso «por confirmar» desde el registro (2026-11-04).
   ('20261104000002_control_financiero_por_confirmar', 'funcion|flujo_confirmar_caja(uuid,uuid,text)'),
   -- Formulario completo de ingresos/egresos, alta de cuentas y clientes por tramos en el flujo (2026-11-05).
-  ('20261105000001_flujo_formulario_completo_y_cuentas', 'funcion|flujo_registrar_movimiento(jsonb)')
+  ('20261105000001_flujo_formulario_completo_y_cuentas', 'funcion|flujo_registrar_movimiento(jsonb)'),
+  -- Todo ingreso y egreso del flujo nace «por confirmar» en Control Financiero (2026-11-05).
+  ('20261105000002_flujo_todo_ingreso_egreso_por_confirmar', 'funcion|_flujo_movimiento_pendiente(flujo_dinero)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

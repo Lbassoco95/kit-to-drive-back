@@ -16,7 +16,7 @@ DO $$ DECLARE v jsonb; BEGIN
     'tipo', 'INGRESO', 'concepto', 'Venta de contado', 'categoria', 'Venta de refacciones', 'descripcion', 'Detalle largo',
     'monto', '1500.50', 'moneda', 'MXN', 'fecha_movimiento', current_date::text, 'metodo_pago', 'TRANSFERENCIA',
     'cuenta_id', current_setting('kit.t_banco'),
-    'referencia', 'REF-77', 'contraparte_tipo', 'CLIENTE', 'cliente_id', public._m_cli()::text, 'contraparte_nombre', 'Cliente MM',
+    'referencia', 'REF-77', 'contraparte_tipo', 'OTRO', 'contraparte_nombre', 'Persona externa',
     'via', 'INTERMEDIARIO', 'intermediario_nombre', 'Chofer Juan', 'factura_folio', 'F-123', 'factura_uuid', 'UUID-1', 'factura_rfc', 'XAXX010101000'));
   INSERT INTO public._fm_ids VALUES ('f1', (v->>'id')::uuid);
 END $$;
@@ -24,8 +24,13 @@ RESET ROLE;
 DO $$ DECLARE f public.flujo_dinero%ROWTYPE; BEGIN
   SELECT * INTO f FROM public.flujo_dinero WHERE id = (SELECT id FROM public._fm_ids WHERE clave = 'f1');
   ASSERT f.tipo = 'INGRESO' AND f.etapa = 'RECIBIDO' AND f.monto = 1500.50 AND f.categoria = 'Venta de refacciones' AND f.cuenta_prevista_id IS NOT NULL
-     AND f.via = 'INTERMEDIARIO' AND f.factura_folio = 'F-123' AND f.cliente_id = public._m_cli() AND NOT f.requiere_comprobacion, format('%s', to_jsonb(f));
+     AND f.via = 'INTERMEDIARIO' AND f.factura_folio = 'F-123' AND f.cliente_id IS NULL AND NOT f.requiere_comprobacion, format('%s', to_jsonb(f));
   ASSERT f.cobranza_pago_id IS NULL, 'un ingreso general no crea pago en Cobranza';
+  ASSERT f.movimiento_id IS NOT NULL, 'nace su movimiento por confirmar';
+  ASSERT (SELECT estatus::text FROM public.movimientos_financieros WHERE id = f.movimiento_id) = 'PENDIENTE'
+     AND (SELECT cuenta_id FROM public.movimientos_financieros WHERE id = f.movimiento_id) IS NULL
+     AND (SELECT categoria FROM public.movimientos_financieros WHERE id = f.movimiento_id) = 'Venta de refacciones'
+     AND (SELECT factura_folio FROM public.movimientos_financieros WHERE id = f.movimiento_id) = 'F-123', 'por confirmar con el detalle';
 END $$;
 COMMIT;
 BEGIN;
@@ -36,7 +41,7 @@ RESET ROLE;
 DO $$ DECLARE m public.movimientos_financieros%ROWTYPE; BEGIN
   SELECT m2.* INTO m FROM public.movimientos_financieros m2 JOIN public.flujo_dinero f ON f.movimiento_id = m2.id WHERE f.id = (SELECT id FROM public._fm_ids WHERE clave = 'f1');
   ASSERT m.tipo = 'INGRESO' AND m.estatus = 'CONFIRMADO' AND m.categoria = 'Venta de refacciones' AND m.descripcion = 'Detalle largo'
-     AND m.contraparte_tipo::text = 'CLIENTE' AND m.cliente_id = public._m_cli() AND m.via::text = 'INTERMEDIARIO' AND m.intermediario_nombre = 'Chofer Juan'
+     AND m.contraparte_tipo::text = 'OTRO' AND m.via::text = 'INTERMEDIARIO' AND m.intermediario_nombre = 'Chofer Juan'
      AND m.factura_folio = 'F-123' AND m.factura_rfc = 'XAXX010101000' AND m.cuenta_id IS NOT NULL, format('%s', to_jsonb(m));
 END $$;
 COMMIT;
@@ -101,5 +106,34 @@ DO $$ DECLARE total integer; a integer; b integer; BEGIN
   ASSERT (SELECT count(*) FROM public.flujo_clientes()) = total, 'sin argumentos sigue funcionando';
 END $$;
 RESET ROLE;
+COMMIT;
+\echo 'FM5. Egresos nacen por confirmar y se cancelan al rechazar; un ingreso de cliente es un pago de cliente'
+BEGIN;
+SELECT public._m_como('martin.real@ejemplo.mx');
+DO $$ DECLARE v jsonb; BEGIN
+  v := public.flujo_registrar_movimiento(jsonb_build_object('tipo', 'EGRESO', 'concepto', 'Papelería', 'monto', 80, 'metodo_pago', 'EFECTIVO',
+    'contraparte_tipo', 'OTRO', 'contraparte_nombre', 'Papelería Z', 'categoria', 'Papelería'));
+  INSERT INTO public._fm_ids VALUES ('e1', (v->>'id')::uuid);
+  v := public.flujo_registrar_movimiento(jsonb_build_object('tipo', 'INGRESO', 'concepto', 'Abono de cliente', 'monto', 400, 'metodo_pago', 'TRANSFERENCIA',
+    'referencia', 'SPEI-9', 'contraparte_tipo', 'CLIENTE', 'cliente_id', public._m_cli()::text, 'contraparte_nombre', 'Cliente MM', 'categoria', 'Venta de refacciones'));
+  INSERT INTO public._fm_ids VALUES ('p1', (v->>'id')::uuid);
+END $$;
+RESET ROLE;
+DO $$ DECLARE e public.flujo_dinero%ROWTYPE; p public.flujo_dinero%ROWTYPE; BEGIN
+  SELECT * INTO e FROM public.flujo_dinero WHERE id = (SELECT id FROM public._fm_ids WHERE clave = 'e1');
+  ASSERT e.tipo = 'SALIDA' AND e.movimiento_id IS NOT NULL, 'el egreso nace con su movimiento';
+  ASSERT (SELECT tipo::text || estatus::text FROM public.movimientos_financieros WHERE id = e.movimiento_id) = 'EGRESOPENDIENTE', 'egreso por confirmar';
+  SELECT * INTO p FROM public.flujo_dinero WHERE id = (SELECT id FROM public._fm_ids WHERE clave = 'p1');
+  ASSERT p.tipo = 'PAGO_CLIENTE' AND p.cobranza_pago_id IS NOT NULL AND p.cliente_id = public._m_cli(), format('%s', to_jsonb(p));
+  ASSERT (SELECT estatus FROM public.cobranza_pagos WHERE id = p.cobranza_pago_id) = 'registrado', 'aparece en Cobranza';
+  ASSERT (SELECT categoria FROM public.movimientos_financieros WHERE id = p.movimiento_id) = 'Venta de refacciones', 'el pago también lleva el detalle';
+  ASSERT NOT EXISTS (SELECT 1 FROM public.movimientos_financieros m JOIN public.cuentas_financieras c ON c.id = m.cuenta_id WHERE m.id IN (e.movimiento_id, p.movimiento_id)), 'sin cuenta todavía';
+END $$;
+SELECT public._m_como('finanzas.real@ejemplo.mx');
+SELECT public.flujo_rechazar((SELECT id FROM public._fm_ids WHERE clave = 'e1'), 'Ya no se compró');
+RESET ROLE;
+DO $$ BEGIN
+  ASSERT (SELECT m.estatus::text FROM public.movimientos_financieros m JOIN public.flujo_dinero f ON f.movimiento_id = m.id WHERE f.id = (SELECT id FROM public._fm_ids WHERE clave = 'e1')) = 'CANCELADO', 'egreso cancelado al rechazar';
+END $$;
 COMMIT;
 \echo 'OK: formulario completo'
