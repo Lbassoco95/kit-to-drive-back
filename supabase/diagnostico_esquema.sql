@@ -573,7 +573,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- Cuentas por empresa y banco (catálogo de instituciones de México) en el flujo (2026-11-06).
   ('20261106000001_flujo_empresas_bancos_cuentas', 'funcion|flujo_crear_cuenta_empresa(text,text,uuid,text,text,text)'),
   -- Permiso «autorizar lo propio» del flujo (2026-11-06).
-  ('20261106000002_flujo_permiso_autoaplica', 'columna|flujo_capacidades.autoaplica')
+  ('20261106000002_flujo_permiso_autoaplica', 'columna|flujo_capacidades.autoaplica'),
+  -- Corregir movimientos del flujo (2026-11-06).
+  ('20261106000003_flujo_corregir', 'funcion|flujo_corregir(uuid,jsonb,text)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
