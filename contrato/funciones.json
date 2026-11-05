@@ -140,6 +140,7 @@
     "flujo_comprobar",
     "flujo_conciliacion",
     "flujo_confirmar_caja",
+    "flujo_corregir",
     "flujo_crear_cuenta",
     "flujo_crear_cuenta_empresa",
     "flujo_cuentas",
