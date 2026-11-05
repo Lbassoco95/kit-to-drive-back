@@ -571,7 +571,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- Todo ingreso y egreso del flujo nace «por confirmar» en Control Financiero (2026-11-05).
   ('20261105000002_flujo_todo_ingreso_egreso_por_confirmar', 'funcion|_flujo_movimiento_pendiente(flujo_dinero)'),
   -- Cuentas por empresa y banco (catálogo de instituciones de México) en el flujo (2026-11-06).
-  ('20261106000001_flujo_empresas_bancos_cuentas', 'funcion|flujo_crear_cuenta_empresa(text,text,uuid,text,text,text)')
+  ('20261106000001_flujo_empresas_bancos_cuentas', 'funcion|flujo_crear_cuenta_empresa(text,text,uuid,text,text,text)'),
+  -- Permiso «autorizar lo propio» del flujo (2026-11-06).
+  ('20261106000002_flujo_permiso_autoaplica', 'columna|flujo_capacidades.autoaplica')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
