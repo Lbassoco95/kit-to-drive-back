@@ -577,7 +577,9 @@ WITH esperado(script, objeto) AS (VALUES
   -- Corregir movimientos del flujo (2026-11-06).
   ('20261106000003_flujo_corregir', 'funcion|flujo_corregir(uuid,jsonb,text)'),
   -- El monto se corrige también después de caja (2026-11-06).
-  ('20261106000004_flujo_corregir_monto_despues_de_caja', 'funcion|flujo_corregir(uuid,jsonb,text)|v_monto_cambia')
+  ('20261106000004_flujo_corregir_monto_despues_de_caja', 'funcion|flujo_corregir(uuid,jsonb,text)|v_monto_cambia'),
+  -- Crear categorías de ingreso/egreso desde el formulario del flujo (2026-11-10).
+  ('20261110000001_flujo_crear_categoria', 'funcion|flujo_crear_categoria(text,text)')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
