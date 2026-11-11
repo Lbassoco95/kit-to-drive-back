@@ -20,6 +20,7 @@ on:
           - complete-password-change
           - mati-admin-bridge
           - seed-demo-users
+          - rh-enviar-accesos
 
 jobs:
   deploy:
