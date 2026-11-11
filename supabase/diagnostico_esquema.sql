@@ -579,7 +579,44 @@ WITH esperado(script, objeto) AS (VALUES
   -- El monto se corrige también después de caja (2026-11-06).
   ('20261106000004_flujo_corregir_monto_despues_de_caja', 'funcion|flujo_corregir(uuid,jsonb,text)|v_monto_cambia'),
   -- Crear categorías de ingreso/egreso desde el formulario del flujo (2026-11-10).
-  ('20261110000001_flujo_crear_categoria', 'funcion|flujo_crear_categoria(text,text)')
+  ('20261110000001_flujo_crear_categoria', 'funcion|flujo_crear_categoria(text,text)'),
+  -- Recursos Humanos: plantilla, expediente, biblioteca, tablero, checador y solicitudes (2026-11-11).
+  ('20261111000001_rh_modulo_base', 'tabla|rh_acceso'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_areas'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_empleados'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_empleado_datos'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_documentos'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_biblioteca_documentos'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_publicaciones'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_asistencia'),
+  ('20261111000001_rh_modulo_base', 'tabla|rh_solicitudes'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_es_rh(uuid)'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_marcar_entrada(text,double precision,double precision,double precision)'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_marcar_salida(double precision,double precision,double precision)'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_crear_solicitud(uuid,date,date,text)'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_resolver_solicitud(uuid,boolean,text)'),
+  ('20261111000001_rh_modulo_base', 'funcion|rh_faltas(uuid,date,date)'),
+  ('20261111000001_rh_modulo_base', 'sin_privilegio|rh_es_rh(uuid)|anon'),
+  ('20261111000001_rh_modulo_base', 'sin_privilegio|rh_marcar_entrada(text,double precision,double precision,double precision)|anon'),
+  ('20261111000001_rh_modulo_base', 'politica|rh_empleados.rh_empleados_select'),
+  ('20261111000001_rh_modulo_base', 'politica|rh_documentos.rh_documentos_select'),
+  ('20261111000001_rh_modulo_base', 'politica|rh_asistencia_ubicacion.rh_asistencia_ubicacion_select'),
+  ('20261111000001_rh_modulo_base', 'politica|storage.objects.rh_expedientes_storage_select'),
+  ('20261111000001_rh_modulo_base', 'politica|storage.objects.rh_biblioteca_storage_select'),
+  -- RH: aviso de privacidad, jornadas sin salida y contratos (2026-11-11).
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_avisos_privacidad'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_avisos_aceptaciones'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_contratos'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'columna|rh_asistencia.sin_salida'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'columna|rh_empleados.nivel_acceso'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_publicar_aviso(text,text,text)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_aceptar_aviso()'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_cerrar_jornadas_vencidas()'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_enviado(uuid,text)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_firmado(uuid,text,text,text,timestamptz)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

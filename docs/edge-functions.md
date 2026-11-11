@@ -9,6 +9,7 @@ workflow **Deploy Edge Function** (manual, una función a la vez).
 | `admin-update-user` | sí | Edita usuario, correo y rol (admin) |
 | `admin-reset-user-password` | sí | Contraseña temporal (admin) |
 | `complete-password-change` | sí | El usuario cambia su propia contraseña |
+| `rh-enviar-accesos` | sí | RH manda accesos a un colaborador «por ingresar» solo si su contrato firmado (WeTrust) ya está subido; nunca crea administradores |
 | `firmas` | sí | Firma electrónica simple interna (remisiones): crear, firmar, rechazar, cancelar, recordar |
 | `seed-demo-users` | sí | Deshabilitada en producción (410) |
 | `mati-admin-bridge` | **no** | Puente para mati-admin; se autentica con `MATI_ADMIN_BRIDGE_SECRET` |
