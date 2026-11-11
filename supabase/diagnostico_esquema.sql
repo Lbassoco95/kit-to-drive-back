@@ -602,7 +602,21 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000001_rh_modulo_base', 'politica|rh_documentos.rh_documentos_select'),
   ('20261111000001_rh_modulo_base', 'politica|rh_asistencia_ubicacion.rh_asistencia_ubicacion_select'),
   ('20261111000001_rh_modulo_base', 'politica|storage.objects.rh_expedientes_storage_select'),
-  ('20261111000001_rh_modulo_base', 'politica|storage.objects.rh_biblioteca_storage_select')
+  ('20261111000001_rh_modulo_base', 'politica|storage.objects.rh_biblioteca_storage_select'),
+  -- RH: aviso de privacidad, jornadas sin salida y contratos (2026-11-11).
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_avisos_privacidad'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_avisos_aceptaciones'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'tabla|rh_contratos'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'columna|rh_asistencia.sin_salida'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'columna|rh_empleados.nivel_acceso'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_publicar_aviso(text,text,text)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_aceptar_aviso()'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_cerrar_jornadas_vencidas()'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_enviado(uuid,text)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_firmado(uuid,text,text,text,timestamptz)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

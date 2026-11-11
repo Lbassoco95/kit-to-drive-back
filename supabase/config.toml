@@ -7,6 +7,9 @@ verify_jwt = true
 [functions.admin-create-user]
 verify_jwt = true
 
+[functions.rh-enviar-accesos]
+verify_jwt = true
+
 [functions.firmas]
 verify_jwt = true
 

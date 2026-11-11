@@ -44,3 +44,43 @@ describe("Recursos Humanos (migración)", () => {
     }
   });
 });
+
+const leer = (f: string) => readFileSync(join(RAIZ, f), "utf8");
+const mig2 = leer("supabase/migrations/20261111000002_rh_privacidad_sin_salida_contratos.sql");
+const fn = leer("supabase/functions/rh-enviar-accesos/index.ts");
+
+describe("RH: privacidad, jornadas sin salida y contratos", () => {
+  it("el aviso exige aceptación para capturar datos o subir documentos", () => {
+    expect(mig2).toContain("public.rh_aviso_ok(empleado_id)");
+    expect(mig2).toMatch(/rh_documentos_dueno_insert[\s\S]*rh_aviso_ok/);
+  });
+
+  it("los contratos y avisos solo se escriben por RPC", () => {
+    expect(mig2).toContain("REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.rh_contratos");
+    expect(mig2).toContain("REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.rh_avisos_privacidad");
+  });
+
+  it("no se mandan accesos sin contrato firmado, ni en la base ni en la función", () => {
+    expect(mig2).toContain("Primero sube el contrato firmado");
+    expect(fn).toContain('code: "SIN_CONTRATO_FIRMADO"');
+  });
+
+  it("RH nunca crea administradores y el correo sale antes de crear la cuenta", () => {
+    expect(fn).toContain('["operador", "supervisor"].includes(nivel)');
+    expect(mig2).toContain("CHECK (nivel_acceso IN ('operador', 'supervisor'))");
+    expect(fn).toContain('rpc("rh_es_rh")');
+    expect(fn.indexOf("enviarAcceso(")).toBeLessThan(fn.indexOf("auth.admin.createUser"));
+    expect(fn.indexOf("autorizarAlta(")).toBeLessThan(fn.indexOf("auth.admin.createUser"));
+    expect(fn).not.toMatch(/password[^\n]*body/);
+  });
+
+  it("la jornada sin salida se cierra sola y cuenta como falta configurable", () => {
+    expect(mig2).toContain("sin_salida_es_falta");
+    expect(mig2).toContain("jornada_max_horas");
+    expect(mig2).toContain("rh_cerrar_jornadas_vencidas");
+  });
+
+  it("el guion de pruebas cubre los tres temas", () => {
+    for (const c of ["Aviso de privacidad", "Jornada sin salida", "Contratos y alta por ingresar"]) expect(guion).toContain(c);
+  });
+});

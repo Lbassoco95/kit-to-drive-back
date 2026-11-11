@@ -222,6 +222,101 @@ BEGIN;
 ROLLBACK;
 \echo 'ok  6. Solicitudes, vacaciones y faltas'
 
+
+-- ── 8. Aviso de privacidad ──────────────────────────────────────────────────
+BEGIN;
+  SELECT public._t_como('rh@dazon.test');
+  SELECT public.rh_sincronizar_plantilla() \gset
+  DO $$ BEGIN IF public.rh_aviso_ok((SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2')) IS NOT TRUE THEN RAISE EXCEPTION 'sin aviso publicado no se bloquea a nadie'; END IF; END $$;
+  SELECT public._t_falla($q$SELECT public.rh_publicar_aviso('Aviso', 'corto')$q$, 'demasiado corto');
+  SELECT public.rh_publicar_aviso('Aviso de privacidad', repeat('Texto legal de prueba. ', 10), '5 años tras la baja') AS v \gset
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_avisos_privacidad WHERE vigente) <> 1 THEN RAISE EXCEPTION 'un solo aviso vigente'; END IF; END $$;
+  RESET ROLE; SELECT public._t_como('ana@dazon.test');
+  -- Sin aceptar no puede capturar datos ni subir documentos.
+  SELECT public._t_falla($q$INSERT INTO public.rh_empleado_datos (empleado_id, rfc) SELECT id, 'X' FROM public.rh_empleados WHERE user_id = auth.uid()$q$, 'row-level security');
+  SELECT public._t_falla($q$INSERT INTO public.rh_documentos (empleado_id, tipo_id, ruta) SELECT e.id, t.id, 'x' FROM public.rh_empleados e, public.rh_tipos_documento t WHERE e.user_id = auth.uid() AND t.clave = 'ine'$q$, 'row-level security');
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_avisos_privacidad) <> 1 THEN RAISE EXCEPTION 'todos leen el aviso'; END IF; END $$;
+  SELECT public.rh_aceptar_aviso();
+  SELECT public.rh_aceptar_aviso();
+  INSERT INTO public.rh_empleado_datos (empleado_id, rfc) SELECT id, 'XAXX010101000' FROM public.rh_empleados WHERE user_id = auth.uid();
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_avisos_aceptaciones) <> 1 THEN RAISE EXCEPTION 'la aceptación no se duplica'; END IF; END $$;
+  RESET ROLE; SELECT public._t_como('beto@dazon.test');
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_avisos_aceptaciones) <> 0 THEN RAISE EXCEPTION 'las aceptaciones son privadas'; END IF; END $$;
+  SELECT public._t_falla($q$SELECT public.rh_publicar_aviso('X', repeat('x', 200))$q$, 'Solo RH');
+  -- Una versión nueva obliga a aceptar de nuevo.
+  RESET ROLE; SELECT public._t_como('rh@dazon.test');
+  SELECT public.rh_publicar_aviso('Aviso v2', repeat('Texto nuevo. ', 15));
+  RESET ROLE; SELECT public._t_como('ana@dazon.test');
+  SELECT public._t_falla($q$UPDATE public.rh_empleado_datos SET rfc = 'YAXX010101000'$q$, 'row-level security|0 rows|new row');
+ROLLBACK;
+\echo 'ok  8. Aviso de privacidad'
+
+-- ── 9. Jornada sin salida ───────────────────────────────────────────────────
+BEGIN;
+  SELECT public._t_como('rh@dazon.test');
+  INSERT INTO public.rh_horarios (empleado_id, dias, hora_entrada, hora_salida, vigente_desde)
+    SELECT id, '{1,2,3,4,5,6,7}', '09:00', '18:00', current_date - 10 FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2';
+  RESET ROLE;
+  -- Una jornada que Ana dejó abierta hace 20 h (se siembra como dueño de la base).
+  INSERT INTO public.rh_asistencia (empleado_id, fecha, entrada_at, entrada_resultado)
+    SELECT id, (now() - interval '20 hours')::date, now() - interval '20 hours', 'remoto' FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2';
+  SELECT public._t_como('ana@dazon.test');
+  -- Marcar entrada la cierra como «sin salida» y deja entrar de nuevo.
+  SELECT public.rh_marcar_entrada('remoto') \gset
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_asistencia WHERE sin_salida) <> 1 THEN RAISE EXCEPTION 'la jornada vencida queda sin_salida'; END IF; END $$;
+  SELECT public.rh_marcar_salida();
+  DO $$ BEGIN IF (SELECT salida_at FROM public.rh_asistencia WHERE sin_salida) IS NOT NULL THEN RAISE EXCEPTION 'sin salida no inventa una salida'; END IF; END $$;
+  -- Cuenta como falta, salvo que se corrija.
+  RESET ROLE; SELECT public._t_como('rh@dazon.test');
+  SELECT fecha AS dia FROM public.rh_asistencia WHERE sin_salida \gset
+  RESET ROLE;
+  UPDATE public.rh_asistencia SET fecha = current_date - 2, entrada_at = (current_date - 2)::timestamptz + interval '15 hours' WHERE sin_salida;
+  SELECT public._t_como('rh@dazon.test');
+  DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.rh_faltas((SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2'), current_date - 2, current_date - 2)) THEN RAISE EXCEPTION 'una jornada sin salida es falta'; END IF; END $$;
+  -- Con el parámetro apagado deja de ser falta.
+  UPDATE public.rh_parametros SET valor = 'false' WHERE clave = 'sin_salida_es_falta';
+  DO $$ BEGIN IF EXISTS (SELECT 1 FROM public.rh_faltas((SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2'), current_date - 2, current_date - 2)) THEN RAISE EXCEPTION 'parámetro apagado: no es falta'; END IF; END $$;
+  UPDATE public.rh_parametros SET valor = 'true' WHERE clave = 'sin_salida_es_falta';
+  -- Corregirla (justificarla) quita la falta.
+  SELECT id AS aid FROM public.rh_asistencia WHERE sin_salida \gset
+  SELECT public.rh_corregir_asistencia(:'aid'::uuid, NULL, (SELECT entrada_at + interval '8 hours' FROM public.rh_asistencia WHERE id = :'aid'::uuid), 'Olvidó marcar la salida, confirmado por su jefe');
+  DO $$ BEGIN IF (SELECT sin_salida FROM public.rh_asistencia WHERE id = (SELECT id FROM public.rh_asistencia WHERE corregida)) THEN RAISE EXCEPTION 'corregida deja de ser sin_salida'; END IF; END $$;
+  DO $$ BEGIN IF EXISTS (SELECT 1 FROM public.rh_faltas((SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2'), current_date - 2, current_date - 2)) THEN RAISE EXCEPTION 'corregida: ya no es falta'; END IF; END $$;
+  DO $$ BEGIN IF public.rh_cerrar_jornadas_vencidas() <> 0 THEN RAISE EXCEPTION 'idempotente'; END IF; END $$;
+ROLLBACK;
+\echo 'ok  9. Jornada sin salida'
+
+-- ── 10. Contratos y alta por ingresar ───────────────────────────────────────
+BEGIN;
+  INSERT INTO auth.users (id, email, raw_app_meta_data) VALUES ('00000000-0000-0000-0000-0000000000c7', 'nuevo@dazon.test', '{"created_via_admin": "true"}'::jsonb);
+  SELECT public._t_como('rh@dazon.test');
+  INSERT INTO public.rh_empleados (nombre, correo, estatus, area_id, nivel_acceso)
+    SELECT 'Nuevo Ingreso', 'nuevo@dazon.test', 'por_ingresar', id, 'operador' FROM public.rh_areas WHERE clave = 'compras';
+  SELECT id AS nid FROM public.rh_empleados WHERE nombre = 'Nuevo Ingreso' \gset
+  SELECT public._t_falla($q$INSERT INTO public.rh_empleados (nombre, estatus) VALUES ('Sin usuario', 'activo')$q$, 'usuario_o_por_ingresar');
+  SELECT public._t_falla($q$UPDATE public.rh_empleados SET nivel_acceso = 'admin' WHERE nombre = 'Nuevo Ingreso'$q$, 'nivel_acceso_check');
+  DO $$ BEGIN IF (SELECT count(*) FROM public.v_rh_directorio WHERE nombre = 'Nuevo Ingreso') <> 0 THEN RAISE EXCEPTION 'por ingresar no sale en el directorio'; END IF; END $$;
+  -- Sin contrato firmado no hay accesos.
+  SELECT public._t_falla(format($q$SELECT public.rh_vincular_usuario(%L, '00000000-0000-0000-0000-0000000000c3')$q$, :'nid'), 'contrato firmado');
+  SELECT public.rh_contrato_enviado(:'nid'::uuid, 'WT-123');
+  SELECT public._t_falla(format($q$SELECT public.rh_vincular_usuario(%L, '00000000-0000-0000-0000-0000000000c3')$q$, :'nid'), 'contrato firmado');
+  SELECT public._t_falla(format($q$SELECT public.rh_contrato_firmado(%L, 'otra/ruta.pdf', 'c.pdf')$q$, :'nid'), 'no corresponde');
+  SELECT public.rh_contrato_firmado(:'nid'::uuid, :'nid' || '/contrato/c.pdf', 'c.pdf', 'WT-123');
+  DO $$ BEGIN IF (SELECT estatus FROM public.rh_contratos WHERE referencia_externa = 'WT-123') <> 'firmado' THEN RAISE EXCEPTION 'contrato firmado'; END IF; END $$;
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_documentos d JOIN public.rh_tipos_documento t ON t.id = d.tipo_id WHERE t.clave = 'contrato' AND d.estatus = 'verificado') <> 1 THEN RAISE EXCEPTION 'el contrato queda verificado en el expediente'; END IF; END $$;
+  -- Un usuario que ya es otro colaborador no se vincula.
+  SELECT public._t_falla(format($q$SELECT public.rh_vincular_usuario(%L, '00000000-0000-0000-0000-0000000000c3')$q$, :'nid'), 'ya está ligado');
+  SELECT public.rh_vincular_usuario(:'nid'::uuid, '00000000-0000-0000-0000-0000000000c7');
+  DO $$ BEGIN IF (SELECT estatus FROM public.rh_empleados WHERE nombre = 'Nuevo Ingreso') <> 'activo' THEN RAISE EXCEPTION 'queda activo'; END IF; END $$;
+  DO $$ BEGIN IF (SELECT accesos_enviados_at FROM public.rh_contratos WHERE referencia_externa = 'WT-123') IS NULL THEN RAISE EXCEPTION 'queda la fecha de accesos'; END IF; END $$;
+  SELECT public._t_falla(format($q$SELECT public.rh_vincular_usuario(%L, '00000000-0000-0000-0000-0000000000c7')$q$, :'nid'), 'ya tiene usuario');
+  -- Nadie más sube contratos ni ve los ajenos.
+  RESET ROLE; SELECT public._t_como('ana@dazon.test');
+  SELECT public._t_falla(format($q$SELECT public.rh_contrato_firmado(%L, %L, 'c.pdf')$q$, :'nid', :'nid' || '/contrato/c.pdf'), 'Solo RH');
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_contratos) <> 0 THEN RAISE EXCEPTION 'Ana no ve contratos ajenos'; END IF; END $$;
+ROLLBACK;
+\echo 'ok  10. Contratos y alta por ingresar'
+
 -- ── 7. Cierre a anon ────────────────────────────────────────────────────────
 DO $$ DECLARE f record;
 BEGIN
