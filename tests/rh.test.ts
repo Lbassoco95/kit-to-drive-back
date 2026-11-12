@@ -84,3 +84,40 @@ describe("RH: privacidad, jornadas sin salida y contratos", () => {
     for (const c of ["Aviso de privacidad", "Jornada sin salida", "Contratos y alta por ingresar"]) expect(guion).toContain(c);
   });
 });
+
+const mig3 = leer("supabase/migrations/20261112000001_rh_migrar_usuarios_y_auditoria.sql");
+
+describe("RH: migrar usuarios y registro de cambios", () => {
+  it("los datos personales se registran sin sus valores (solo nombres de campos)", () => {
+    expect(mig3).toContain("sensible BOOLEAN := (TG_TABLE_NAME = 'rh_empleado_datos')");
+    expect(mig3).toContain("IF sensible THEN antes := NULL; despues := NULL; END IF;");
+  });
+
+  it("todo cambio de RH va a su historial y a la bitácora general de Sistema", () => {
+    expect(mig3).toContain("INSERT INTO public.rh_bitacora_cambios");
+    expect(mig3).toContain("INSERT INTO public.bitacora_eventos");
+    for (const t of ["rh_empleados", "rh_empleado_datos", "rh_documentos", "rh_horarios", "rh_contratos", "rh_vacaciones_saldos"]) {
+      expect(mig3).toContain(`'${t}'`);
+    }
+  });
+
+  it("el historial solo lo lee RH y nadie lo escribe directo", () => {
+    expect(mig3).toContain("REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.rh_bitacora_cambios");
+    expect((mig3.split('"rh_bitacora_cambios_select"')[2] ?? "").split(";")[0]).toContain("rh_es_rh()");
+  });
+
+  it("corregir datos personales o quitar un documento pide motivo", () => {
+    expect(mig3).toContain("Explica el motivo de la corrección (mínimo 10 caracteres).");
+    expect(mig3).toContain("Para dar de baja explica el motivo");
+    expect(mig3).toContain("RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nDECLARE d public.rh_documentos");
+  });
+
+  it("solo RH o el admin del área marcan trabajadores; el alta en bloque es solo de RH", () => {
+    expect(mig3).toContain("public.es_admin_area(auth.uid()");
+    expect(mig3).toContain("Solo RH migra usuarios en bloque.");
+  });
+
+  it("el guion de pruebas cubre los dos temas", () => {
+    for (const c of ["Migrar usuarios a trabajadores", "Registro de cambios de RH"]) expect(guion).toContain(c);
+  });
+});
