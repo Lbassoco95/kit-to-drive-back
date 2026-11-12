@@ -304,6 +304,7 @@
     "trg_avisos_solo_acuse",
     "trg_clientes_folio_interno",
     "trg_notificaciones_solo_leida",
+    "trg_remisiones_fecha_cobro",
     "trg_tareas_guardia",
     "unificar_unidades_refacciones",
     "usuario_activo",
