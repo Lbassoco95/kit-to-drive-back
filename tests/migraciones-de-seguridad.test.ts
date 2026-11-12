@@ -175,3 +175,21 @@ describe("super admin entra a refacciones (migración)", () => {
     expect(sql).not.toMatch(/GRANT [^;]*puede_ver_almacen_refacciones[^;]* TO anon/);
   });
 });
+
+describe("categorías editables y vendedor del cliente (2026-11-12)", () => {
+  it("editar categoría: valida permiso, evita duplicados y corrige los movimientos", () => {
+    const s = mig("20261112000001_flujo_editar_categoria.sql");
+    expect(s).toContain("flujo_cap('recibe')");
+    expect(s).toContain("Ya existe una categoría con ese nombre");
+    expect(s).toContain("UPDATE public.movimientos_financieros SET categoria");
+    expect(s).toContain("UPDATE public.flujo_dinero SET categoria");
+    expect(s).toContain("REVOKE ALL ON FUNCTION public.flujo_editar_categoria(text, text, text) FROM PUBLIC, anon");
+  });
+  it("cliente: solo supervisores/administración cambian el vendedor; el vendedor solo da de alta a su nombre", () => {
+    const s = mig("20261112000002_clientes_vendedor_asignado.sql");
+    expect(s).toContain("BEFORE INSERT OR UPDATE OF vendedor_id ON public.clientes");
+    expect(s).toContain("Solo puedes dar de alta clientes a tu nombre");
+    expect(s).toContain("cambian el vendedor de un cliente");
+    expect(s).toContain("es_vendedor_activo");
+  });
+});

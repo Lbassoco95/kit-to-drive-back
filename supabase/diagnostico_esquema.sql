@@ -616,7 +616,12 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_firmado(uuid,text,text,text,timestamptz)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
-  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok')
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
+  -- Editar categorías de ingreso/egreso (2026-11-12).
+  ('20261112000001_flujo_editar_categoria', 'funcion|flujo_editar_categoria(text,text,text)'),
+  -- Vendedor asignado al cliente, protegido en la base (2026-11-12).
+  ('20261112000002_clientes_vendedor_asignado', 'funcion|puede_asignar_vendedor_cliente(uuid)'),
+  ('20261112000002_clientes_vendedor_asignado', 'trigger|clientes.trg_clientes_vendedor_protegido')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
