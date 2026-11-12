@@ -632,7 +632,12 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261112000001_rh_migrar_usuarios_y_auditoria', 'trigger|rh_empleado_datos.trg_rh_auditar'),
   ('20261112000001_rh_migrar_usuarios_y_auditoria', 'trigger|rh_documentos.trg_rh_auditar'),
   ('20261112000001_rh_migrar_usuarios_y_auditoria', 'sin_privilegio|rh_alta_trabajador(uuid)|anon'),
-  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'sin_privilegio|rh_auditar()|authenticated')
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'sin_privilegio|rh_auditar()|authenticated'),
+  -- Remisiones: quién la cargó (2026-11-12).
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones.created_by'),
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones.nombre_creador'),
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones_refacciones.nombre_creador'),
+  ('20261112000002_remisiones_quien_cargo', 'funcion|remision_sellar_creador()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
