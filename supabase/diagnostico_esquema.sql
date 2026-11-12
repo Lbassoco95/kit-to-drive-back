@@ -617,11 +617,27 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
+  -- RH: migrar usuarios a trabajadores y registro de cambios (2026-11-12).
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'tabla|rh_bitacora_cambios'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_alta_trabajador(uuid)'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_alta_trabajadores(uuid[])'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_quitar_trabajador(uuid)'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_usuarios_sin_ficha()'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_usuarios_trabajadores()'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_guardar_datos(uuid,jsonb,text)'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_actualizar_empleado(uuid,jsonb,text)'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_eliminar_documento(uuid,text)'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_auditar()'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'trigger|rh_empleados.trg_rh_auditar'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'trigger|rh_empleado_datos.trg_rh_auditar'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'trigger|rh_documentos.trg_rh_auditar'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'sin_privilegio|rh_alta_trabajador(uuid)|anon'),
+  ('20261112000001_rh_migrar_usuarios_y_auditoria', 'sin_privilegio|rh_auditar()|authenticated'),
   -- Remisiones: quién la cargó (2026-11-12).
-  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones.created_by'),
-  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones.nombre_creador'),
-  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones_refacciones.nombre_creador'),
-  ('20261112000001_remisiones_quien_cargo', 'funcion|remision_sellar_creador()')
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones.created_by'),
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones.nombre_creador'),
+  ('20261112000002_remisiones_quien_cargo', 'columna|remisiones_refacciones.nombre_creador'),
+  ('20261112000002_remisiones_quien_cargo', 'funcion|remision_sellar_creador()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
