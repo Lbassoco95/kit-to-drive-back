@@ -616,7 +616,12 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_contrato_firmado(uuid,text,text,text,timestamptz)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
-  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok')
+  ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
+  -- Remisiones: quién la cargó (2026-11-12).
+  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones.created_by'),
+  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones.nombre_creador'),
+  ('20261112000001_remisiones_quien_cargo', 'columna|remisiones_refacciones.nombre_creador'),
+  ('20261112000001_remisiones_quien_cargo', 'funcion|remision_sellar_creador()')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos
