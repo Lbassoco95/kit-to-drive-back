@@ -619,7 +619,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
   ('20261112000001_remisiones_motocarro_monto_cobrado', 'columna|remisiones.monto_cobrado'),
   ('20261112000001_remisiones_motocarro_monto_cobrado', 'columna|remisiones.fecha_cobro'),
-  ('20261112000001_remisiones_motocarro_monto_cobrado', 'funcion|trg_remisiones_fecha_cobro()')
+  ('20261112000001_remisiones_motocarro_monto_cobrado', 'funcion|trg_remisiones_fecha_cobro()'),
+  ('20261112000002_reporte_ventas_general', 'columna|config_general.tc_cny_por_mxn'),
+  ('20261112000002_reporte_ventas_general', 'columna|config_general.tc_usd_por_mxn'),
+  ('20261112000002_reporte_ventas_general', 'funcion|reporte_ventas_general(integer,boolean)'),
+  ('20261112000002_reporte_ventas_general', 'sin_privilegio|reporte_ventas_general(integer,boolean)|anon')
 ), superado(script, por) AS (VALUES
   -- Scripts que otro posterior reemplazó por completo (les tiró la función y
   -- la volvió a crear con otra firma). No hay que correrlos y revisarlos

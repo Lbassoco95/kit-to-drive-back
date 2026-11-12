@@ -23,6 +23,12 @@ BEGIN
   IF to_regclass('public.remisiones') IS NULL THEN
     RAISE EXCEPTION 'No se modificó nada. Falta la tabla remisiones.';
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_schema = 'public' AND table_name = 'remisiones' AND column_name = 'pagado')
+     OR NOT EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_schema = 'public' AND table_name = 'remisiones' AND column_name = 'tipo_pago') THEN
+    RAISE EXCEPTION 'No se modificó nada. Faltan remisiones.pagado / tipo_pago (corre antes fix_remisiones_columns.sql).';
+  END IF;
 END $preflight$;
 
 ALTER TABLE public.remisiones
