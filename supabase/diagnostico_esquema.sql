@@ -617,6 +617,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'funcion|rh_vincular_usuario(uuid,uuid)'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'sin_privilegio|rh_vincular_usuario(uuid,uuid)|anon'),
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
+  -- Editar categorías de ingreso/egreso (2026-11-12).
+  ('20261112000001_flujo_editar_categoria', 'funcion|flujo_editar_categoria(text,text,text)'),
+  -- Vendedor asignado al cliente, protegido en la base (2026-11-12).
+  ('20261112000002_clientes_vendedor_asignado', 'funcion|puede_asignar_vendedor_cliente(uuid)'),
+  ('20261112000002_clientes_vendedor_asignado', 'trigger|clientes.trg_clientes_vendedor_protegido'),
   -- RH: migrar usuarios a trabajadores y registro de cambios (2026-11-12).
   ('20261112000001_rh_migrar_usuarios_y_auditoria', 'tabla|rh_bitacora_cambios'),
   ('20261112000001_rh_migrar_usuarios_y_auditoria', 'funcion|rh_alta_trabajador(uuid)'),
