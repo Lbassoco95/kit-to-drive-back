@@ -619,6 +619,13 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261111000002_rh_privacidad_sin_salida_contratos', 'politica|rh_empleado_datos.rh_empleado_datos_dueno|rh_aviso_ok'),
   -- Editar categorías de ingreso/egreso (2026-11-12).
   ('20261112000001_flujo_editar_categoria', 'funcion|flujo_editar_categoria(text,text,text)'),
+  -- Traspasos entre cuentas y compra/venta de dólares (2026-11-13).
+  ('20261113000001_traspasos_entre_cuentas', 'tabla|traspasos_cuentas'),
+  ('20261113000001_traspasos_entre_cuentas', 'columna|movimientos_financieros.traspaso_id'),
+  ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_solicitar(uuid,uuid,numeric,numeric,date,text,text)'),
+  ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_confirmar(uuid,text)'),
+  ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_rechazar(uuid,text)'),
+  ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_revertir(uuid,text)'),
   -- Vendedor asignado al cliente, protegido en la base (2026-11-12).
   ('20261112000002_clientes_vendedor_asignado', 'funcion|puede_asignar_vendedor_cliente(uuid)'),
   ('20261112000002_clientes_vendedor_asignado', 'trigger|clientes.trg_clientes_vendedor_protegido'),
