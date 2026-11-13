@@ -626,6 +626,11 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_confirmar(uuid,text)'),
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_rechazar(uuid,text)'),
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_revertir(uuid,text)'),
+  -- Alerta de saldo negativo (más de 3 días) en cuentas y cajas (2026-11-14).
+  ('20261114000001_traspasos_alerta_saldo_negativo', 'tabla|cuentas_saldo_alertas'),
+  ('20261114000001_traspasos_alerta_saldo_negativo', 'funcion|saldo_negativo_revisar(integer)'),
+  ('20261114000001_traspasos_alerta_saldo_negativo', 'funcion|saldo_negativo_alertas()'),
+  ('20261114000001_traspasos_alerta_saldo_negativo', 'funcion|saldo_negativo_validar(uuid,text)'),
   -- Adjuntar imagen o PDF a ingresos/egresos del flujo (2026-11-13).
   ('20261113000002_flujo_adjuntos', 'tabla|flujo_adjuntos'),
   -- Vendedor asignado al cliente, protegido en la base (2026-11-12).
