@@ -317,6 +317,88 @@ BEGIN;
 ROLLBACK;
 \echo 'ok  10. Contratos y alta por ingresar'
 
+
+-- ── 11. Migrar usuarios a trabajadores ──────────────────────────────────────
+BEGIN;
+  DELETE FROM public.rh_empleados WHERE user_id IN ('00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000c1');
+  SELECT public._t_como('rh@dazon.test');
+  DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.rh_usuarios_sin_ficha() WHERE user_id = '00000000-0000-0000-0000-0000000000c3') THEN RAISE EXCEPTION 'el usuario sin ficha aparece en la lista'; END IF; END $$;
+  RESET ROLE; SELECT public._t_como('ana@dazon.test');
+  SELECT public._t_falla($q$SELECT * FROM public.rh_usuarios_sin_ficha()$q$, 'Solo RH');
+  SELECT public._t_falla($q$SELECT public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c3')$q$, 'Sin permiso');
+  -- RH marca a Beto (fábrica) como trabajador: se crea su ficha con su área.
+  RESET ROLE; SELECT public._t_como('rh@dazon.test');
+  SELECT public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c3') AS emp \gset
+  DO $$ BEGIN IF (SELECT a.clave FROM public.rh_empleados e JOIN public.rh_areas a ON a.id = e.area_id WHERE e.user_id = '00000000-0000-0000-0000-0000000000c3') <> 'fabrica' THEN RAISE EXCEPTION 'el área viene del usuario'; END IF; END $$;
+  DO $$ BEGIN IF public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c3') <> (SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c3') THEN RAISE EXCEPTION 'marcar dos veces devuelve la misma ficha'; END IF; END $$;
+  -- Sin información registrada se puede quitar la marca; con información, no.
+  SELECT public.rh_quitar_trabajador('00000000-0000-0000-0000-0000000000c3');
+  DO $$ BEGIN IF EXISTS (SELECT 1 FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c3') THEN RAISE EXCEPTION 'ficha vacía se quita'; END IF; END $$;
+  SELECT public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c3');
+  INSERT INTO public.rh_horarios (empleado_id, dias, hora_entrada, hora_salida) SELECT id, '{1}', '09:00', '18:00' FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c3';
+  SELECT public._t_falla($q$SELECT public.rh_quitar_trabajador('00000000-0000-0000-0000-0000000000c3')$q$, 'ya tiene información');
+  -- El admin de Administración marca solo a gente de su área.
+  RESET ROLE; SELECT public._t_como('adminsinrh@dazon.test');
+  SELECT public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c1');           -- administración: sí
+  SELECT public._t_falla($q$SELECT public.rh_alta_trabajador('00000000-0000-0000-0000-0000000000c2')$q$, 'Sin permiso');  -- comercial: no
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_usuarios_trabajadores() WHERE user_id = '00000000-0000-0000-0000-0000000000c3') <> 0 THEN RAISE EXCEPTION 'un admin de otra área no ve a los de fábrica'; END IF; END $$;
+  SELECT public._t_falla($q$SELECT public.rh_alta_trabajadores(ARRAY['00000000-0000-0000-0000-0000000000c2']::uuid[])$q$, 'Solo RH');
+  -- En bloque (RH): solo cuenta los que aún no tenían ficha.
+  RESET ROLE; SELECT public._t_como('rh@dazon.test');
+  DELETE FROM public.rh_documentos WHERE false;
+ROLLBACK;
+\echo 'ok  11. Migrar usuarios a trabajadores'
+
+-- ── 12. Registro de cambios de RH ───────────────────────────────────────────
+BEGIN;
+  SELECT public._t_como('rh@dazon.test');
+  SELECT id AS ana FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2' \gset
+  -- Corregir la ficha queda registrado, solo con las columnas que cambiaron.
+  SELECT public.rh_actualizar_empleado(:'ana'::uuid, '{"telefono": "5512345678"}'::jsonb);
+  DO $$ BEGIN IF (SELECT campos FROM public.rh_bitacora_cambios WHERE tabla = 'rh_empleados' AND accion = 'cambio' ORDER BY created_at DESC LIMIT 1) <> ARRAY['telefono'] THEN RAISE EXCEPTION 'solo registra la columna que cambió'; END IF; END $$;
+  DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.bitacora_eventos WHERE modulo = 'rh' AND accion = 'rh_empleados.cambio') THEN RAISE EXCEPTION 'también va a la bitácora de Sistema'; END IF; END $$;
+  -- Un guardado sin cambios no hace ruido.
+  DO $$ DECLARE a INTEGER; b INTEGER; ana UUID := (SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2');
+  BEGIN
+    SELECT count(*) INTO a FROM public.rh_bitacora_cambios;
+    PERFORM public.rh_actualizar_empleado(ana, '{"telefono": "5512345678"}'::jsonb);
+    SELECT count(*) INTO b FROM public.rh_bitacora_cambios;
+    IF a <> b THEN RAISE EXCEPTION 'sin cambio real no se registra'; END IF;
+  END $$;
+  -- La baja exige motivo.
+  SELECT public._t_falla(format($q$SELECT public.rh_actualizar_empleado(%L, '{"estatus": "baja"}'::jsonb)$q$, :'ana'), 'motivo');
+  SELECT public.rh_actualizar_empleado(:'ana'::uuid, '{"estatus": "baja", "fecha_baja": "2026-11-12"}'::jsonb, 'Renuncia voluntaria presentada por escrito');
+  DO $$ BEGIN IF (SELECT motivo FROM public.rh_bitacora_cambios WHERE tabla = 'rh_empleados' AND 'estatus' = ANY (campos) ORDER BY created_at DESC LIMIT 1) IS NULL THEN RAISE EXCEPTION 'la baja guarda el motivo'; END IF; END $$;
+  SELECT public.rh_actualizar_empleado(:'ana'::uuid, '{"estatus": "activo", "fecha_baja": null}'::jsonb);
+  -- Los campos no permitidos se ignoran (no se puede cambiar el usuario ligado).
+  SELECT public.rh_actualizar_empleado(:'ana'::uuid, '{"user_id": "00000000-0000-0000-0000-0000000000c3"}'::jsonb);
+  DO $$ BEGIN IF (SELECT user_id FROM public.rh_empleados WHERE id = (SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2')) IS NULL THEN RAISE EXCEPTION 'user_id intacto'; END IF; END $$;
+  -- Datos personales: motivo obligatorio y los VALORES nunca se registran.
+  SELECT public._t_falla(format($q$SELECT public.rh_guardar_datos(%L, '{"rfc": "XAXX010101000"}'::jsonb)$q$, :'ana'), 'motivo');
+  SELECT public.rh_guardar_datos(:'ana'::uuid, '{"rfc": "XAXX010101000", "clabe": "012345678901234567"}'::jsonb, 'Captura inicial desde el expediente en papel');
+  DO $$ BEGIN IF (SELECT rfc FROM public.rh_empleado_datos WHERE empleado_id = (SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2')) <> 'XAXX010101000' THEN RAISE EXCEPTION 'se guardó el RFC'; END IF; END $$;
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM public.rh_bitacora_cambios WHERE tabla = 'rh_empleado_datos' AND (antes IS NOT NULL OR despues IS NOT NULL)) THEN RAISE EXCEPTION 'datos personales: solo nombres de campos, sin valores'; END IF;
+    IF NOT EXISTS (SELECT 1 FROM public.rh_bitacora_cambios WHERE tabla = 'rh_empleado_datos' AND 'rfc' = ANY (campos) AND motivo IS NOT NULL) THEN RAISE EXCEPTION 'queda el campo y el motivo'; END IF;
+    IF EXISTS (SELECT 1 FROM public.bitacora_eventos WHERE modulo = 'rh' AND (datos_despues::text LIKE '%XAXX010101000%' OR datos_despues::text LIKE '%012345678901234567%')) THEN RAISE EXCEPTION 'la bitácora de Sistema no lleva valores sensibles'; END IF;
+  END $$;
+  -- Agregar y quitar documentos.
+  INSERT INTO public.rh_documentos (empleado_id, tipo_id, ruta, nombre_archivo, estatus)
+    SELECT :'ana'::uuid, id, :'ana' || '/ine/x.pdf', 'x.pdf', 'verificado' FROM public.rh_tipos_documento WHERE clave = 'ine';
+  DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.rh_bitacora_cambios WHERE tabla = 'rh_documentos' AND accion = 'alta') THEN RAISE EXCEPTION 'alta de documento registrada'; END IF; END $$;
+  SELECT id AS did FROM public.rh_documentos WHERE empleado_id = :'ana'::uuid LIMIT 1 \gset
+  SELECT public._t_falla(format($q$SELECT public.rh_eliminar_documento(%L, 'corto')$q$, :'did'), 'motivo');
+  DO $$ BEGIN IF public.rh_eliminar_documento((SELECT id FROM public.rh_documentos WHERE empleado_id = (SELECT id FROM public.rh_empleados WHERE user_id = '00000000-0000-0000-0000-0000000000c2') LIMIT 1), 'Documento ilegible, se pidió uno nuevo') NOT LIKE '%/ine/x.pdf' THEN RAISE EXCEPTION 'devuelve la ruta para borrar el archivo'; END IF; END $$;
+  DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.rh_bitacora_cambios WHERE tabla = 'rh_documentos' AND accion = 'baja' AND motivo IS NOT NULL) THEN RAISE EXCEPTION 'baja de documento con motivo'; END IF; END $$;
+  -- Solo RH lee el historial y corrige.
+  RESET ROLE; SELECT public._t_como('ana@dazon.test');
+  DO $$ BEGIN IF (SELECT count(*) FROM public.rh_bitacora_cambios) <> 0 THEN RAISE EXCEPTION 'el historial es solo de RH'; END IF; END $$;
+  SELECT public._t_falla(format($q$SELECT public.rh_guardar_datos(%L, '{"rfc": "X"}'::jsonb, 'Intento de corrección ajena')$q$, :'ana'), 'Solo RH');
+  SELECT public._t_falla(format($q$SELECT public.rh_actualizar_empleado(%L, '{"nombre": "X"}'::jsonb)$q$, :'ana'), 'Solo RH');
+  SELECT public._t_falla($q$INSERT INTO public.rh_bitacora_cambios (tabla, accion) VALUES ('x', 'alta')$q$, 'permission|row-level');
+ROLLBACK;
+\echo 'ok  12. Registro de cambios de RH'
+
 -- ── 7. Cierre a anon ────────────────────────────────────────────────────────
 DO $$ DECLARE f record;
 BEGIN
