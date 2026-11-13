@@ -626,6 +626,8 @@ WITH esperado(script, objeto) AS (VALUES
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_confirmar(uuid,text)'),
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_rechazar(uuid,text)'),
   ('20261113000001_traspasos_entre_cuentas', 'funcion|traspaso_revertir(uuid,text)'),
+  -- Adjuntar imagen o PDF a ingresos/egresos del flujo (2026-11-13).
+  ('20261113000002_flujo_adjuntos', 'tabla|flujo_adjuntos'),
   -- Vendedor asignado al cliente, protegido en la base (2026-11-12).
   ('20261112000002_clientes_vendedor_asignado', 'funcion|puede_asignar_vendedor_cliente(uuid)'),
   ('20261112000002_clientes_vendedor_asignado', 'trigger|clientes.trg_clientes_vendedor_protegido'),
